@@ -1,4 +1,6 @@
 import { unstable_dev, type UnstableDevWorker } from "wrangler";
+/** @see https://miniflare.dev/testing/vitest#isolated-storage */
+const describe = setupMiniflareIsolatedStorage()
 
 describe("Worker", () => {
 	let worker: UnstableDevWorker;
