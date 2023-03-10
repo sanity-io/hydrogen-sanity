@@ -1,4 +1,3 @@
-import { describe, expect, it, beforeAll, afterAll } from "vitest";
 import { unstable_dev, type UnstableDevWorker } from "wrangler";
 
 describe("Worker", () => {
