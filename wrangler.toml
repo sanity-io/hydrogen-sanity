@@ -1,0 +1,11 @@
+compatibility_date = "2023-03-10"
+
+[build]
+command = "npm run build"
+[build.upload]
+format = "modules"
+
+[miniflare]
+watch = true
+cache = true
+cache_persist = true
