@@ -1,4 +1,9 @@
-# To Do
+# Hydrogen client for Sanity
+> ⚠️ NOTE: This is an example project and should not be used for production purposes as-is
+
+In Hydrogen, Shopify provides a [client that is injected into the request context](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/fetch-data#step-1-create-and-inject-the-storefront-client) and [used to perform queries](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/fetch-data#step-2-call-the-storefront-client-in-remix-loaders-and-actions) to the Storefront API. This project is an exploration into ways of creating a similar client for the Sanity API and ultimately reduce [boilerplate code](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#cache-data-from-third-party-apis).
+
+## To Do
 - [ ] Determine what configuration options the client would need
 ```ts
 type CreateSanityClientOptions = {
@@ -34,10 +39,12 @@ type CreateSanityClientOptions = {
     waitUntil?: ExecutionContext['waitUntil']
 }
 ```
+- [ ] What should the scope of a package be? Is this just a [Facade](https://en.wikipedia.org/wiki/Facade_pattern)? Should it just be helpers to make working with Sanity easier, and require less [boilerplate](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#cache-data-from-third-party-apis)? Should it help with caching images as well?
+> ℹ [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits)
 
-# Example
+## Example
 
-## Inject Sanity client into Hydrogen request context
+### Inject Sanity client into Hydrogen request context
 `<root>/server.js`
 ```ts
 import {createSanityClient} from '@sanity/hydrogen';
@@ -65,7 +72,7 @@ export default {
 };
 ```
 
-## Query Sanity data in Hydrogen
+### Query Sanity data in Hydrogen
 `<root>/app/routes/products/$productHandle.jsx`
 ```tsx
 export async function loader({params, context: {storefront, sanity}}) {
