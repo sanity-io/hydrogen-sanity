@@ -175,3 +175,7 @@ dist
 .dev.vars
 .wrangler/
 .mf/
+
+# OS files
+
+.DS_Store
