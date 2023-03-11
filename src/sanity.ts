@@ -1,9 +1,12 @@
-import { createClient, type ClientConfig, type QueryParams, type InitializedClientConfig } from '@sanity/client'
-import { type CachingStrategy } from '@shopify/hydrogen';
+import createClient, { type ClientConstructor } from 'picosanity'
+import { type CacheShort } from '@shopify/hydrogen';
+
+type CachingStrategy = ReturnType<typeof CacheShort>
+type ClientConfig = Parameters<ClientConstructor>[0]
+type QueryParams = { [key: string]: unknown }
 
 export type CreateSanityClientOptions =
-    Omit<ClientConfig, 'useProjectHostname' | 'requester'>
-    & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
+    & ClientConfig
     & {
         /** 
          * A Cache API instance.
@@ -18,7 +21,6 @@ export type CreateSanityClientOptions =
     }
 
 export type Sanity = {
-    config(): InitializedClientConfig,
     query: <R = any, Q = QueryParams>(
         query: string,
         payload?: {
@@ -26,11 +28,12 @@ export type Sanity = {
             cache?: CachingStrategy
         }
     ) => Promise<R>
+    config: ClientConfig
     cache?: Cache
 }
 
 export function createSanityClient(options: CreateSanityClientOptions): Sanity {
-    const { cache, waitUntil, ...clientOptions } = options
+    const { cache, waitUntil, ...clientOptions } = options ?? {}
 
     if (!clientOptions.projectId) {
         throw new Error('Configuration must contain `projectId`')
@@ -49,9 +52,9 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
     const sanity: Sanity = {
         query(query, payload = {}) {
             const { params } = payload
-            return client.fetch(query, params)
+            return client.fetch(query, params ?? {})
         },
-        config() {
+        get config() {
             return client.config()
         },
         cache,
