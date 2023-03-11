@@ -1,7 +1,9 @@
 import createClient, { type ClientConstructor } from 'picosanity'
 import { type CacheShort } from '@shopify/hydrogen';
 
+/** @see https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#caching-strategies */
 type CachingStrategy = ReturnType<typeof CacheShort>
+
 type ClientConfig = Parameters<ClientConstructor>[0]
 type QueryParams = { [key: string]: unknown }
 
