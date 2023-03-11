@@ -25,6 +25,6 @@ describe("createSanityClient", () => {
     })
 
     test("should use CDN by default", () => {
-        expect(createSanityClient(TEST_CLIENT).config()).toHaveProperty('useCdn', true)
+        expect(createSanityClient(TEST_CLIENT).config).toHaveProperty('useCdn', true)
     })
 })
