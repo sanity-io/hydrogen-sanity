@@ -1,4 +1,4 @@
-import { createClient, type QueryParams } from '@sanity/client'
+import { createClient, type QueryParams, type RequestOptions } from '@sanity/client'
 import type { CachingStrategy, EnvironmentOptions } from './hydrogen'
 
 type ClientConfig = {
@@ -48,6 +48,7 @@ export type Sanity = {
         payload?: {
             params?: Q,
             cache?: CachingStrategy
+            options?: RequestOptions
         }
     ) => Promise<R>
     config: ClientConfig & { useCdn: boolean }
@@ -76,8 +77,8 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
     const sanity: Sanity = {
         query(query, payload) {
-            const { params } = payload ?? {}
-            return client.fetch(query, params)
+            const { params, options = {} } = payload ?? {}
+            return client.fetch(query, params, options)
         },
         get config() {
             return Object.assign({}, options, { useCdn })
