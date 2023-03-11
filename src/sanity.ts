@@ -1,26 +1,10 @@
-import createClient, { type ClientConstructor } from 'picosanity'
-import { type CacheShort } from '@shopify/hydrogen';
-
-/** @see https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#caching-strategies */
-type CachingStrategy = ReturnType<typeof CacheShort>
-
-type ClientConfig = Parameters<ClientConstructor>[0]
-type QueryParams = { [key: string]: unknown }
+import { createClient, type ClientConfig, type QueryParams, type InitializedClientConfig } from '@sanity/client'
+import type { CachingStrategy, EnvironmentOptions } from './types';
 
 export type CreateSanityClientOptions =
-    & ClientConfig
-    & {
-        /** 
-         * A Cache API instance.
-         * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache
-         */
-        cache?: Cache;
-        /** 
-         * A runtime utility for serverless environments
-         * @see https://developers.cloudflare.com/workers/runtime-apis/fetch-event/#waituntil
-         */
-        waitUntil?: ExecutionContext['waitUntil']
-    }
+    Omit<ClientConfig, 'useProjectHostname' | 'requester' | 'allowReconfigure'>
+    & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
+    & EnvironmentOptions
 
 export type Sanity = {
     query: <R = any, Q = QueryParams>(
@@ -30,7 +14,7 @@ export type Sanity = {
             cache?: CachingStrategy
         }
     ) => Promise<R>
-    config: ClientConfig
+    config: InitializedClientConfig
     cache?: Cache
 }
 
@@ -52,9 +36,9 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
 
     const sanity: Sanity = {
-        query(query, payload = {}) {
-            const { params } = payload
-            return client.fetch(query, params ?? {})
+        query(query, payload) {
+            const { params } = payload ?? {}
+            return client.fetch(query, params)
         },
         get config() {
             return client.config()
