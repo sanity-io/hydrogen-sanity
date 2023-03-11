@@ -1,4 +1,4 @@
-import { createSanityClient, CreateSanityClientOptions } from "./sanity";
+import { createSanityClient, type CreateSanityClientOptions } from "./sanity";
 /** @see https://miniflare.dev/testing/vitest#isolated-storage */
 const describe = setupMiniflareIsolatedStorage()
 
