@@ -51,7 +51,7 @@ export type Sanity = {
             options?: RequestOptions
         }
     ) => Promise<R>
-    config: ClientConfig & { useCdn: boolean }
+    config: ClientConfig & Required<Pick<ClientConfig, 'useCdn' | 'apiHost' | 'apiVersion'>>
     cache?: Cache
 }
 
@@ -74,14 +74,14 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
         useCdn
     })
 
-
     const sanity: Sanity = {
         query(query, payload) {
             const { params, options = {} } = payload ?? {}
             return client.fetch(query, params, options)
         },
         get config() {
-            return Object.assign({}, options, { useCdn })
+            const { apiHost, apiVersion, useCdn } = client.config()
+            return Object.assign({}, options, { useCdn, apiHost, apiVersion })
         },
         cache,
     }
