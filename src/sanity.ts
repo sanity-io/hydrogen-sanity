@@ -57,8 +57,7 @@ export type Sanity = {
 
 
 export function createSanityClient(options: CreateSanityClientOptions): Sanity {
-    const { cache, waitUntil, ...clientOptions } = options ?? {}
-    const useCdn = Boolean(options.useCdn ?? true)
+    const { cache, waitUntil, useCdn = true, ...clientOptions } = options ?? {}
 
     if (!clientOptions.projectId) {
         throw new Error('Configuration must contain `projectId`')
@@ -71,7 +70,7 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
     const client = createClient({
         ...clientOptions,
         allowReconfigure: false,
-        useCdn
+        useCdn: useCdn
     })
 
     const sanity: Sanity = {
