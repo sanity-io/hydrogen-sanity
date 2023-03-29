@@ -108,6 +108,7 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
             if (!cachedResponse) {
                 // Since there's no match, fetch a fresh response.
                 const result = await client.fetch(query, params, options)
+
                 try {
                     const response = new Response(result, {
                         headers: cacheKey.headers,
@@ -115,11 +116,10 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
                     // Store the response in cache to be re-used the next time.
                     const put = cache.put(cacheKey, response)
-                    if (waitUntil) {
-                        waitUntil(Promise.resolve(await put))
-                    } else {
-                        await put
-                    }
+
+                    waitUntil?.(put)
+
+                    await put
                 } catch (e) {
                     console.error(e)
                 }
