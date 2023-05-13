@@ -1,115 +1,180 @@
-# Hydrogen client for Sanity
-> ⚠️ NOTE: This is an example project and should not be used for production purposes as-is
+# hydrogen-sanity
 
-In Hydrogen, Shopify provides a [client that is injected into the request context](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/fetch-data#step-1-create-and-inject-the-storefront-client) and [used to perform queries](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/fetch-data#step-2-call-the-storefront-client-in-remix-loaders-and-actions) to the Storefront API. This project is an exploration into ways of creating a similar client for the Sanity API and ultimately reduce [boilerplate code](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#cache-data-from-third-party-apis).
+[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/)
 
-## To Do
-- [ ] Determine what configuration options the client would need
-```ts
-type CreateSanityClientOptions = {
-    // Sanity options
-    /** Sanity project ID */
-    projectId: string;
-    /** Sanity dataset name */
-    dataset: string;
-    /** Sanity API version */
-    apiVersion?: string;
-    /**
-     * Use CDN-distributed, cached version of the Sanity API
-     * @see https://www.sanity.io/docs/api-cdn
-     * @defaultValue true
-     */
-    useCdn: boolean = true
-    /** 
-     * Sanity token to authenticate requests 
-     * @see https://www.sanity.io/docs/http-auth
-     */
-    token?: string
+**Features:**
 
-    // Environment
-    /** 
-     * A Cache API instance.
-     * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache
-     */
-    cache?: Cache;
-    /** 
-     * A runtime utility for serverless environments
-     * @see https://developers.cloudflare.com/workers/runtime-apis/fetch-event/#waituntil
-     */
-    waitUntil?: ExecutionContext['waitUntil']
-}
+- Cacheable queries to Sanity APICDN
+- Client-side live real-time preview using an API token
+
+## Installation
+
+```sh
+npm install hydrogen-sanity
 ```
-- [ ] What should the scope of a package be? Is this just a [Facade](https://en.wikipedia.org/wiki/Facade_pattern)? Should it just be helpers to make working with Sanity easier, and require less [boilerplate](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#cache-data-from-third-party-apis)? Should it help with caching images as well?
-> ℹ [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits)
 
-## Example
+```sh
+yarn add hydrogen-sanity
+```
 
-### Inject Sanity client into Hydrogen request context
-`<root>/server.js`
+```sh
+pnpm install hydrogen-sanity
+```
+
+## Usage
+
 ```ts
-import {createSanityClient} from '@sanity/hydrogen';
+// server.ts
 
-export default {
-  async fetch(request, env, executionContext) {
-    // ...storefront client creation, etc.
+import {createSanityClient} from 'hydrogen-sanity';
 
-    /* Create a Sanity client with your credentials and options */
-    const {sanity} = createSanityClient({
-      /* Cache API instance */
-      cache: await caches.open('sanity'),
-      // ...whatever other config
-    });
-
-    const handleRequest = createRequestHandler({
-      build: remixBuild,
-      mode: process.env.NODE_ENV,
-      /* Inject the Storefront and Sanity clients in the Remix context */
-      getLoadContext: () => ({storefront, sanity}),
-    });
-
-    return handleRequest(request);
+const sanity = createSanityClient({
+  cache,
+  waitUntil,
+  // Optionally, pass session and token to enable live-preview
+  preview:
+    env.SANITY_PREVIEW_SECRET && env.SANITY_API_TOKEN
+      ? {
+          session: previewSession,
+          token: env.SANITY_API_TOKEN,
+        }
+      : undefined,
+  // Pass configuration options for Sanity client
+  config: {
+    projectId: env.SANITY_PROJECT_ID,
+    dataset: env.SANITY_DATASET,
+    apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
+    useCdn: process.env.NODE_ENV === 'production',
   },
-};
+});
+
+/**
+ * Create a Remix request handler and pass
+ * Sanity client to the loader context
+ */
+const handleRequest = createRequestHandler({
+  build: remixBuild,
+  mode: process.env.NODE_ENV,
+  getLoadContext: () => ({
+    // ...other providers
+    sanity,
+  }),
+});
 ```
 
-### Query Sanity data in Hydrogen
-`<root>/app/routes/products/$productHandle.jsx`
+### Fetching Sanity data with `query`
+
+Query Sanity API and cache the response (defaults to `CacheLong` caching strategy):
+
+```ts
+export async function loader({context, params}: LoaderArgs) {
+  const homepage = await context.sanity.query({
+    query: `*[_type == "home"][0]`
+    // optionally pass caching strategy
+    // cache: CacheShort()
+  });
+
+  return json({
+    homepage,
+  });
+}
+```
+
+To use other client methods, or to use `fetch` without caching, the Sanity client is also available:
+
+```ts
+export async function loader({context, params}: LoaderArgs) {
+  const homepage = await context.sanity.client.fetch(`*[_type == "home"][0]`);
+
+  return json({
+    homepage,
+  });
+```
+
+### Live preview
+
+Enable real-time, live preview by streaming dataset updates to the browser.
+
 ```tsx
-export async function loader({params, context: {storefront, sanity}}) {
-  const {product} = await storefront.query(
-    `#graphql
-      query Product($handle: String!) {
-        product(handle: $handle) { id title }
+// root.tsx
+
+export async function loader({context}: LoaderArgs) {
+  const preview: PreviewData | undefined = isPreviewModeEnabled(
+    context.sanity.preview,
+  )
+    ? {
+        projectId: context.sanity.preview.projectId,
+        dataset: context.sanity.preview.dataset,
+        token: context.sanity.preview.token,
       }
-    `,
-    {
-      variables: {handle: params.productHandle},
-      /**
-       * Product titles aren't updated often so they can be cached for a long period.
-       */
-      cache: storefront.CacheLong(),
-    },
-  );
+    : undefined;
 
-  const recommendedPromise = sanity.query(
-    `#groq
-      // some groq query
-    `,
-    {
-      variables: {productId: product.id},
-      /**
-       * Since the recommendation list might change often, cache them for a short period.
-       */
-      cache: storefront.CacheShort(),
-    },
-  );
+  const selectedLocale = context.storefront.i18n as I18nLocale;
 
-  return defer({product, recommended: recommendedPromise});
+  return json({
+    preview,
+    selectedLocale,
+  });
 }
 
-export default function Product() {
-  const {product, recommended} = useLoaderData();
+export default function App() {
+  const {preview, ...data} = useLoaderData<typeof loader>();
+  const locale = data.selectedLocale ?? DEFAULT_LOCALE;
 
-  // ...
+  return (
+    <html lang={locale.language}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Seo />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Preview preview={preview} fallback={<PreviewLoading />}>
+          <Layout key={`${locale.language}-${locale.country}`}>
+            <Outlet />
+          </Layout>
+        </Preview>
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
 }
 ```
+
+```tsx
+export default function Index() {
+  // get initial data
+  const {homepage} = useLoaderData<typeof loader>();
+  // conditionally render preview-enabled component (see below)
+  const Component = usePreviewComponent(Route, Preview);
+
+  return <Component homepage={homepage} />;
+}
+
+function Route({homepage}) {
+  return (
+    <>
+        {/* ...render homepage using data */}
+    </>
+  );
+}
+
+function Preview(props) {
+  const {usePreview} = usePreviewContext()!;
+  const homepage = usePreview(`*[_type == "home"][0]`, undefined, props.homepage);
+
+  return <Route homepage={homepage} />;
+}
+```
+
+## Limits
+
+The real-time preview isn't optimized and comes with a configured limit of 3000 documents. You can experiment with larger datasets by configuring the hook with `documentLimit: <Integer>`. Be aware that this might significantly affect the preview performance.
+You may use the `includeTypes` option to reduce the amount of documents and reduce the risk of hitting the `documentLimit`:
+
+## License
+
+[MIT](LICENSE) © Sanity.io <hello@sanity.io>
