@@ -203,7 +203,7 @@ The `usePreview` hook conditionally renders the preview component if the preview
 // Any route file, such as ./app/routes/index.tsx
 
 // ...all other imports
-import {usePreviewComponent} from 'hydrogen-sanity'
+import {usePreviewComponent, usePreviewContext} from 'hydrogen-sanity'
 
 // ...all other exports like `loader` and `meta`
 // Tip: In preview mode, pass "query" and "params" from the loader to the component
