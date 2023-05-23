@@ -1,5 +1,8 @@
 # hydrogen-sanity
 
+> **Caution**
+> Please be advised that `hydrogen-sanity` is still under development and available in pre-release. This package could change before it's officially released, so check back for updates and please provide any feedback you might have here.
+
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/)
 
 **Features:**
@@ -13,15 +16,15 @@
 ## Installation
 
 ```sh
-npm install hydrogen-sanity
+npm install hydrogen-sanity@beta
 ```
 
 ```sh
-yarn add hydrogen-sanity
+yarn add hydrogen-sanity@beta
 ```
 
 ```sh
-pnpm install hydrogen-sanity
+pnpm install hydrogen-sanity@beta
 ```
 
 ## Usage
@@ -103,7 +106,7 @@ Update the environment variables in `Env`
 
 ```ts
 // ./remix.env.d.ts
-import type {Sanity} from 'hydrogen-sanity';
+import type {Sanity} from 'hydrogen-sanity'
 
 declare global {
   // ...other Types
@@ -135,8 +138,8 @@ export async function loader({context, params}: LoaderArgs) {
   const homepage = await context.sanity.query({
     query: `*[_type == "page" && _id == $id][0]`,
     params: {
-      id: 'home'
-    }
+      id: 'home',
+    },
     // optionally pass a caching strategy
     // cache: CacheShort()
   })
@@ -322,7 +325,7 @@ export default {
     dataset: env.SANITY_DATASET,
     apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
     useCdn: process.env.NODE_ENV === 'production',
-  });  
+  });
 
   // Pass it along to every request by
   // adding it to `handleRequest`
