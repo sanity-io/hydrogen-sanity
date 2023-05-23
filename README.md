@@ -1,6 +1,7 @@
 # hydrogen-sanity
 
-> **Caution**
+> **Warning**
+> 
 > Please be advised that `hydrogen-sanity` is still under development and available in pre-release. This package could change before it's officially released, so check back for updates and please provide any feedback you might have here.
 
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/)
@@ -11,6 +12,7 @@
 - Client-side live real-time preview using an API token
 
 > **Note**
+> 
 > Using this package isn't strictly required for working with Sanity in a Hydrogen storefront. If you'd like to use `@sanity/client` directly, see [Using `@sanity/client` directly](#using-sanityclient-directly) below.
 
 ## Installation
