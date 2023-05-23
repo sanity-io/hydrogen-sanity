@@ -31,6 +31,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read # for checkout
+
 concurrency:
   # On PRs builds will cancel if new pushes happen before the CI completes, as it defines `github.head_ref` and gives it the name of the branch the PR wants to merge into
   # Otherwise `github.run_id` ensures that you can quickly merge a queue of PRs without causing tests to auto cancel on any of the commits pushed to main.
@@ -96,6 +99,11 @@ jobs:
     if: always() && github.event.inputs.release == 'true' && needs.build.result != 'failure' && needs.test.result != 'failure' && needs.test.result != 'cancelled'
     runs-on: ubuntu-latest
     name: Semantic release
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for npm provenance
     steps:
       - uses: actions/checkout@v3
         with:
