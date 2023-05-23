@@ -353,3 +353,15 @@ export async function loader({context, params}: LoaderArgs) {
 ## License
 
 [MIT](LICENSE) © Sanity.io <hello@sanity.io>
+
+## Develop & test
+
+This plugin uses [@sanity/pkg-utils](https://github.com/sanity-io/pkg-utils)
+with default configuration for build & watch scripts.
+
+### Release new version
+
+Run ["CI & Release" workflow](https://github.com/sanity-io/hydrogen-sanity/actions/workflows/main.yml).
+Make sure to select the main branch and check "Release new version".
+
+Semantic release will only release on configured branches, so it is safe to run release on any branch.
