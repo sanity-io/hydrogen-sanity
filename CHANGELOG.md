@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/sanity-io/hydrogen-sanity/compare/v1.0.0...v1.0.1) (2023-05-24)
+
+### Bug Fixes
+
+- prevent crash when no preview env vars set ([#5](https://github.com/sanity-io/hydrogen-sanity/issues/5)) ([7dade86](https://github.com/sanity-io/hydrogen-sanity/commit/7dade865d9b098b4ad7a599f28b574969951c2a6))
+
 ## 1.0.0 (2023-05-23)
 
 ### ⚠ BREAKING CHANGES
