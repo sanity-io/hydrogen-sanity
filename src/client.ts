@@ -70,10 +70,10 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 }
 
 export function isPreviewModeEnabled(
-  preview: Sanity['preview']
+  preview?: Sanity['preview']
 ): preview is {session: PreviewSession} & PreviewData {
   // @ts-expect-error
-  return preview?.token !== null
+  return preview && preview.token !== null
 }
 
 /**
