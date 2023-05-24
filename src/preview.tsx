@@ -115,7 +115,7 @@ export function Preview(props: PreviewProps) {
 
 /**
  * Select and memoize which component to render based on preview mode
- * @deprecated
+ * @deprecated use `SanityPreview` instead
  */
 export function usePreviewComponent<T>(component: ElementType<T>, preview: ElementType<T>) {
   const isPreview = Boolean(usePreviewContext())
