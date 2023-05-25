@@ -133,10 +133,8 @@ type PreviewDataProps<T> = {
 /**
  * Component to use for rendering in preview mode
  *
- * When provided a Sanity query, changes will be
- * streamed in the client
- *
- * @todo: component naming?
+ * When provided a Sanity query and render prop,
+ * changes will be streamed in the client
  */
 export function SanityPreview<T = unknown>(props: PreviewDataProps<T>) {
   const {data, children, query, params} = props
@@ -146,13 +144,15 @@ export function SanityPreview<T = unknown>(props: PreviewDataProps<T>) {
     return children
   }
 
-  return isPreview && query ? (
-    <ResolvePreview<typeof data> query={query} params={params} serverSnapshot={data}>
-      {children}
-    </ResolvePreview>
-  ) : (
-    <>{children(data)}</>
-  )
+  if (isPreview && query) {
+    return (
+      <ResolvePreview<typeof data> query={query} params={params} serverSnapshot={data}>
+        {children}
+      </ResolvePreview>
+    )
+  }
+
+  return <>{children(data)}</>
 }
 
 type ResolvePreviewProps<T> = {
@@ -173,7 +173,5 @@ function ResolvePreview<T = unknown>(props: ResolvePreviewProps<T>) {
   const {usePreview} = usePreviewContext()!
   const data = usePreview(query, params, serverSnapshot)
 
-  const toRender = children(data)
-
-  return <>{toRender}</>
+  return <>{children(data)}</>
 }
