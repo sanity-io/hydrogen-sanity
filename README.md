@@ -1,7 +1,7 @@
 # hydrogen-sanity
 
 > **Warning**
-> 
+>
 > Please be advised that `hydrogen-sanity` is still under development and available in pre-release. This package could change before it's officially released, so check back for updates and please provide any feedback you might have here.
 
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/)
@@ -12,7 +12,7 @@
 - Client-side live real-time preview using an API token
 
 > **Note**
-> 
+>
 > Using this package isn't strictly required for working with Sanity in a Hydrogen storefront. If you'd like to use `@sanity/client` directly, see [Using `@sanity/client` directly](#using-sanityclient-directly) below.
 
 ## Installation
@@ -234,38 +234,28 @@ The `usePreview` hook conditionally renders the preview component if the preview
 // Any route file, such as ./app/routes/index.tsx
 
 // ...all other imports
-import {usePreviewComponent, usePreviewContext} from 'hydrogen-sanity'
+import {SanityPreview} from 'hydrogen-sanity'
 
 // ...all other exports like `loader` and `meta`
 // Tip: In preview mode, pass "query" and "params" from the loader to the component
 
 // Default export where content is rendered
 export default function Index() {
-  // Get initial data
+  // Get initial data, passing it as snapshot to render preview...
   const {homepage} = useLoaderData<typeof loader>()
-  // Conditionally render preview-enabled component (see below)
-  const Component = usePreviewComponent(Route, Preview)
 
-  return <Component homepage={homepage} />
-}
-
-// Renders Sanity content, whether powered by Preview or not
-function Route({homepage}) {
-  return <>{/* ...render homepage using data */}</>
-}
-
-// Fetches content client-side and renders live updates of draft content
-function Preview(props) {
-  const {usePreview} = usePreviewContext()!
-  const homepage = usePreview(
-    `*[_type == "page" && _id == $id][0]`,
-    {id: 'home'},
-    // the initial data from the loader, which
-    // can help speed up loading
-    props.homepage
+  // Render preview-enabled component, fetches
+  // content client-side and renders live updates
+  // of draft content
+  return (
+    <SanityPreview
+      data={homepage}
+      query={`*[_type == "page" && _id == $id][0]`}
+      params={{id: 'home'}}
+    >
+      {(homepage) => <>{/* ...render homepage using data */}</>}
+    </SanityPreview>
   )
-
-  return <Route homepage={homepage} />
 }
 ```
 

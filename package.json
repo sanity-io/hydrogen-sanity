@@ -58,6 +58,7 @@
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
     "@sanity/pkg-utils": "^2.2.14",
+    "@sanity/plugin-kit": "^3.1.7",
     "@sanity/semantic-release-preset": "^4.1.1",
     "@shopify/hydrogen": "^2023.4.0",
     "@shopify/remix-oxygen": "^1.0.5",

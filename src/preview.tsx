@@ -115,9 +115,63 @@ export function Preview(props: PreviewProps) {
 
 /**
  * Select and memoize which component to render based on preview mode
+ * @deprecated use `SanityPreview` instead
  */
 export function usePreviewComponent<T>(component: ElementType<T>, preview: ElementType<T>) {
   const isPreview = Boolean(usePreviewContext())
 
   return useMemo(() => (isPreview ? preview : component), [component, isPreview, preview])
+}
+
+type PreviewDataProps<T> = {
+  data: T
+  children: ReactNode | ((data: T | null) => ReactNode)
+  query?: string | null
+  params?: Params
+}
+
+/**
+ * Component to use for rendering in preview mode
+ *
+ * When provided a Sanity query and render prop,
+ * changes will be streamed in the client
+ */
+export function SanityPreview<T = unknown>(props: PreviewDataProps<T>) {
+  const {data, children, query, params} = props
+  const isPreview = Boolean(usePreviewContext())
+
+  if (typeof children !== 'function') {
+    return children
+  }
+
+  if (isPreview && query) {
+    return (
+      <ResolvePreview<typeof data> query={query} params={params} serverSnapshot={data}>
+        {children}
+      </ResolvePreview>
+    )
+  }
+
+  return <>{children(data)}</>
+}
+
+type ResolvePreviewProps<T> = {
+  serverSnapshot?: T | null
+  query: string
+  params?: Params
+  children: (data: T | null) => ReactNode
+}
+
+/**
+ * Subscribe to live preview and delegate rendering to consumer
+ */
+function ResolvePreview<T = unknown>(props: ResolvePreviewProps<T>) {
+  const {serverSnapshot, query, params, children} = props
+  // This won't break the conditional rule of hooks,
+  // **but** it relies on the assumption that this component
+  // will only be used in preview mode   👇🏻
+  const {usePreview} = usePreviewContext()!
+  const data = usePreview(query, params, serverSnapshot)
+
+  return <>{children(data)}</>
 }
