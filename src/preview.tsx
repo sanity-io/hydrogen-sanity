@@ -13,6 +13,7 @@ export type PreviewData = {
   projectId: string
   dataset: string
   token: string
+  overlayDrafts?: boolean
 }
 
 export type PreviewProps = {
@@ -90,11 +91,11 @@ export function Preview(props: PreviewProps) {
   }
 
   const fallback = props.fallback ?? <div>Loading preview...</div>
-  const {projectId, dataset, token} = preview
+  const {projectId, dataset, overlayDrafts = true, token} = preview
   const _usePreview = definePreview({
     projectId,
     dataset,
-    overlayDrafts: true,
+    overlayDrafts,
   })
 
   function usePreview<R = any, P extends Params = Params, Q extends string = string>(
