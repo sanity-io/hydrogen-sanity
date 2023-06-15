@@ -51,8 +51,8 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@sanity/client": "^6.0.1",
-    "@sanity/preview-kit": "^1.5.2"
+    "@sanity/client": "^6.1.3",
+    "@sanity/preview-kit": "^2.1.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
