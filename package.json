@@ -20,7 +20,7 @@
     "url": "git+ssh://git@github.com/sanity-io/hydrogen-sanity.git"
   },
   "license": "MIT",
-  "author": "Sanity.io <hello@sanity.io> <noah@sanity.io>",
+  "author": "Sanity.io <hello@sanity.io>",
   "sideEffects": false,
   "exports": {
     ".": {
@@ -45,7 +45,7 @@
     "clean": "rimraf dist",
     "format": "prettier --write --cache --ignore-unknown .",
     "link-watch": "plugin-kit link-watch",
-    "lint": "eslint .",
+    "lint": "eslint --ignore-path .gitignore .",
     "prepublishOnly": "run-s build",
     "watch": "pkg-utils watch --strict",
     "prepare": "husky install"
