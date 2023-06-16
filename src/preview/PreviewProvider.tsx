@@ -30,7 +30,7 @@ export function PreviewProvider(props: SanityPreviewProps) {
   } = props
 
   if (typeof document === 'undefined' || !(projectId && dataset && token)) {
-    return <>{children}</>
+    return children
   }
 
   return (
