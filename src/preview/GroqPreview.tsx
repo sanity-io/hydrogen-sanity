@@ -18,7 +18,7 @@ type PreviewProps<T> = {
  * When provided a Sanity query and render prop,
  * changes will be streamed in the client
  */
-export function Preview<T = unknown>(props: PreviewProps<T>) {
+export function GroqPreview<T = unknown>(props: PreviewProps<T>) {
   const {data, children, query, params} = props
   const isPreview = Boolean(usePreviewContext())
 

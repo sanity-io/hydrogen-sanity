@@ -1,5 +1,5 @@
 export {usePreviewContext} from './context'
-export {Preview} from './Preview'
+export {getPreview} from './getPreview'
+export {GroqPreview} from './GroqPreview'
 export {PreviewProvider} from './PreviewProvider'
 export {PreviewSession} from './PreviewSession'
-export {SanityPreview} from './SanityPreview'
