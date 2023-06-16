@@ -176,16 +176,10 @@ First setup your root route to enable preview mode across the entire application
 // ./app/root.tsx
 
 // ...other imports
-import {Preview, type PreviewData, isPreviewModeEnabled} from 'hydrogen-sanity'
+import {PreviewProvider, getPreview} from 'hydrogen-sanity'
 
 export async function loader({context}: LoaderArgs) {
-  const preview: PreviewData | undefined = isPreviewModeEnabled(context.sanity.preview)
-    ? {
-        projectId: context.sanity.preview.projectId,
-        dataset: context.sanity.preview.dataset,
-        token: context.sanity.preview.token,
-      }
-    : undefined
+  const preview: getPreview(context)
 
   return json({
     // ... other loader data
@@ -205,8 +199,8 @@ export default function App() {
         <Links />
       </head>
       <body>
-        {/* 👇 Wrap <Outlet /> in Preview component */}
-        <Preview preview={preview}>
+        {/* 👇 Wrap <Outlet /> in PreviewProvider component */}
+        <PreviewProvider {...preview}>
           <Outlet />
         </Preview>
         <ScrollRestoration />
@@ -217,13 +211,13 @@ export default function App() {
 }
 ```
 
-You can also pass a `ReactNode` to render a loading indicator or adjust the default message:
+Be default, `PreviewProvider` will passthrough rendering to its children if you don't provide a fallback; however you can also pass a `ReactNode` to render a loading indicator or message:
 
 ```tsx
 import {PreviewLoading} from '~/components/PreviewLoading';
 
 // pass a string or your own React component to show while data is loading
-<Preview preview={preview} fallback={<PreviewLoading />}>
+<PreviewProvider {...preview} fallback={<PreviewLoading />}>
 ```
 
 Next, for any route that needs to render a preview, wrap it in a `Preview` component which re-runs the same query client-side but will render draft content in place of published content, if it exists. Updating in real-time as changes are streamed in.
@@ -234,7 +228,7 @@ The `usePreview` hook conditionally renders the preview component if the preview
 // Any route file, such as ./app/routes/index.tsx
 
 // ...all other imports
-import {SanityPreview} from 'hydrogen-sanity'
+import {GroqPreview} from 'hydrogen-sanity'
 
 // ...all other exports like `loader` and `meta`
 // Tip: In preview mode, pass "query" and "params" from the loader to the component
@@ -248,13 +242,13 @@ export default function Index() {
   // content client-side and renders live updates
   // of draft content
   return (
-    <SanityPreview
+    <GroqPreview
       data={homepage}
       query={`*[_type == "page" && _id == $id][0]`}
       params={{id: 'home'}}
     >
       {(homepage) => <>{/* ...render homepage using data */}</>}
-    </SanityPreview>
+    </GroqPreview>
   )
 }
 ```
