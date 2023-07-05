@@ -16,7 +16,7 @@ type CreateSanityClientOptions = EnvironmentOptions & {
   preview?: {
     session: PreviewSession
     token: string
-    previewPerspective?: ClientPerspective
+    perspective?: ClientPerspective
   }
 }
 
@@ -67,7 +67,7 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
       sanity.client = sanity.client.withConfig({
         useCdn: false,
         token: preview.token,
-        perspective: preview.previewPerspective || 'previewDrafts',
+        perspective: preview.perspective || 'previewDrafts',
         ignoreBrowserTokenWarning: true,
       })
 

@@ -65,7 +65,7 @@ export default () => {
             token: env.SANITY_API_TOKEN,
             // Optionally, provide an alternative to the default `previewDrafts` perspective when in preview mode
             // See https://www.sanity.io/docs/perspectives
-            // previewPerspective: "raw"
+            // perspective: "raw"
           }
         : undefined,
     // Pass configuration options for Sanity client
