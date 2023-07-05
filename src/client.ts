@@ -1,4 +1,10 @@
-import {type ClientConfig, createClient, type QueryParams, type SanityClient} from '@sanity/client'
+import {
+  type ClientConfig,
+  type ClientPerspective,
+  createClient,
+  type QueryParams,
+  type SanityClient,
+} from '@sanity/client'
 // eslint-disable-next-line camelcase
 import {CacheLong, createWithCache_unstable} from '@shopify/hydrogen'
 
@@ -10,6 +16,7 @@ type CreateSanityClientOptions = EnvironmentOptions & {
   preview?: {
     session: PreviewSession
     token: string
+    previewPerspective?: ClientPerspective
   }
 }
 
@@ -60,6 +67,8 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
       sanity.client = sanity.client.withConfig({
         useCdn: false,
         token: preview.token,
+        perspective: preview.previewPerspective || 'previewDrafts',
+        ignoreBrowserTokenWarning: true,
       })
 
       sanity.query = ({query, params}) => {
@@ -75,7 +84,7 @@ export function isPreviewModeEnabled(
   preview?: Sanity['preview']
 ): preview is {session: PreviewSession; projectId: string; dataset: string; token: string} {
   // @ts-expect-error
-  return preview && preview.token !== null
+  return Boolean(preview && preview.token && preview.token !== null)
 }
 
 /**

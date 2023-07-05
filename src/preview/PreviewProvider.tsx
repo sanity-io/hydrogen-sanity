@@ -1,51 +1,42 @@
 /* eslint-disable react/require-default-props */
-import type {GroqStoreProviderProps} from '@sanity/preview-kit/groq-store'
-import {lazy, type ReactNode, Suspense} from 'react'
+import {type ClientConfig, createClient} from '@sanity/client'
+import type {LiveQueryProviderProps} from '@sanity/preview-kit'
+import {lazy, type ReactNode, Suspense, useEffect, useState, useTransition} from 'react'
 
 import {PreviewContext} from './context'
 
-const GroqStoreProvider = lazy(() =>
-  import('@sanity/preview-kit/groq-store').then((m) => ({default: m.GroqStoreProvider}))
+const LiveQueryProvider = lazy(() =>
+  import('@sanity/preview-kit').then((m) => ({default: m.LiveQueryProvider}))
 )
 
-type SanityPreviewProps = Omit<GroqStoreProviderProps, 'projectId' | 'dataset' | 'token'> &
-  Partial<Pick<GroqStoreProviderProps, 'projectId' | 'dataset' | 'token'>> & {
-    fallback?: ReactNode
-  }
+type SanityPreviewProps = Omit<LiveQueryProviderProps, 'client'> & {
+  fallback?: ReactNode
+  previewConfig?: ClientConfig
+}
 
 /**
  * TODO: inline documentation
  * @see https://www.sanity.io/docs/preview-content-on-site
  */
 export function PreviewProvider(props: SanityPreviewProps) {
-  const {
-    children,
-    projectId,
-    dataset,
-    token,
-    listen = true,
-    overlayDrafts = true,
-    fallback = children,
-    ...rest
-  } = props
+  const {children, previewConfig, fallback = children, ...rest} = props
 
-  if (typeof document === 'undefined' || !(projectId && dataset && token)) {
+  const [, startTransition] = useTransition()
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => startTransition(() => setHydrated(true)), [])
+
+  if (!hydrated || !previewConfig || !previewConfig.projectId) {
     return children
   }
 
+  const client = createClient(previewConfig)
+
   return (
-    <PreviewContext.Provider value={{projectId}}>
+    <PreviewContext.Provider value={{projectId: previewConfig.projectId}}>
       <Suspense fallback={fallback}>
-        <GroqStoreProvider
-          {...rest}
-          projectId={projectId}
-          dataset={dataset}
-          token={token}
-          listen={listen}
-          overlayDrafts={overlayDrafts}
-        >
+        <LiveQueryProvider {...rest} client={client}>
           {children}
-        </GroqStoreProvider>
+        </LiveQueryProvider>
       </Suspense>
     </PreviewContext.Provider>
   )

@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
 import type {QueryParams} from '@sanity/client'
-import {useListeningQuery} from '@sanity/preview-kit'
+import {useLiveQuery} from '@sanity/preview-kit'
 import {type ReactNode} from 'react'
 
 import {usePreviewContext} from './context'
@@ -18,7 +18,7 @@ type PreviewProps<T> = {
  * When provided a Sanity query and render prop,
  * changes will be streamed in the client
  */
-export function GroqPreview<T = unknown>(props: PreviewProps<T>) {
+export function SanityPreview<T = unknown>(props: PreviewProps<T>) {
   const {data, children, query, params} = props
   const isPreview = Boolean(usePreviewContext())
 
@@ -28,7 +28,7 @@ export function GroqPreview<T = unknown>(props: PreviewProps<T>) {
 
   if (isPreview && query) {
     return (
-      <ResolvePreview<typeof data> query={query} params={params} serverSnapshot={data}>
+      <ResolvePreview<typeof data> query={query} params={params} initialData={data}>
         {children}
       </ResolvePreview>
     )
@@ -38,7 +38,7 @@ export function GroqPreview<T = unknown>(props: PreviewProps<T>) {
 }
 
 type ResolvePreviewProps<T> = {
-  serverSnapshot?: T | null
+  initialData?: T | null
   query: string
   params?: QueryParams
   children: (data?: T | null) => ReactNode
@@ -48,8 +48,8 @@ type ResolvePreviewProps<T> = {
  * Subscribe to live preview and delegate rendering to consumer
  */
 function ResolvePreview<T = unknown>(props: ResolvePreviewProps<T>) {
-  const {serverSnapshot, query, params, children} = props
-  const data = useListeningQuery(serverSnapshot, query, params)
+  const {initialData, query, params, children} = props
+  const [data] = useLiveQuery(initialData, query, params)
 
   return <>{children(data)}</>
 }
