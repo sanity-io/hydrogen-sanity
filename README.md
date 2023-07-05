@@ -63,6 +63,9 @@ export default () => {
         ? {
             session: previewSession,
             token: env.SANITY_API_TOKEN,
+            // Optionally, provide an alternative to the default `previewDrafts` perspective when in preview mode
+            // See https://www.sanity.io/docs/perspectives
+            // perspective: "raw"
           }
         : undefined,
     // Pass configuration options for Sanity client
@@ -71,7 +74,7 @@ export default () => {
       dataset: env.SANITY_DATASET,
       apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
       useCdn: process.env.NODE_ENV === 'production',
-    },
+    }
   });
 
   // 3. Add Sanity client to the request handler inside getLoadContext
@@ -176,16 +179,10 @@ First setup your root route to enable preview mode across the entire application
 // ./app/root.tsx
 
 // ...other imports
-import {Preview, type PreviewData, isPreviewModeEnabled} from 'hydrogen-sanity'
+import {PreviewProvider, getPreview} from 'hydrogen-sanity'
 
 export async function loader({context}: LoaderArgs) {
-  const preview: PreviewData | undefined = isPreviewModeEnabled(context.sanity.preview)
-    ? {
-        projectId: context.sanity.preview.projectId,
-        dataset: context.sanity.preview.dataset,
-        token: context.sanity.preview.token,
-      }
-    : undefined
+  const preview = getPreview(context)
 
   return json({
     // ... other loader data
@@ -205,8 +202,8 @@ export default function App() {
         <Links />
       </head>
       <body>
-        {/* 👇 Wrap <Outlet /> in Preview component */}
-        <Preview preview={preview}>
+        {/* 👇 Wrap <Outlet /> in PreviewProvider component */}
+        <PreviewProvider {...preview}>
           <Outlet />
         </Preview>
         <ScrollRestoration />
@@ -217,18 +214,20 @@ export default function App() {
 }
 ```
 
-You can also pass a `ReactNode` to render a loading indicator or adjust the default message:
+`PreviewProvider` wraps the `LiveQueryProvider` component of `@sanity/preview-kit` - props passed to `PreviewProvider` will be passed to `LiveQueryProvider`. For more information, see the [`@sanity/preview-kit` documentation](https://github.com/sanity-io/preview-kit).
+
+By default, `PreviewProvider` will passthrough rendering to its children if you don't provide a fallback; however you can also pass a `ReactNode` to render a loading indicator or message:
 
 ```tsx
 import {PreviewLoading} from '~/components/PreviewLoading';
 
-// pass a string or your own React component to show while data is loading
-<Preview preview={preview} fallback={<PreviewLoading />}>
+// (Optional) pass a string or your own React component to show while data is loading
+<PreviewProvider {...preview} fallback={<PreviewLoading />}>
 ```
 
-Next, for any route that needs to render a preview, wrap it in a `Preview` component which re-runs the same query client-side but will render draft content in place of published content, if it exists. Updating in real-time as changes are streamed in.
+Next, for any route that needs to render a preview, wrap it in a `SanityPreview` component which re-runs the same query client-side but will render draft content in place of published content, if it exists. Updating in real-time as changes are streamed in.
 
-The `usePreview` hook conditionally renders the preview component if the preview session is found, otherwise, it renders the default component.
+The component will be rendered with live preview if the preview session is found, otherwise, it renders the component with static content.
 
 ```tsx
 // Any route file, such as ./app/routes/index.tsx
@@ -295,8 +294,11 @@ export const loader: LoaderFunction = async function ({request, context}) {
 
 ## Limits
 
-The real-time preview isn't optimized and comes with a configured limit of 3000 documents. You can experiment with larger datasets by configuring the hook with `documentLimit: <Integer>`. Be aware that this might significantly affect the preview performance.
-You may use the `includeTypes` option to reduce the amount of documents and reduce the risk of hitting the `documentLimit`:
+The real-time preview comes with a configured limit of 3000 documents. You can experiment with larger datasets by configuring `cache.maxDocuments: <Integer>` in your `PreviewProvider`. Be aware that this might affect the preview performance.
+
+You can also use the `cache.includeTypes` option to reduce the amount of documents and reduce the risk of hitting the document limit.
+
+If you're a Sanity Enterprise user with Content Source Maps enabled, you can optimize further by enabling `turboSourceMap` which opts-in to a faster and smarter cache. It'll only listen for mutations on the documents that you are using in your queries, and apply the mutations to the cache in real-time.
 
 ## Using `@sanity/client` directly
 

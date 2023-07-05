@@ -1,8 +1,14 @@
-import {type ClientConfig, createClient, type SanityClient} from '@sanity/client'
+import {
+  type ClientConfig,
+  type ClientPerspective,
+  createClient,
+  type QueryParams,
+  type SanityClient,
+} from '@sanity/client'
 // eslint-disable-next-line camelcase
 import {CacheLong, createWithCache_unstable} from '@shopify/hydrogen'
 
-import type {PreviewData, PreviewSession} from './preview'
+import type {PreviewSession} from './preview'
 import type {CachingStrategy, EnvironmentOptions} from './types'
 
 type CreateSanityClientOptions = EnvironmentOptions & {
@@ -10,18 +16,21 @@ type CreateSanityClientOptions = EnvironmentOptions & {
   preview?: {
     session: PreviewSession
     token: string
+    perspective?: ClientPerspective
   }
 }
 
 type useSanityQuery = {
   query: string
-  params?: Record<string, unknown>
+  params?: QueryParams
   cache?: CachingStrategy
 }
 
 export type Sanity = {
   client: SanityClient
-  preview?: ({session: PreviewSession} & PreviewData) | {session: PreviewSession}
+  preview?:
+    | {session: PreviewSession; projectId: string; dataset: string; token: string}
+    | {session: PreviewSession}
   query<T>(options: useSanityQuery): Promise<T>
 }
 
@@ -30,15 +39,15 @@ export type Sanity = {
  */
 export function createSanityClient(options: CreateSanityClientOptions): Sanity {
   const {cache, waitUntil, preview, config} = options
-  const withCache = createWithCache_unstable({
-    cache,
-    waitUntil,
-  })
 
   const sanity: Sanity = {
     client: createClient(config),
-    async query({query, params, cache: strategy = CacheLong()}) {
+    async query<T = any>({query, params, cache: strategy = CacheLong()}: useSanityQuery) {
       const queryHash = await hashQuery(query, params)
+      const withCache = createWithCache_unstable<T>({
+        cache,
+        waitUntil,
+      })
 
       return withCache(queryHash, strategy, () => sanity.client.fetch(query, params))
     },
@@ -58,6 +67,8 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
       sanity.client = sanity.client.withConfig({
         useCdn: false,
         token: preview.token,
+        perspective: preview.perspective || 'previewDrafts',
+        ignoreBrowserTokenWarning: true,
       })
 
       sanity.query = ({query, params}) => {
@@ -71,9 +82,9 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
 export function isPreviewModeEnabled(
   preview?: Sanity['preview']
-): preview is {session: PreviewSession} & PreviewData {
+): preview is {session: PreviewSession; projectId: string; dataset: string; token: string} {
   // @ts-expect-error
-  return preview && preview.token !== null
+  return Boolean(preview && preview.token && preview.token !== null)
 }
 
 /**
