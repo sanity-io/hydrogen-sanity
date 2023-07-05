@@ -214,14 +214,14 @@ export default function App() {
 }
 ```
 
-`PreviewProvider` wraps the `LiveQueryProvider` component of [`preview-kit`](https://github.com/sanity-io/preview-kit) - props passed to `PreviewProvider` will be passed to `LiveQueryProvider`. For more information, see the `preview-kit` documentation.
+`PreviewProvider` wraps the `LiveQueryProvider` component of `@sanity/preview-kit` - props passed to `PreviewProvider` will be passed to `LiveQueryProvider`. For more information, see the [`@sanity/preview-kit` documentation](https://github.com/sanity-io/preview-kit).
 
 By default, `PreviewProvider` will passthrough rendering to its children if you don't provide a fallback; however you can also pass a `ReactNode` to render a loading indicator or message:
 
 ```tsx
 import {PreviewLoading} from '~/components/PreviewLoading';
 
-// pass a string or your own React component to show while data is loading
+// (Optional) pass a string or your own React component to show while data is loading
 <PreviewProvider {...preview} fallback={<PreviewLoading />}>
 ```
 
