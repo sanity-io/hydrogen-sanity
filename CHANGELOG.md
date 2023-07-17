@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.4](https://github.com/sanity-io/hydrogen-sanity/compare/v2.0.3...v2.0.4) (2023-07-17)
+
+### Bug Fixes
+
+- **deps:** update preview-kit ([#15](https://github.com/sanity-io/hydrogen-sanity/issues/15)) ([6a8268c](https://github.com/sanity-io/hydrogen-sanity/commit/6a8268cab22987a580c3a09f62f6472632b23b63))
+
 ## [2.0.3](https://github.com/sanity-io/hydrogen-sanity/compare/v2.0.2...v2.0.3) (2023-07-17)
 
 ### Bug Fixes
