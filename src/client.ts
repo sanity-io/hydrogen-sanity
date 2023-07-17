@@ -4,7 +4,7 @@ import {
   createClient,
   type QueryParams,
   type SanityClient,
-} from '@sanity/client'
+} from '@sanity/preview-kit/client'
 // eslint-disable-next-line camelcase
 import {CacheLong, createWithCache_unstable} from '@shopify/hydrogen'
 
