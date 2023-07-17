@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
-import {type ClientConfig, createClient} from '@sanity/client'
 import type {LiveQueryProviderProps} from '@sanity/preview-kit'
+import {type ClientConfig, createClient} from '@sanity/preview-kit/client'
 import {lazy, type ReactNode, Suspense, useEffect, useState, useTransition} from 'react'
 
 import {PreviewContext} from './context'
