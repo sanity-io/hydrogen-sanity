@@ -6,7 +6,7 @@ import {
   type SanityClient,
 } from '@sanity/preview-kit/client'
 // eslint-disable-next-line camelcase
-import {CacheLong, createWithCache_unstable} from '@shopify/hydrogen'
+import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {PreviewSession} from './preview'
 import type {CachingStrategy, EnvironmentOptions} from './types'
