@@ -5,6 +5,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/sanity-io/hydrogen-sanity/compare/v2.0.4...v3.0.0) (2023-07-26)
+
+### ⚠ BREAKING CHANGES
+
+- upgrade hydrogen, remove beta flag (#16)
+
+### Features
+
+- upgrade hydrogen, remove beta flag ([#16](https://github.com/sanity-io/hydrogen-sanity/issues/16)) ([cd3794e](https://github.com/sanity-io/hydrogen-sanity/commit/cd3794e7ad330e145924110ab6f3393cc513f9f2))
+
 ## [2.0.4](https://github.com/sanity-io/hydrogen-sanity/compare/v2.0.3...v2.0.4) (2023-07-17)
 
 ### Bug Fixes
