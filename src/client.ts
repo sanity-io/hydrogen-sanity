@@ -6,7 +6,7 @@ import {
   type SanityClient,
 } from '@sanity/preview-kit/client'
 // eslint-disable-next-line camelcase
-import {CacheLong, createWithCache_unstable} from '@shopify/hydrogen'
+import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {PreviewSession} from './preview'
 import type {CachingStrategy, EnvironmentOptions} from './types'
@@ -44,7 +44,7 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
     client: createClient(config),
     async query<T = any>({query, params, cache: strategy = CacheLong()}: useSanityQuery) {
       const queryHash = await hashQuery(query, params)
-      const withCache = createWithCache_unstable<T>({
+      const withCache = createWithCache<T>({
         cache,
         waitUntil,
       })

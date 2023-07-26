@@ -1,10 +1,6 @@
 # hydrogen-sanity
 
-> **Warning**
->
-> Please be advised that `hydrogen-sanity` is still under development and available in pre-release. This package could change before it's officially released, so check back for updates and please provide any feedback you might have here.
-
-[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/)
+[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2023.7.0`.
 
 **Features:**
 
@@ -18,15 +14,15 @@
 ## Installation
 
 ```sh
-npm install hydrogen-sanity@beta
+npm install hydrogen-sanity
 ```
 
 ```sh
-yarn add hydrogen-sanity@beta
+yarn add hydrogen-sanity
 ```
 
 ```sh
-pnpm install hydrogen-sanity@beta
+pnpm install hydrogen-sanity
 ```
 
 ## Usage
