@@ -1,0 +1,90 @@
+{
+  "name": "hydrogen-sanity",
+  "version": "3.1.1",
+  "description": "Sanity.io toolkit for Hydrogen",
+  "keywords": [
+    "sanity",
+    "sanity.io",
+    "shopify",
+    "hydrogen",
+    "remix",
+    "live",
+    "preview"
+  ],
+  "homepage": "https://github.com/sanity-io/hydrogen-sanity#readme",
+  "bugs": {
+    "url": "https://github.com/sanity-io/hydrogen-sanity/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sanity-io/hydrogen-sanity.git"
+  },
+  "license": "MIT",
+  "author": "Sanity.io <hello@sanity.io>",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "source": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "run-s clean && pkg-utils build --strict && pkg-utils --strict",
+    "clean": "rimraf dist",
+    "compile": "tsc",
+    "format": "prettier --write --cache --ignore-unknown .",
+    "link-watch": "plugin-kit link-watch",
+    "lint": "eslint --no-error-on-unmatched-pattern --ext .js,.ts,.jsx,.tsx .",
+    "prepublishOnly": "run-s build",
+    "release": "semantic-release",
+    "watch": "pkg-utils watch --strict"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.1.7",
+    "@sanity/preview-kit": "^2.3.3"
+  },
+  "devDependencies": {
+    "@sanity/pkg-utils": "^2.3.3",
+    "@sanity/plugin-kit": "^3.1.7",
+    "@sanity/semantic-release-preset": "^4.1.1",
+    "@shopify/hydrogen": "~2023.7.0",
+    "@shopify/remix-oxygen": "^1.1.1",
+    "@types/react": "^18.2.14",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
+    "eslint": "^8.44.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-sanity": "^6.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "prettier": "^2.8.8",
+    "prettier-plugin-packagejson": "^2.4.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.1.6"
+  },
+  "peerDependencies": {
+    "@shopify/hydrogen": "~2023.7.0",
+    "@shopify/remix-oxygen": "^1.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

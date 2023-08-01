@@ -52,10 +52,10 @@ jobs:
           node-version: lts/*
       - run: npm ci
         # Linting can be skipped
-      - run: npm run lint --if-present
+      - run: npm run lint -w hydrogen-stanity --if-present
         if: github.event.inputs.test != 'false'
         # But not the build script, as semantic-release will crash if this command fails so it makes sense to test it early
-      - run: npm run prepublishOnly --if-present
+      - run: npm run prepublishOnly -w hydrogen-sanity --if-present
 
   test:
     needs: build
@@ -91,6 +91,7 @@ jobs:
           cache: npm
           node-version: ${{ matrix.node }}
       - run: npm i
+      - run: npm run compile --if-present
       - run: npm test --if-present
 
   release:
