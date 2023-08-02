@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.0.0...v3.0.1) (2023-08-02)
+
+### Bug Fixes
+
+- add return types ([#18](https://github.com/sanity-io/hydrogen-sanity/issues/18)) ([c68d397](https://github.com/sanity-io/hydrogen-sanity/commit/c68d397706ee420334cfdd25f4292349cfa8dde2))
+
 ## [3.0.0](https://github.com/sanity-io/hydrogen-sanity/compare/v2.0.4...v3.0.0) (2023-07-26)
 
 ### ⚠ BREAKING CHANGES
