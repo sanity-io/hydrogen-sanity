@@ -1,7 +1,7 @@
 /* eslint-disable react/require-default-props */
 import type {QueryParams} from '@sanity/client'
 import {useLiveQuery} from '@sanity/preview-kit'
-import {type ReactNode} from 'react'
+import {type ReactElement, type ReactNode} from 'react'
 
 import {usePreviewContext} from './context'
 
@@ -18,12 +18,12 @@ type PreviewProps<T> = {
  * When provided a Sanity query and render prop,
  * changes will be streamed in the client
  */
-export function SanityPreview<T = unknown>(props: PreviewProps<T>) {
+export function SanityPreview<T = unknown>(props: PreviewProps<T>): ReactElement {
   const {data, children, query, params} = props
   const isPreview = Boolean(usePreviewContext())
 
   if (typeof children !== 'function') {
-    return children
+    return <>{children}</>
   }
 
   if (isPreview && query) {

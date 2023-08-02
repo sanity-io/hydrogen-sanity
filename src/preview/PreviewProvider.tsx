@@ -1,7 +1,15 @@
 /* eslint-disable react/require-default-props */
 import type {LiveQueryProviderProps} from '@sanity/preview-kit'
 import {type ClientConfig, createClient} from '@sanity/preview-kit/client'
-import {lazy, type ReactNode, Suspense, useEffect, useState, useTransition} from 'react'
+import {
+  lazy,
+  type ReactElement,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useState,
+  useTransition,
+} from 'react'
 
 import {PreviewContext} from './context'
 
@@ -18,7 +26,7 @@ type SanityPreviewProps = Omit<LiveQueryProviderProps, 'client'> & {
  * TODO: inline documentation
  * @see https://www.sanity.io/docs/preview-content-on-site
  */
-export function PreviewProvider(props: SanityPreviewProps) {
+export function PreviewProvider(props: SanityPreviewProps): ReactElement {
   const {children, previewConfig, fallback = children, ...rest} = props
 
   const [, startTransition] = useTransition()
@@ -26,7 +34,7 @@ export function PreviewProvider(props: SanityPreviewProps) {
   useEffect(() => startTransition(() => setHydrated(true)), [])
 
   if (!hydrated || !previewConfig || !previewConfig.projectId) {
-    return children
+    return <>{children}</>
   }
 
   const client = createClient(previewConfig)
