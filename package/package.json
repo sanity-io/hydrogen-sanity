@@ -43,12 +43,12 @@
   "scripts": {
     "build": "run-s clean && pkg-utils build --strict && pkg-utils --strict",
     "clean": "rimraf dist",
-    "compile": "tsc",
     "format": "prettier --write --cache --ignore-unknown .",
     "link-watch": "plugin-kit link-watch",
     "lint": "eslint --no-error-on-unmatched-pattern --ext .js,.ts,.jsx,.tsx .",
     "prepublishOnly": "run-s build",
     "release": "semantic-release",
+    "typecheck": "tsc",
     "watch": "pkg-utils watch --strict"
   },
   "dependencies": {

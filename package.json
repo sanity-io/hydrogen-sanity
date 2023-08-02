@@ -10,7 +10,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "prepare": "husky install",
     "release": "npm run release -w hydrogen-sanity",
-    "compile": "npm run compile -w hydrogen-sanity && npm run build -w hydrogen-sanity && npm run compile -w test-storefront"
+    "typecheck": "npm run typecheck -w hydrogen-sanity && npm run build -w hydrogen-sanity && npm run typecheck -w test-storefront"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.7",
