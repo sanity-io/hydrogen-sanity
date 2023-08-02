@@ -34,7 +34,7 @@ export function PreviewProvider(props: SanityPreviewProps): ReactElement {
   useEffect(() => startTransition(() => setHydrated(true)), [])
 
   if (!hydrated || !previewConfig || !previewConfig.projectId) {
-    return <>children</>
+    return <>{children}</>
   }
 
   const client = createClient(previewConfig)

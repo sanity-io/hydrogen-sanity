@@ -23,7 +23,7 @@ export function SanityPreview<T = unknown>(props: PreviewProps<T>): ReactElement
   const isPreview = Boolean(usePreviewContext())
 
   if (typeof children !== 'function') {
-    return <>children</>
+    return <>{children}</>
   }
 
   if (isPreview && query) {
