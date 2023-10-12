@@ -24,6 +24,7 @@ type useSanityQuery = {
   query: string
   params?: QueryParams
   cache?: CachingStrategy
+  headers?: Headers
 }
 
 export type Sanity = {
@@ -42,14 +43,14 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
   const sanity: Sanity = {
     client: createClient(config),
-    async query<T = any>({query, params, cache: strategy = CacheLong()}: useSanityQuery) {
+    async query<T = any>({query, params, cache: strategy = CacheLong(), headers}: useSanityQuery) {
       const queryHash = await hashQuery(query, params)
       const withCache = createWithCache<T>({
         cache,
         waitUntil,
       })
 
-      return withCache(queryHash, strategy, () => sanity.client.fetch(query, params))
+      return withCache(queryHash, strategy, () => sanity.client.fetch(query, params, headers))
     },
   }
 
