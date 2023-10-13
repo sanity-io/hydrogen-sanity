@@ -288,6 +288,24 @@ export const loader: LoaderFunction = async function ({request, context}) {
 }
 ```
 
+## Request Options
+
+If you need to pass any additional options to the request, provide `queryOptions` like so:
+
+```ts
+const page = await context.sanity.query<HomePage>({
+  query: HOME_PAGE_QUERY,
+  cache,
+  // These additional options will be passed to `sanity.fetch`
+  queryOptions: {
+    tag: 'home',
+    headers: {
+      'Accept-Encoding': 'br, gzip, *',
+    },
+  },
+})
+```
+
 ## Limits
 
 The real-time preview comes with a configured limit of 3000 documents. You can experiment with larger datasets by configuring `cache.maxDocuments: <Integer>` in your `PreviewProvider`. Be aware that this might affect the preview performance.
