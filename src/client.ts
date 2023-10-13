@@ -2,10 +2,12 @@ import {
   type ClientConfig,
   type ClientPerspective,
   createClient,
+  type FilteredResponseQueryOptions,
   type QueryParams,
+  type RawQueryResponse,
   type SanityClient,
+  type UnfilteredResponseQueryOptions,
 } from '@sanity/preview-kit/client'
-// eslint-disable-next-line camelcase
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {PreviewSession} from './preview'
@@ -24,7 +26,14 @@ type useSanityQuery = {
   query: string
   params?: QueryParams
   cache?: CachingStrategy
-  headers?: Headers
+  queryOptions?: FilteredResponseQueryOptions
+}
+
+type useRawSanityQuery = {
+  query: string
+  params?: QueryParams
+  cache?: CachingStrategy
+  queryOptions: UnfilteredResponseQueryOptions
 }
 
 export type Sanity = {
@@ -33,6 +42,7 @@ export type Sanity = {
     | {session: PreviewSession; projectId: string; dataset: string; token: string}
     | {session: PreviewSession}
   query<T>(options: useSanityQuery): Promise<T>
+  query<T>(options: useRawSanityQuery): Promise<RawQueryResponse<T>>
 }
 
 /**
@@ -43,14 +53,27 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
   const sanity: Sanity = {
     client: createClient(config),
-    async query<T = any>({query, params, cache: strategy = CacheLong(), headers}: useSanityQuery) {
+    async query<T = any>({
+      query,
+      params,
+      cache: strategy = CacheLong(),
+      queryOptions,
+    }: useSanityQuery | useRawSanityQuery) {
       const queryHash = await hashQuery(query, params)
-      const withCache = createWithCache<T>({
+      const withCache = createWithCache<T | RawQueryResponse<T>>({
         cache,
         waitUntil,
       })
 
-      return withCache(queryHash, strategy, () => sanity.client.fetch(query, params, headers))
+      return withCache(queryHash, strategy, () => {
+        if (queryOptions?.filterResponse) {
+          return sanity.client.fetch(query, params, queryOptions)
+        } else if (queryOptions?.filterResponse === false) {
+          return sanity.client.fetch(query, params, queryOptions)
+        }
+
+        return sanity.client.fetch(query, params)
+      })
     },
   }
 
@@ -72,7 +95,13 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
         ignoreBrowserTokenWarning: true,
       })
 
-      sanity.query = ({query, params}) => {
+      sanity.query = ({query, params, queryOptions}) => {
+        if (queryOptions?.filterResponse) {
+          return sanity.client.fetch(query, params, queryOptions)
+        } else if (queryOptions?.filterResponse === false) {
+          return sanity.client.fetch(query, params, queryOptions)
+        }
+
         return sanity.client.fetch(query, params)
       }
     }
