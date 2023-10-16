@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.1.0...v3.1.1) (2023-10-16)
+
+### Bug Fixes
+
+- correct query options application logic ([4b0275d](https://github.com/sanity-io/hydrogen-sanity/commit/4b0275d8e39e56022f8a3db44bb12cf7bd6ced18))
+
 ## [3.1.0](https://github.com/sanity-io/hydrogen-sanity/compare/v3.0.1...v3.1.0) (2023-10-13)
 
 ### Features
