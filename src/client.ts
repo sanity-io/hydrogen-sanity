@@ -66,13 +66,16 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
       })
 
       return withCache(queryHash, strategy, () => {
-        if (queryOptions?.filterResponse) {
-          return sanity.client.fetch(query, params, queryOptions)
-        } else if (queryOptions?.filterResponse === false) {
+        if (!queryOptions) {
+          return sanity.client.fetch(query, params)
+        }
+
+        // NOTE: satisfy union type
+        if (queryOptions.filterResponse === false) {
           return sanity.client.fetch(query, params, queryOptions)
         }
 
-        return sanity.client.fetch(query, params)
+        return sanity.client.fetch(query, params, queryOptions)
       })
     },
   }
@@ -96,13 +99,16 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
       })
 
       sanity.query = ({query, params, queryOptions}) => {
-        if (queryOptions?.filterResponse) {
-          return sanity.client.fetch(query, params, queryOptions)
-        } else if (queryOptions?.filterResponse === false) {
+        if (!queryOptions) {
+          return sanity.client.fetch(query, params)
+        }
+
+        // NOTE: satisfy union type
+        if (queryOptions.filterResponse === false) {
           return sanity.client.fetch(query, params, queryOptions)
         }
 
-        return sanity.client.fetch(query, params)
+        return sanity.client.fetch(query, params, queryOptions)
       }
     }
   }
