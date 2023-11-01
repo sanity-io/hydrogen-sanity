@@ -55,8 +55,8 @@
     "@sanity/preview-kit": "^2.3.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.6",
-    "@commitlint/config-conventional": "^17.6.6",
+    "@commitlint/cli": "^18.2.0",
+    "@commitlint/config-conventional": "^18.1.0",
     "@sanity/pkg-utils": "^2.3.3",
     "@sanity/plugin-kit": "^3.1.7",
     "@sanity/semantic-release-preset": "^4.1.1",
