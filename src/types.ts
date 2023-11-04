@@ -19,3 +19,8 @@ export type EnvironmentOptions = {
 
 /** @see https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#caching-strategies */
 export type CachingStrategy = ReturnType<typeof CacheShort>
+
+declare module '@remix-run/server-runtime' {
+  // eslint-disable-next-line no-unused-vars
+  export interface CookieSessionStorageOptions {}
+}

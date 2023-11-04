@@ -1,3 +1,4 @@
+import {CookieSessionStorageOptions} from '@remix-run/server-runtime'
 import {createCookieSessionStorage, type Session, type SessionStorage} from '@shopify/remix-oxygen'
 
 /**
@@ -12,14 +13,19 @@ export class PreviewSession {
     this.#session = session
   }
 
-  static async init(request: Request, secrets: string[]): Promise<PreviewSession> {
+  static async init(
+    request: Request,
+    cookieOptionsOrSecrets: string[] | CookieSessionStorageOptions
+  ): Promise<PreviewSession> {
     const storage = createCookieSessionStorage({
-      cookie: {
-        name: '__preview',
-        httpOnly: true,
-        sameSite: true,
-        secrets,
-      },
+      cookie: Array.isArray(cookieOptionsOrSecrets)
+        ? {
+            name: '__preview',
+            httpOnly: true,
+            sameSite: true,
+            secrets: cookieOptionsOrSecrets,
+          }
+        : cookieOptionsOrSecrets,
     })
 
     const session = await storage.getSession(request.headers.get('Cookie'))
