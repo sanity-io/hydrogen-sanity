@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.0](https://github.com/sanity-io/hydrogen-sanity/compare/v3.1.1...v3.2.0) (2023-11-09)
+
+### Features
+
+- **deps:** adjust peer dependencies ([#36](https://github.com/sanity-io/hydrogen-sanity/issues/36)) ([30f6240](https://github.com/sanity-io/hydrogen-sanity/commit/30f62401f8459c238d86cfcaf40b7431ccb89e6c))
+
 ## [3.1.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.1.0...v3.1.1) (2023-10-16)
 
 ### Bug Fixes
