@@ -1,7 +1,7 @@
 import {createCookieSessionStorage, type Session, type SessionStorage} from '@shopify/remix-oxygen'
 
 /**
- * TODO: needs inline documentation
+ * @deprecated Use `HydrogenSession` or another `SessionLike` implementation instead. This will be removed in a future release.
  */
 export class PreviewSession {
   #sessionStorage: SessionStorage
