@@ -10,13 +10,12 @@ import {
 } from '@sanity/preview-kit/client'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
-import type {PreviewSession} from './preview'
-import type {CachingStrategy, EnvironmentOptions} from './types'
+import type {CachingStrategy, EnvironmentOptions, SessionLike} from './types'
 
 type CreateSanityClientOptions = EnvironmentOptions & {
   config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
   preview?: {
-    session: PreviewSession
+    session: SessionLike
     token: string
     perspective?: ClientPerspective
   }
@@ -39,8 +38,8 @@ type useRawSanityQuery = {
 export type Sanity = {
   client: SanityClient
   preview?:
-    | {session: PreviewSession; projectId: string; dataset: string; token: string}
-    | {session: PreviewSession}
+    | {session: SessionLike; projectId: string; dataset: string; token: string}
+    | {session: SessionLike}
   query<T>(options: useSanityQuery): Promise<T>
   query<T>(options: useRawSanityQuery): Promise<RawQueryResponse<T>>
 }
@@ -118,7 +117,7 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
 export function isPreviewModeEnabled(
   preview?: Sanity['preview']
-): preview is {session: PreviewSession; projectId: string; dataset: string; token: string} {
+): preview is {session: SessionLike; projectId: string; dataset: string; token: string} {
   // @ts-expect-error
   return Boolean(preview && preview.token && preview.token !== null)
 }

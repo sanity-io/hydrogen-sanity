@@ -19,3 +19,10 @@ export type EnvironmentOptions = {
 
 /** @see https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#caching-strategies */
 export type CachingStrategy = ReturnType<typeof CacheShort>
+
+export interface SessionLike {
+  has(key: string): boolean
+  destroy(): Promise<string>
+  set(key: string, value: any): void
+  commit(): Promise<string>
+}

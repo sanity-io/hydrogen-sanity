@@ -33,17 +33,31 @@ Update the server file to include the Sanity client:
 // ./server.ts
 
 // ...all other imports
-import {createSanityClient, PreviewSession} from 'hydrogen-sanity';
+import {createSanityClient} from 'hydrogen-sanity';
 
 // Inside the default export
 export default () => {
 
   // 1. Add check for Preview Session
+  const secrets = [env.SESSION_SECRET];
   const [cache, session, previewSession] = await Promise.all([
     caches.open('hydrogen'),
-    HydrogenSession.init(request, [env.SESSION_SECRET]),
+    HydrogenSession.init(request, secrets),
     // 👇 Add preview session
-    PreviewSession.init(request, [env.SESSION_SECRET]),
+    (async function createPreviewSession() {
+        const storage = createCookieSessionStorage({
+          cookie: {
+            name: '__preview',
+            httpOnly: true,
+            sameSite: true,
+            secrets,
+          },
+        });
+
+        const session = await storage.getSession(request.headers.get("Cookie"));
+
+        return new HydrogenSession(storage, session);
+      })(),
   ]);
 
   // Leave all other functions like the storefront client as-is
