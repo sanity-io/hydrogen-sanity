@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.3.0...v3.3.1) (2024-02-02)
+
+### Bug Fixes
+
+- **deps:** Update dependency @shopify/hydrogen to v2024 ([810c7ea](https://github.com/sanity-io/hydrogen-sanity/commit/810c7ea9abdf9424fcb1ade16a60b5723a0613ed))
+
 ## [3.3.0](https://github.com/sanity-io/hydrogen-sanity/compare/v3.2.0...v3.3.0) (2023-11-14)
 
 ### Features
