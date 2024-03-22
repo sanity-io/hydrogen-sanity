@@ -1,13 +1,14 @@
 import {
-  type ClientConfig,
-  type ClientPerspective,
+  ClientConfig,
+  ClientPerspective,
   createClient,
-  type FilteredResponseQueryOptions,
-  type QueryParams,
-  type RawQueryResponse,
-  type SanityClient,
-  type UnfilteredResponseQueryOptions,
-} from '@sanity/preview-kit/client'
+  FilteredResponseQueryOptions,
+  QueryParams,
+  RawQueryResponse,
+  SanityClient,
+  UnfilteredResponseQueryOptions,
+} from '@sanity/client'
+import {createQueryStore, QueryResponseInitial, QueryStore} from '@sanity/react-loader'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy, EnvironmentOptions, SessionLike} from './types'
@@ -37,21 +38,53 @@ type useRawSanityQuery = {
 
 export type Sanity = {
   client: SanityClient
+  loadQuery: QueryStore['loadQuery']
   preview?:
     | {session: SessionLike; projectId: string; dataset: string; token: string}
     | {session: SessionLike}
-  query<T>(options: useSanityQuery): Promise<T>
-  query<T>(options: useRawSanityQuery): Promise<RawQueryResponse<T>>
+  query<T>(options: useSanityQuery): Promise<QueryResponseInitial<T>>
+  query<T>(options: useRawSanityQuery): Promise<QueryResponseInitial<T>>
 }
 
+const queryStore = createQueryStore({client: false, ssr: true})
+
 /**
- * Create Sanity provider with API client.
+ * Configure Sanity's React Loader and Client.
  */
-export function createSanityClient(options: CreateSanityClientOptions): Sanity {
+export function createSanityLoader(options: CreateSanityClientOptions): Sanity {
   const {cache, waitUntil, preview, config} = options
+  let client = createClient(config)
+  let sanityPreview: Sanity['preview']
+
+  if (preview) {
+    sanityPreview = {session: preview.session}
+
+    if (preview.session.has('projectId')) {
+      sanityPreview = {
+        ...sanityPreview,
+        projectId: config.projectId,
+        dataset: config.dataset,
+        token: preview.token,
+      }
+
+      const previewConfig = {
+        useCdn: false,
+        token: preview.token,
+        perspective: preview.perspective || 'previewDrafts',
+      }
+
+      client = client.withConfig(previewConfig)
+      queryStore.setServerClient(client)
+    }
+  } else {
+    // Non-preview client
+    queryStore.setServerClient(client)
+  }
 
   const sanity: Sanity = {
-    client: createClient(config),
+    client,
+    loadQuery: queryStore.loadQuery,
+    preview: sanityPreview,
     async query<T = any>({
       query,
       params,
@@ -66,50 +99,17 @@ export function createSanityClient(options: CreateSanityClientOptions): Sanity {
 
       return withCache(queryHash, strategy, () => {
         if (!queryOptions) {
-          return sanity.client.fetch(query, params)
+          return sanity.loadQuery(query, params)
         }
 
         // NOTE: satisfy union type
         if (queryOptions.filterResponse === false) {
-          return sanity.client.fetch(query, params, queryOptions)
+          return sanity.loadQuery(query, params, queryOptions)
         }
 
-        return sanity.client.fetch(query, params, queryOptions)
+        return sanity.loadQuery(query, params, queryOptions)
       })
     },
-  }
-
-  if (preview) {
-    sanity.preview = {session: preview.session}
-
-    if (preview.session.has('projectId')) {
-      sanity.preview = {
-        ...sanity.preview,
-        projectId: config.projectId,
-        dataset: config.dataset,
-        token: preview.token,
-      }
-
-      sanity.client = sanity.client.withConfig({
-        useCdn: false,
-        token: preview.token,
-        perspective: preview.perspective || 'previewDrafts',
-        ignoreBrowserTokenWarning: true,
-      })
-
-      sanity.query = ({query, params, queryOptions}) => {
-        if (!queryOptions) {
-          return sanity.client.fetch(query, params)
-        }
-
-        // NOTE: satisfy union type
-        if (queryOptions.filterResponse === false) {
-          return sanity.client.fetch(query, params, queryOptions)
-        }
-
-        return sanity.client.fetch(query, params, queryOptions)
-      }
-    }
   }
 
   return sanity
