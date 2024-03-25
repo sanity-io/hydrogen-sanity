@@ -11,15 +11,11 @@ import {
 import {createQueryStore, QueryResponseInitial, QueryStore} from '@sanity/react-loader'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
-import type {CachingStrategy, EnvironmentOptions, SessionLike} from './types'
+import type {CachingStrategy, EnvironmentOptions} from './types'
 
 type CreateSanityClientOptions = EnvironmentOptions & {
   config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
-  preview?: {
-    session: SessionLike
-    token: string
-    perspective?: ClientPerspective
-  }
+  preview?: {token: string; studioUrl: string}
 }
 
 type useSanityQuery = {
@@ -39,9 +35,7 @@ type useRawSanityQuery = {
 export type Sanity = {
   client: SanityClient
   loadQuery: QueryStore['loadQuery']
-  preview?:
-    | {session: SessionLike; projectId: string; dataset: string; token: string}
-    | {session: SessionLike}
+  preview?: boolean
   query<T>(options: useSanityQuery): Promise<QueryResponseInitial<T>>
   query<T>(options: useRawSanityQuery): Promise<QueryResponseInitial<T>>
 }
@@ -53,38 +47,32 @@ const queryStore = createQueryStore({client: false, ssr: true})
  */
 export function createSanityLoader(options: CreateSanityClientOptions): Sanity {
   const {cache, waitUntil, preview, config} = options
+  let previewMode = false
   let client = createClient(config)
-  let sanityPreview: Sanity['preview']
 
   if (preview) {
-    sanityPreview = {session: preview.session}
-
-    if (preview.session.has('projectId')) {
-      sanityPreview = {
-        ...sanityPreview,
-        projectId: config.projectId,
-        dataset: config.dataset,
-        token: preview.token,
-      }
-
-      const previewConfig = {
-        useCdn: false,
-        token: preview.token,
-        perspective: preview.perspective || 'previewDrafts',
-      }
-
-      client = client.withConfig(previewConfig)
-      queryStore.setServerClient(client)
+    if (!preview.token) {
+      throw new Error('Preview mode attempted but SANITY_API_TOKEN not provided to preview.token')
     }
-  } else {
-    // Non-preview client
-    queryStore.setServerClient(client)
+
+    previewMode = true
+
+    const previewConfig = {
+      useCdn: false,
+      token: preview.token,
+      perspective: 'previewDrafts' as ClientPerspective,
+      stega: {enabled: true, studioUrl: preview.studioUrl},
+    }
+
+    client = client.withConfig(previewConfig)
   }
+
+  queryStore.setServerClient(client)
 
   const sanity: Sanity = {
     client,
     loadQuery: queryStore.loadQuery,
-    preview: sanityPreview,
+    preview: previewMode,
     async query<T = any>({
       query,
       params,
@@ -113,13 +101,6 @@ export function createSanityLoader(options: CreateSanityClientOptions): Sanity {
   }
 
   return sanity
-}
-
-export function isPreviewModeEnabled(
-  preview?: Sanity['preview']
-): preview is {session: SessionLike; projectId: string; dataset: string; token: string} {
-  // @ts-expect-error
-  return Boolean(preview && preview.token && preview.token !== null)
 }
 
 /**
