@@ -1,9 +1,8 @@
+import type {QueryParams} from '@sanity/client'
 import {
   ClientConfig,
   ClientPerspective,
   createClient,
-  FilteredResponseQueryOptions,
-  QueryParams,
   RawQueryResponse,
   SanityClient,
   UnfilteredResponseQueryOptions,
@@ -18,26 +17,21 @@ type CreateSanityClientOptions = EnvironmentOptions & {
   preview?: {token: string; studioUrl: string}
 }
 
-type useSanityQuery = {
-  query: string
-  params?: QueryParams
-  cache?: CachingStrategy
-  queryOptions?: FilteredResponseQueryOptions
-}
-
-type useRawSanityQuery = {
-  query: string
-  params?: QueryParams
+type LoadQueryParameters = Parameters<QueryStore['loadQuery']>
+type LoadQueryCachedOptions = LoadQueryParameters[2] & {
   cache?: CachingStrategy
   queryOptions: UnfilteredResponseQueryOptions
 }
 
 export type Sanity = {
-  client: SanityClient
   loadQuery: QueryStore['loadQuery']
+  loadQueryCached<T>(
+    query: string,
+    params: QueryParams,
+    options: LoadQueryCachedOptions
+  ): Promise<QueryResponseInitial<T>>
+  client: SanityClient
   preview?: boolean
-  query<T>(options: useSanityQuery): Promise<QueryResponseInitial<T>>
-  query<T>(options: useRawSanityQuery): Promise<QueryResponseInitial<T>>
 }
 
 const queryStore = createQueryStore({client: false, ssr: true})
@@ -70,34 +64,30 @@ export function createSanityLoader(options: CreateSanityClientOptions): Sanity {
   queryStore.setServerClient(client)
 
   const sanity: Sanity = {
-    client,
     loadQuery: queryStore.loadQuery,
-    preview: previewMode,
-    async query<T = any>({
-      query,
-      params,
-      cache: strategy = CacheLong(),
-      queryOptions,
-    }: useSanityQuery | useRawSanityQuery) {
+    async loadQueryCached<T = any>(
+      query: string,
+      params: QueryParams,
+      loadQueryCachedOptions: LoadQueryCachedOptions
+    ) {
+      const {cache: strategy = CacheLong(), queryOptions} = loadQueryCachedOptions
       const queryHash = await hashQuery(query, params)
       const withCache = createWithCache<T | RawQueryResponse<T>>({
         cache,
         waitUntil,
       })
 
+      // Skip cache when in preview mode
+      if (previewMode) {
+        return sanity.loadQuery(query, params, queryOptions)
+      }
+
       return withCache(queryHash, strategy, () => {
-        if (!queryOptions) {
-          return sanity.loadQuery(query, params)
-        }
-
-        // NOTE: satisfy union type
-        if (queryOptions.filterResponse === false) {
-          return sanity.loadQuery(query, params, queryOptions)
-        }
-
         return sanity.loadQuery(query, params, queryOptions)
       })
     },
+    client,
+    preview: previewMode,
   }
 
   return sanity
@@ -122,10 +112,7 @@ export async function sha256(message: string): Promise<string> {
  * Hash query and its parameters for use as cache key
  * NOTE: Oxygen deployment will break if the cache key is long or contains `\n`
  */
-function hashQuery(
-  query: useSanityQuery['query'],
-  params: useSanityQuery['params']
-): Promise<string> {
+function hashQuery(query: LoadQueryParameters[0], params: LoadQueryParameters[1]): Promise<string> {
   let hash = query
 
   if (params !== null) {

@@ -7,10 +7,10 @@
   - [Usage](#usage)
     - [Satisfy TypeScript](#satisfy-typescript)
   - [Interacting with Sanity data](#interacting-with-sanity-data)
-    - [Cached fetches using `query`](#cached-fetches-using-query)
-    - [`query` Request Options](#query-request-options)
-    - [Using React Loader](#using-react-loader)
-    - [Using `client` directly](#using-client-directly)
+    - [Preferred: Cached fetches using `loadQueryCached`](#preferred-cached-fetches-using-loadquerycached)
+    - [`loadQueryCached` Request Options](#loadquerycached-request-options)
+    - [Optional: Using React Loader](#optional-using-react-loader)
+    - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
   - [Visual Editing](#visual-editing)
     - [Enabling preview mode](#enabling-preview-mode)
     - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
@@ -24,7 +24,7 @@
 
 **Features:**
 
-- Cacheable queries to Sanity APICDN
+- Cacheable queries to [Sanity API CDN](https://www.sanity.io/docs/api-cdn)
 - Interactive live preview with [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays)
 
 > **Note**
@@ -138,44 +138,48 @@ declare module '@shopify/remix-oxygen' {
 
 ## Interacting with Sanity data
 
-### Cached fetches using `query`
+### Preferred: Cached fetches using `loadQueryCached`
 
-Query Sanity API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy):
+Query Sanity API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy).
+
+Caching is skipped when in preview mode.
 
 ```ts
 export async function loader({context, params}: LoaderFunctionArgs) {
   const query = `*[_type == "page" && _id == $id][0]`
   const params = {id: 'home'}
-  const initial = await context.sanity.query({
+  const initial = await context.sanity.loadQueryCached(
     query,
-    params,
+    params
     // optionally pass a caching strategy
-    // cache: CacheShort()
-  })
+    // {cache: CacheShort()}
+  )
 
   return json({initial})
 }
 ```
 
-### `query` Request Options
+### `loadQueryCached` Request Options
 
-If you need to pass any additional options to the request, provide `queryOptions` like so:
+If you need to pass any additional options to the request provide `queryOptions` like so:
 
 ```ts
-const page = await context.sanity.query<HomePage>({
+const page = await context.sanity.loadQueryCached<HomePage>(
   query,
   params,
-  // These additional options will be passed to `sanity.fetch`
-  queryOptions: {
-    tag: 'home',
-    headers: {
-      'Accept-Encoding': 'br, gzip, *',
+  // These additional options will be passed to sanity.loadQuery
+  {
+    queryOptions: {
+      tag: 'home',
+      headers: {
+        'Accept-Encoding': 'br, gzip, *',
+      },
     },
-  },
-})
+  }
+)
 ```
 
-### Using React Loader
+### Optional: Using React Loader
 
 To use `loadQuery` directly without Hydrogen's caching (but still potentially with Sanity's CDN) the Sanity React Loader is also available:
 
@@ -189,9 +193,9 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 }
 ```
 
-### Using `client` directly
+### Alternatively: Using `client` directly
 
-The Sanity Client is also configured in context, but will not return data in the same shape as `query` or `loadQuery`. It is recommended to use `query` or `loadQuery` for data fetching.
+The Sanity Client is also configured in context, but will not return data in the same shape as `loadQueryCached` or `loadQuery`. It is recommended to use `loadQueryCached` or `loadQuery` for data fetching.
 
 Sanity Client can be used for mutations within actions, for example:
 
@@ -253,9 +257,9 @@ export default function App() {
 }
 ```
 
-This Visual Editing component will cause any `useQuery` hooks to rerender with live preview content when in preview mode and the user has an authenticated preview session. [Duplicate its source](https://github.com/sanity-io/visual-editing/blob/main/packages/visual-editing/src/remix/VisualEditing.tsx) into your own project if you wish to customize its behavior.
+This Visual Editing component will trigger incremental updates to draft documents from the server for users with a valid preview session. [Duplicate its source](https://github.com/sanity-io/visual-editing/blob/main/packages/visual-editing/src/remix/VisualEditing.tsx) into your own project if you wish to customize its behavior.
 
-`useQuery` is a hook designed to receive the initial payload of `loadQuery` from the server. When not in preview mode, it will pass the initial payload to the component as-is. When in preview mode, it will subscribe to updates and rerender the component with live preview content.
+These updates are faster when your initial server-side content is passed through an optional `useQuery` hook.
 
 ```tsx
 // Any route file, such as ./app/routes/index.tsx
@@ -275,6 +279,7 @@ export async function loader({context, params}: LoaderArgs) {
 export default function Index() {
   // Get initial data, passing it as snapshot to render preview...
   const {initial, query, params} = useLoaderData<typeof loader>()
+  // Optional, pass query, params and initial data to useQuery for faster updates
   const {loading, data} = useQuery(query, params, initial)
 
   return loading ? <div>Loading</div> : <Page page={data} />
@@ -294,7 +299,10 @@ Add this route to your project like below, or view the source to copy and modify
 
 import {previewRoute} from 'hydrogen-sanity'
 
-export const {action, loader} = previewRoute
+export const {loader} = previewRoute
+
+// Optionally, export the supplied action which will disable preview mode when POSTed to
+// export const {action, loader} = previewRoute
 ```
 
 ### Setup CORS for front-end domains
@@ -380,7 +388,7 @@ export default {
 }
 ```
 
-Then, in your loaders you'll have access to the client in the request context:
+Then, in your loaders and actions you'll have access to Sanity Client in context:
 
 ```ts
 export async function loader({context, params}: LoaderArgs) {
@@ -403,23 +411,29 @@ The new function will still return a client – useful for mutations when suppli
 + import {createSanityLoader} from 'hydrogen-sanity';
 ```
 
-2. Update any Sanity Client fetches with `loadQuery`.
+2. Update `query` data fetches to `loadQueryCached`.
 
-The return type of loadQuery is different from Client Fetch, the returned content is inside a `data` attribute. The recommendation for Hydrogen/Remix applications is to name this response `initial` and return it in its entirety in the loader
+The return type of `loadQuery` is different from Sanity Client's `fetch`, with the returned content is inside a `data` attribute. The recommendation for Hydrogen/Remix applications is to name this response `initial` and return it in its entirety in the loader.
 
 ```diff
-// ./app/routes/products.$handle.tsx
+./app/routes/products.$handle.tsx
 
+Replace any usage of `query` with `loadQueryCached` or `loadQuery`
+Note the different shape for arguments and return value
+- const page = await sanity.query<SanityDocument>({query, params, cache, queryOptions})
++ const initial = await sanity.loadQueryCached<SanityDocument>(query, params, {cache, queryOptions})
+
+Replace any Sanity Client fetches
 - const page = await sanity.client.fetch<SanityDocument>(query, params)
-+ const initial = await sanity.loadQuery<SanityDocument>(query, params)
++ const initial = await sanity.loadQueryCached<SanityDocument>(query, params)
 
 - return json({page})
 + return json({query, params, initial})
 ```
 
-3. Then in the default export, pass this initial object to the `useQuery` hook imported from React Loader.
+1. Then in the default export, pass this initial object to the `useQuery` hook imported from React Loader.
 
-`useQuery` alone will not rerender the component with preview content. For this you'll need to add a new component to the root.
+`useQuery` alone will not rerender the component with preview content. For this, you'll need to add a new component to the root.
 
 ```tsx
 // ./app/routes/products.$handle.tsx
@@ -447,7 +461,7 @@ Update your imports:
 + import {VisualEditing} from '@sanity/visual-editing/remix'
 ```
 
-Update root loader and default export:
+Update root loader and default export to remove the old `PreviewProvider` and replace it with the conditionally imported `VisualEditing` component:
 
 ```tsx
 // ./root.tsx
