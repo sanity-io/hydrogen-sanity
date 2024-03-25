@@ -6,7 +6,7 @@
   - [Installation](#installation)
   - [Usage](#usage)
     - [Satisfy TypeScript](#satisfy-typescript)
-  - [Fetching Sanity data](#fetching-sanity-data)
+  - [Interacting with Sanity data](#interacting-with-sanity-data)
     - [Cached fetches using `query`](#cached-fetches-using-query)
     - [`query` Request Options](#query-request-options)
     - [Using React Loader](#using-react-loader)
@@ -15,6 +15,7 @@
     - [Enabling preview mode](#enabling-preview-mode)
     - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
     - [Modify Content Security Policy for Studio domains](#modify-content-security-policy-for-studio-domains)
+    - [Setup Presentation Tool](#setup-presentation-tool)
   - [Using `@sanity/client` instead of hydrogen-sanity](#using-sanityclient-instead-of-hydrogen-sanity)
 - [Migrate to v4 from v3](#migrate-to-v4-from-v3)
   - [License](#license)
@@ -46,7 +47,7 @@ pnpm install hydrogen-sanity
 
 ## Usage
 
-Update the server file to include the Sanity Loader, and optionally, configure the Preview Session if you plan to setup Visual Editing
+Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 ```ts
 // ./server.ts
@@ -89,7 +90,10 @@ export default () => {
 }
 ```
 
-Update your environment variables with settings from your Sanity project. Copy these from https://www.sanity.io/manage or run `npx sanity@latest init --env` to fill the minimum required values from a new or existing project.
+Update your environment variables with settings from your Sanity project.
+
+- Copy these from [sanity.io/manage](https://sanity.io/manage)
+- or run `npx sanity@latest init --env` to fill the minimum required values from a new or existing project
 
 ```sh
 # Project ID
@@ -106,7 +110,7 @@ SANITY_API_TOKEN=""
 
 ### Satisfy TypeScript
 
-Update the environment variables in `Env`
+Update the environment variables in `Env` and `AppLoadContext` to include the Sanity configuration:
 
 ```ts
 // ./remix.env.d.ts
@@ -132,7 +136,7 @@ declare module '@shopify/remix-oxygen' {
 }
 ```
 
-## Fetching Sanity data
+## Interacting with Sanity data
 
 ### Cached fetches using `query`
 
@@ -140,9 +144,11 @@ Query Sanity API and use Hydrogen's cache to store the response (defaults to `Ca
 
 ```ts
 export async function loader({context, params}: LoaderFunctionArgs) {
+  const query = `*[_type == "page" && _id == $id][0]`
+  const params = {id: 'home'}
   const initial = await context.sanity.query({
-    query: `*[_type == "page" && _id == $id][0]`,
-    params: {id: 'home'},
+    query,
+    params,
     // optionally pass a caching strategy
     // cache: CacheShort()
   })
@@ -157,8 +163,8 @@ If you need to pass any additional options to the request, provide `queryOptions
 
 ```ts
 const page = await context.sanity.query<HomePage>({
-  query: HOME_PAGE_QUERY,
-  cache,
+  query,
+  params,
   // These additional options will be passed to `sanity.fetch`
   queryOptions: {
     tag: 'home',
@@ -171,21 +177,23 @@ const page = await context.sanity.query<HomePage>({
 
 ### Using React Loader
 
-To use `loadQuery` without caching, the Sanity React Loader is also available:
+To use `loadQuery` directly without Hydrogen's caching (but still potentially with Sanity's CDN) the Sanity React Loader is also available:
 
 ```ts
 export async function loader({context, params}: LoaderFunctionArgs) {
-  const initial = await context.sanity.loadQuery(
-    `*[_type == "page" && _id == $id][0]`,
-    {id: 'home'}
-  );
+  const query = `*[_type == "page" && _id == $id][0]`
+  const params = {id: 'home'}
+  const initial = await context.sanity.loadQuery(query, params)
 
-  return json({initial});
+  return json({initial})
+}
 ```
 
 ### Using `client` directly
 
-The Sanity Client is also configured in context, but will not return data in the same shape as `query` or `loadQuery`. It is recommended to use `query` or `loadQuery` for data fetching. Sanity Client is useful for powering mutations within actions, for example:
+The Sanity Client is also configured in context, but will not return data in the same shape as `query` or `loadQuery`. It is recommended to use `query` or `loadQuery` for data fetching.
+
+Sanity Client can be used for mutations within actions, for example:
 
 ```ts
 export async function action({context, request}: ActionFunctionArgs) {
@@ -312,6 +320,30 @@ const safeFrameHeader = header.replace(
 )
 responseHeaders.set('Content-Security-Policy', safeFrameHeader)
 ```
+
+### Setup Presentation Tool
+
+Now in your Sanity Studio config, import the Presentation tool with the Preview URL set to the preview route you created.
+
+```ts
+// ./sanity.config.ts
+
+// Add this import
+import {presentationTool} from 'sanity/presentation'
+
+export default defineConfig({
+  // ...all other settings
+
+  plugins: [
+    presentationTool({
+      previewUrl: {enable: 'http://localhost:3000/resource/preview'},
+    }),
+    // ..all other plugins
+  ],
+})
+```
+
+You should now be able to view your Hydrogen app in the Presentation Tool, click to edit any Sanity content and see live updates as you make changes.
 
 ## Using `@sanity/client` instead of hydrogen-sanity
 
