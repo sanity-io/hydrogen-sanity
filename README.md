@@ -61,8 +61,10 @@ export default () => {
 
   // 1. Configure the Sanity Loader and preview mode
   const sanity = createSanityLoader({
+    // Required:
     cache,
     waitUntil,
+    // Required:
     // Pass configuration options for Sanity client
     config: {
       projectId: env.SANITY_PROJECT_ID,
@@ -143,7 +145,13 @@ declare module '@shopify/remix-oxygen' {
 
 Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy).
 
-Caching is skipped when in preview mode or when the Sanity Client config for `useCdn` is false.
+`loadQuery` will not implement Hydrogen's caching when:
+
+- in preview mode or
+- when the Sanity Client config for `useCdn` is false or
+- when the `strategy` option is set to `null`.
+
+Learn more about configuring [caching in Hydrogen on the Shopify documentation](https://shopify.dev/docs/custom-storefronts/hydrogen/caching).
 
 ```ts
 export async function loader({context, params}: LoaderFunctionArgs) {

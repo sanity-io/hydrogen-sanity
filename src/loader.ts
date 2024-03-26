@@ -13,13 +13,13 @@ import {CacheLong, createWithCache} from '@shopify/hydrogen'
 import type {CachingStrategy, EnvironmentOptions} from './types'
 
 type CreateSanityLoaderOptions = EnvironmentOptions & {
-  strategy?: CachingStrategy | null
   config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
+  strategy?: CachingStrategy | null
   preview?: {token: string; studioUrl: string}
 }
 
 type LoadQueryParameters = Parameters<QueryStore['loadQuery']>
-type LoadQueryCachedOptions = Partial<
+type LoadQueryExtendedOptions = Partial<
   LoadQueryParameters[2] & {
     strategy?: CachingStrategy
     queryOptions: Partial<UnfilteredResponseQueryOptions>
@@ -65,7 +65,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
     async loadQuery<T = any>(
       query: string,
       params: QueryParams = {},
-      loadQueryCachedOptions?: LoadQueryCachedOptions
+      loadQueryCachedOptions?: LoadQueryExtendedOptions
     ) {
       const cacheStrategy = loadQueryCachedOptions?.strategy ?? strategy
 
