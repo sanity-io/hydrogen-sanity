@@ -7,9 +7,8 @@
   - [Usage](#usage)
     - [Satisfy TypeScript](#satisfy-typescript)
   - [Interacting with Sanity data](#interacting-with-sanity-data)
-    - [Preferred: Cached fetches using `loadQueryCached`](#preferred-cached-fetches-using-loadquerycached)
-    - [`loadQueryCached` Request Options](#loadquerycached-request-options)
-    - [Optional: Using React Loader](#optional-using-react-loader)
+    - [Preferred: Cached fetches using `loadQuery`](#preferred-cached-fetches-using-loadquery)
+    - [`loadQuery` Request Options](#loadquery-request-options)
     - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
   - [Visual Editing](#visual-editing)
     - [Enabling preview mode](#enabling-preview-mode)
@@ -71,8 +70,10 @@ export default () => {
       apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
       useCdn: process.env.NODE_ENV === 'production',
     },
-    // Optionally, enable live preview
-    // A resource route will write "projectId" to the session when authenticated
+    // Optionally, set a global default cache strategy, defaults to CacheLong
+    // strategy: CacheShort() | null,
+    // Optionally, enable Visual Editing
+    // See "Visual Editing" section below to setup the preview route
     preview:
       session.get('projectId') === env.SANITY_PROJECT_ID
         ? {token: env.SANITY_API_TOKEN, studioUrl: 'http://localhost:3333'}
@@ -138,50 +139,11 @@ declare module '@shopify/remix-oxygen' {
 
 ## Interacting with Sanity data
 
-### Preferred: Cached fetches using `loadQueryCached`
+### Preferred: Cached fetches using `loadQuery`
 
-Query Sanity API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy).
+Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy).
 
-Caching is skipped when in preview mode.
-
-```ts
-export async function loader({context, params}: LoaderFunctionArgs) {
-  const query = `*[_type == "page" && _id == $id][0]`
-  const params = {id: 'home'}
-  const initial = await context.sanity.loadQueryCached(
-    query,
-    params
-    // optionally pass a caching strategy
-    // {cache: CacheShort()}
-  )
-
-  return json({initial})
-}
-```
-
-### `loadQueryCached` Request Options
-
-If you need to pass any additional options to the request provide `queryOptions` like so:
-
-```ts
-const page = await context.sanity.loadQueryCached<HomePage>(
-  query,
-  params,
-  // These additional options will be passed to sanity.loadQuery
-  {
-    queryOptions: {
-      tag: 'home',
-      headers: {
-        'Accept-Encoding': 'br, gzip, *',
-      },
-    },
-  }
-)
-```
-
-### Optional: Using React Loader
-
-To use `loadQuery` directly without Hydrogen's caching (but still potentially with Sanity's CDN) the Sanity React Loader is also available:
+Caching is skipped when in preview mode or when the Sanity Client config for `useCdn` is false.
 
 ```ts
 export async function loader({context, params}: LoaderFunctionArgs) {
@@ -193,9 +155,29 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 }
 ```
 
+### `loadQuery` Request Options
+
+If you need to pass any additional options to the request provide `queryOptions` like so:
+
+```ts
+const page = await context.sanity.loadQuery<HomePage>(query, params, {
+  // These additional options will be passed to sanity.loadQuery
+  queryOptions: {
+    tag: 'home',
+    headers: {
+      'Accept-Encoding': 'br, gzip, *',
+    },
+  },
+  // Optionally customize the cache strategy for this request
+  // strategy: CacheShort(),
+  // Or disable caching for this request
+  // strategy: null,
+})
+```
+
 ### Alternatively: Using `client` directly
 
-The Sanity Client is also configured in context, but will not return data in the same shape as `loadQueryCached` or `loadQuery`. It is recommended to use `loadQueryCached` or `loadQuery` for data fetching.
+The Sanity Client is also configured in context, but will not return data in the same shape as `loadQuery`. It is recommended to use `loadQuery` for data fetching.
 
 Sanity Client can be used for mutations within actions, for example:
 
@@ -411,21 +393,21 @@ The new function will still return a client – useful for mutations when suppli
 + import {createSanityLoader} from 'hydrogen-sanity';
 ```
 
-2. Update `query` data fetches to `loadQueryCached`.
+1. Update `query` data fetches to `loadQuery`.
 
 The return type of `loadQuery` is different from Sanity Client's `fetch`, with the returned content is inside a `data` attribute. The recommendation for Hydrogen/Remix applications is to name this response `initial` and return it in its entirety in the loader.
 
 ```diff
 ./app/routes/products.$handle.tsx
 
-Replace any usage of `query` with `loadQueryCached` or `loadQuery`
+Replace any usage of `query` with `loadQuery`
 Note the different shape for arguments and return value
 - const page = await sanity.query<SanityDocument>({query, params, cache, queryOptions})
-+ const initial = await sanity.loadQueryCached<SanityDocument>(query, params, {cache, queryOptions})
++ const initial = await sanity.loadQuery<SanityDocument>(query, params, {cache, queryOptions})
 
 Replace any Sanity Client fetches
 - const page = await sanity.client.fetch<SanityDocument>(query, params)
-+ const initial = await sanity.loadQueryCached<SanityDocument>(query, params)
++ const initial = await sanity.loadQuery<SanityDocument>(query, params)
 
 - return json({page})
 + return json({query, params, initial})
