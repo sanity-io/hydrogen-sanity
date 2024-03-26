@@ -411,7 +411,7 @@ The return type of `loadQuery` is different from Sanity Client's `fetch`, with t
 Replace any usage of `query` with `loadQuery`
 Note the different shape for arguments and return value
 - const page = await sanity.query<SanityDocument>({query, params, cache, queryOptions})
-+ const initial = await sanity.loadQuery<SanityDocument>(query, params, {cache, queryOptions})
++ const initial = await sanity.loadQuery<SanityDocument>(query, params, {strategy, queryOptions})
 
 Replace any Sanity Client fetches
 - const page = await sanity.client.fetch<SanityDocument>(query, params)

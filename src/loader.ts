@@ -7,7 +7,7 @@ import {
   SanityClient,
   UnfilteredResponseQueryOptions,
 } from '@sanity/client'
-import {createQueryStore, QueryStore} from '@sanity/react-loader'
+import {createQueryStore, QueryResponseInitial, QueryStore} from '@sanity/react-loader'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy, EnvironmentOptions} from './types'
@@ -21,13 +21,17 @@ type CreateSanityLoaderOptions = EnvironmentOptions & {
 type LoadQueryParameters = Parameters<QueryStore['loadQuery']>
 type LoadQueryExtendedOptions = Partial<
   LoadQueryParameters[2] & {
-    strategy?: CachingStrategy
+    strategy?: CachingStrategy | null
     queryOptions: Partial<UnfilteredResponseQueryOptions>
   }
 >
 
 export type Sanity = {
-  loadQuery: QueryStore['loadQuery']
+  loadQuery<T>(
+    query: string,
+    params: QueryParams,
+    options: LoadQueryExtendedOptions
+  ): Promise<QueryResponseInitial<T>>
   client: SanityClient
   preview?: boolean
 }
@@ -38,7 +42,7 @@ const queryStore = createQueryStore({client: false, ssr: true})
  * Configure Sanity's React Loader and Client.
  */
 export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
-  const {cache, waitUntil, strategy = CacheLong(), config, preview} = options
+  const {cache, waitUntil, config, preview} = options
   let previewMode = false
   let client = createClient(config)
 
@@ -65,16 +69,39 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
     async loadQuery<T = any>(
       query: string,
       params: QueryParams = {},
-      loadQueryCachedOptions?: LoadQueryExtendedOptions
+      loadQueryExtendedOptions?: LoadQueryExtendedOptions
     ) {
-      const cacheStrategy = loadQueryCachedOptions?.strategy ?? strategy
+      // Global default
+      let cacheStrategy: CachingStrategy | null = CacheLong()
+
+      if (
+        loadQueryExtendedOptions &&
+        'strategy' in loadQueryExtendedOptions &&
+        // Could be null
+        loadQueryExtendedOptions.strategy !== undefined
+      ) {
+        // Configuration at time of use in Loader
+        cacheStrategy = loadQueryExtendedOptions.strategy
+      } else if (
+        'strategy' in options &&
+        // Could be null
+        options.strategy !== undefined
+      ) {
+        // Configuration at base in server.ts
+        cacheStrategy = options.strategy
+      }
 
       // Skip Hydrogen cache when:
       // - in preview mode
       // - when not using Sanity CDN
       // - cache strategy is null
-      if (previewMode || client.config().useCdn === false || !cacheStrategy) {
-        return queryStore.loadQuery(query, params, loadQueryCachedOptions?.queryOptions)
+      if (
+        previewMode ||
+        client.config().useCdn === false ||
+        loadQueryExtendedOptions?.useCdn === false ||
+        !cacheStrategy
+      ) {
+        return queryStore.loadQuery(query, params, loadQueryExtendedOptions?.queryOptions)
       }
 
       const queryHash = await hashQuery(query, params)
@@ -84,7 +111,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
       })
 
       return withCache(queryHash, cacheStrategy, () => {
-        return queryStore.loadQuery(query, params, loadQueryCachedOptions?.queryOptions)
+        return queryStore.loadQuery(query, params, loadQueryExtendedOptions?.queryOptions)
       })
     },
     client,
