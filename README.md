@@ -334,7 +334,7 @@ export default defineConfig({
 
   plugins: [
     presentationTool({
-      previewUrl: {enable: 'http://localhost:3000/resource/preview'},
+      previewUrl: {previewMode: {enable: 'http://localhost:3000/resource/preview'}},
     }),
     // ..all other plugins
   ],
