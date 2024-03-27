@@ -30,7 +30,7 @@ export type Sanity = {
   loadQuery<T>(
     query: string,
     params: QueryParams,
-    options: LoadQueryExtendedOptions
+    options?: LoadQueryExtendedOptions
   ): Promise<QueryResponseInitial<T>>
   client: SanityClient
   preview?: boolean
