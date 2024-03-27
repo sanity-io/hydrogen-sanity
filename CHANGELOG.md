@@ -5,6 +5,34 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.3.1...v4.0.0-beta.1) (2024-03-27)
+
+### ⚠ BREAKING CHANGES
+
+- import names and response shapes have changes
+
+- chore: add migration details
+
+- feat: rewrite readme, update loader
+
+- chore: more docs
+
+- feat: redo 'query' to 'loadQueryCached'
+
+- fix: remove loadQueryCached
+
+- fix: remove loadQueryCached
+
+- fix: improve cache option logic
+
+- chore: update readme
+
+- chore: add prerelease channel
+
+- chore: update prerelease
+
+- hydrogen v4 prerelease (#49) ([4f64150](https://github.com/sanity-io/hydrogen-sanity/commit/4f64150db2759cc8f097821337fdad345acb322c)), closes [#49](https://github.com/sanity-io/hydrogen-sanity/issues/49)
+
 ## [3.3.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.3.0...v3.3.1) (2024-02-02)
 
 ### Bug Fixes
