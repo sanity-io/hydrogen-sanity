@@ -51,8 +51,9 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@sanity/client": "^6.8.0",
-    "@sanity/preview-kit": "^3.2.7"
+    "@sanity/client": "^6.15.0",
+    "@sanity/react-loader": "^1.9.5",
+    "@sanity/visual-editing": "^1.8.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.1",
