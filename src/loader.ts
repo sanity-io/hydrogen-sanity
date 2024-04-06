@@ -125,7 +125,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
  * Create an SHA-256 hash as a hex string
  * @see https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest#converting_a_digest_to_a_hex_string
  */
-export async function sha256(message: string): Promise<string> {
+async function sha256(message: string): Promise<string> {
   // encode as UTF-8
   const messageBuffer = await new TextEncoder().encode(message)
   // hash the message
