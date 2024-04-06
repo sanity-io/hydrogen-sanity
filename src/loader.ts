@@ -1,13 +1,13 @@
 import type {QueryParams} from '@sanity/client'
 import {
-  ClientConfig,
-  ClientPerspective,
+  type ClientConfig,
+  type ClientPerspective,
   createClient,
-  RawQueryResponse,
-  SanityClient,
-  UnfilteredResponseQueryOptions,
+  type RawQueryResponse,
+  type SanityClient,
+  type UnfilteredResponseQueryOptions,
 } from '@sanity/client'
-import {createQueryStore, QueryResponseInitial, QueryStore} from '@sanity/react-loader'
+import {createQueryStore, type QueryResponseInitial, type QueryStore} from '@sanity/react-loader'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy, EnvironmentOptions} from './types'
