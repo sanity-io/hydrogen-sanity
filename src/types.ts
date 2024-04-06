@@ -1,6 +1,6 @@
 import type {CacheShort, HydrogenSession} from '@shopify/hydrogen'
 
-import {Sanity} from './loader'
+import type {Sanity} from './loader'
 
 interface ExecutionContext {
   waitUntil(promise: Promise<any>): void
