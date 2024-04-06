@@ -6,7 +6,7 @@ interface ExecutionContext {
   waitUntil(promise: Promise<any>): void
 }
 
-export type EnvironmentOptions = {
+export interface EnvironmentOptions {
   /**
    * A Cache API instance.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache
@@ -22,12 +22,7 @@ export type EnvironmentOptions = {
 /** @see https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/cache#caching-strategies */
 export type CachingStrategy = ReturnType<typeof CacheShort>
 
-export type AppSessionLike = HydrogenSession & {
-  destroy(): Promise<void>
-  commit(): Promise<void>
-}
-
-export type EnvLike = {
+type EnvLike = {
   SANITY_PROJECT_ID: string
   SANITY_DATASET: string
   SANITY_API_VERSION: string
@@ -40,7 +35,7 @@ declare module '@shopify/remix-oxygen' {
    */
   export interface AppLoadContext {
     env: EnvLike
-    session: AppSessionLike
+    session: HydrogenSession
     sanity: Sanity
   }
 }
