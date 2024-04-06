@@ -1,5 +1,5 @@
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
-import {ActionFunction, json, LoaderFunctionArgs, redirect} from '@shopify/remix-oxygen'
+import {type ActionFunction, json, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
 
 // A `POST` request to this route will exit preview mode
 export const action: ActionFunction = async ({context, request}) => {
@@ -17,7 +17,7 @@ export const action: ActionFunction = async ({context, request}) => {
 }
 
 // A `GET` request to this route will enter preview mode
-export const loader = async ({context, request}: LoaderFunctionArgs) => {
+export const loader: LoaderFunction = async ({context, request}) => {
   const {env, sanity} = context
 
   if (!env.SANITY_API_TOKEN) {
