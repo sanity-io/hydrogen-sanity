@@ -30,6 +30,13 @@
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
     },
+    "./preview/route": {
+      "types": "./dist/preview/route.d.ts",
+      "source": "./src/preview/route.ts",
+      "import": "./dist/preview/route.mjs",
+      "require": "./dist/preview/route.js",
+      "default": "./dist/preview/route.mjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
