@@ -5,6 +5,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.3](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.2...v4.0.0-beta.3) (2024-04-08)
+
+### Features
+
+- add package export for preview route ([52dd585](https://github.com/sanity-io/hydrogen-sanity/commit/52dd585de54ece03629a02b33c5364a489dab7b6))
+
+### Bug Fixes
+
+- adjust preview route ([80a9740](https://github.com/sanity-io/hydrogen-sanity/commit/80a974009d5706ae675faabf5927a230449d2c7f))
+- adjust types ([a0edc17](https://github.com/sanity-io/hydrogen-sanity/commit/a0edc1766ea1685b0b45e067c26f4fa8ba6cc001))
+
 ## [4.0.0-beta.2](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.1...v4.0.0-beta.2) (2024-03-27)
 
 ### ⚠ BREAKING CHANGES
