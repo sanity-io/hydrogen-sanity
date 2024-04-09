@@ -33,15 +33,15 @@
 ## Installation
 
 ```sh
-npm install hydrogen-sanity
+npm install hydrogen-sanity@beta
 ```
 
 ```sh
-yarn add hydrogen-sanity
+yarn add hydrogen-sanity@beta
 ```
 
 ```sh
-pnpm install hydrogen-sanity
+pnpm install hydrogen-sanity@beta
 ```
 
 ## Usage
