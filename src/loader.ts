@@ -12,7 +12,7 @@ import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy, EnvironmentOptions} from './types'
 
-type CreateSanityLoaderOptions = EnvironmentOptions & {
+export type CreateSanityLoaderOptions = EnvironmentOptions & {
   config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
   strategy?: CachingStrategy | null
   preview?: {token: string; studioUrl: string}
