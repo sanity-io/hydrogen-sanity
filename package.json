@@ -55,7 +55,8 @@
     "lint": "eslint --ignore-path .gitignore .",
     "prepublishOnly": "run-s build",
     "watch": "pkg-utils watch --strict",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "vitest"
   },
   "dependencies": {
     "@sanity/client": "^6.15.0",
@@ -88,7 +89,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^1.4.0"
   },
   "peerDependencies": {
     "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0",
