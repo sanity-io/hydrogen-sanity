@@ -1,7 +1,7 @@
 /* eslint-disable max-nested-callbacks */
 import {describe, expect, it, vi} from 'vitest'
 
-import {createSanityLoader, CreateSanityLoaderOptions} from './loader'
+import {createSanityLoader} from './loader'
 
 // Mock the global caches object
 const cache: Cache = {
@@ -21,48 +21,62 @@ function waitUntil() {
 const projectId = 'my-project-id'
 const dataset = 'my-dataset'
 
-describe('loader', () => {
-  vi.stubGlobal('caches', {
-    open: vi.fn().mockResolvedValue(cache),
+describe('when configured for preview', () => {
+  const previewLoader = createSanityLoader({
+    cache,
+    waitUntil,
+    config: {
+      projectId,
+      dataset,
+    },
+    preview: {
+      token: 'my-token',
+      studioUrl: 'https://example.com',
+    },
   })
 
-  describe('if given preview config', () => {
-    const previewConfig: CreateSanityLoaderOptions = {
+  it('should throw if a token is not provided', () => {
+    expect(() =>
+      // @ts-expect-error
+      createSanityLoader({cache, waitUntil, config: {projectId, dataset}, preview: {}})
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Preview mode attempted but SANITY_API_TOKEN not provided to preview.token]`
+    )
+  })
+
+  it(`shouldn't use API CDN`, () => {
+    expect(previewLoader.client.config().useCdn).toBe(false)
+  })
+
+  it('should use the `previewDrafts` perspective', () => {
+    expect(previewLoader.client.config().perspective).toBe('previewDrafts')
+  })
+
+  it('should enable preview mode', () => {
+    expect(previewLoader.preview).toBe(true)
+  })
+
+  it(`shouldn't cache queries`, () => {
+    previewLoader.loadQuery<boolean>('true', {})
+    expect(cache.match).not.toHaveBeenCalled()
+  })
+})
+
+describe('when not configured for preview', () => {
+  it(`shouldn't cache queries when using API`, () => {
+    const uncachedLoader = createSanityLoader({
       cache,
       waitUntil,
       config: {
         projectId,
         dataset,
+        useCdn: false,
       },
-      preview: {
-        token: 'my-token',
-        studioUrl: 'https://example.com',
-      },
-    }
-
-    const loader = createSanityLoader(previewConfig)
-
-    it('should throw if a token is not provided', () => {
-      expect(() =>
-        // @ts-expect-error
-        createSanityLoader({cache, waitUntil, config: {projectId, dataset}, preview: {}})
-      ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Preview mode attempted but SANITY_API_TOKEN not provided to preview.token]`
-      )
     })
 
-    it(`shouldn't use API CDN`, () => {
-      expect(loader.client.config().useCdn).toBe(false)
-    })
+    expect(uncachedLoader.client.config().useCdn).toBe(false)
 
-    it('should use the `previewDrafts` perspective', () => {
-      expect(loader.client.config().perspective).toBe('previewDrafts')
-    })
-
-    it('should enable preview mode', () => {
-      expect(loader.preview).toBe(true)
-    })
+    uncachedLoader.loadQuery<boolean>('true', {})
+    expect(cache.match).not.toHaveBeenCalled()
   })
-
-  vi.unstubAllGlobals()
 })
