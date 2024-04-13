@@ -5,6 +5,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.4.0](https://github.com/sanity-io/hydrogen-sanity/compare/v3.3.1...v3.4.0) (2024-04-13)
+
+### Features
+
+- align `engine.node` version with hydrogen ([1470b97](https://github.com/sanity-io/hydrogen-sanity/commit/1470b9768468b15609c714e683164fb0dee8b27f))
+- bump hydrogen peer dependency ([275d106](https://github.com/sanity-io/hydrogen-sanity/commit/275d10662baf4bd59437895f44bc27d7baac482f))
+
 ## [3.3.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.3.0...v3.3.1) (2024-02-02)
 
 ### Bug Fixes
