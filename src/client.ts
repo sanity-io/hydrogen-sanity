@@ -7,7 +7,7 @@ import {
   type RawQueryResponse,
   type SanityClient,
   type UnfilteredResponseQueryOptions,
-} from '@sanity/preview-kit/client'
+} from '@sanity/client'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy, EnvironmentOptions, SessionLike} from './types'
