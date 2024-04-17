@@ -59,9 +59,9 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@sanity/client": "^6.15.0",
-    "@sanity/react-loader": "^1.9.5",
-    "@sanity/visual-editing": "^1.8.4"
+    "@sanity/client": "^6.15.17",
+    "@sanity/react-loader": "^1.9.12",
+    "@sanity/visual-editing": "^1.8.12"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.1",
