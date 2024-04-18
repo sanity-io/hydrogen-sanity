@@ -1,6 +1,6 @@
 {
   "name": "hydrogen-sanity",
-  "version": "3.3.1",
+  "version": "4.0.0-beta.3",
   "description": "Sanity.io toolkit for Hydrogen",
   "keywords": [
     "sanity",
@@ -30,6 +30,13 @@
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
     },
+    "./preview/route": {
+      "types": "./dist/preview/route.d.ts",
+      "source": "./src/preview/route.ts",
+      "import": "./dist/preview/route.mjs",
+      "require": "./dist/preview/route.js",
+      "default": "./dist/preview/route.mjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -48,7 +55,8 @@
     "lint": "eslint --ignore-path .gitignore .",
     "prepublishOnly": "run-s build",
     "watch": "pkg-utils watch --strict",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "vitest"
   },
   "dependencies": {
     "@sanity/client": "^6.15.0",
@@ -61,7 +69,7 @@
     "@sanity/pkg-utils": "^3.2.3",
     "@sanity/plugin-kit": "^3.1.10",
     "@sanity/semantic-release-preset": "^4.1.6",
-    "@shopify/hydrogen": "~2024.1.0",
+    "@shopify/hydrogen": "~2024.4.0",
     "@shopify/remix-oxygen": "^2.0.1",
     "@types/react": "^18.2.37",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -81,15 +89,16 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^1.4.0"
   },
   "peerDependencies": {
-    "@shopify/hydrogen": "~2023.7.0 || ~2023.10.0 || ~2024.1.0",
+    "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0",
     "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }

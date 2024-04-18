@@ -1,18 +1,18 @@
 import type {QueryParams} from '@sanity/client'
 import {
-  ClientConfig,
-  ClientPerspective,
+  type ClientConfig,
+  type ClientPerspective,
   createClient,
-  RawQueryResponse,
-  SanityClient,
-  UnfilteredResponseQueryOptions,
+  type RawQueryResponse,
+  type SanityClient,
+  type UnfilteredResponseQueryOptions,
 } from '@sanity/client'
-import {createQueryStore, QueryResponseInitial, QueryStore} from '@sanity/react-loader'
+import {createQueryStore, type QueryResponseInitial, type QueryStore} from '@sanity/react-loader'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy, EnvironmentOptions} from './types'
 
-type CreateSanityLoaderOptions = EnvironmentOptions & {
+export type CreateSanityLoaderOptions = EnvironmentOptions & {
   config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
   strategy?: CachingStrategy | null
   preview?: {token: string; studioUrl: string}
@@ -30,7 +30,7 @@ export type Sanity = {
   loadQuery<T>(
     query: string,
     params: QueryParams,
-    options: LoadQueryExtendedOptions
+    options?: LoadQueryExtendedOptions
   ): Promise<QueryResponseInitial<T>>
   client: SanityClient
   preview?: boolean
@@ -125,7 +125,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
  * Create an SHA-256 hash as a hex string
  * @see https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest#converting_a_digest_to_a_hex_string
  */
-export async function sha256(message: string): Promise<string> {
+async function sha256(message: string): Promise<string> {
   // encode as UTF-8
   const messageBuffer = await new TextEncoder().encode(message)
   // hash the message

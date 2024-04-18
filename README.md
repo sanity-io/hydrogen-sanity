@@ -33,15 +33,15 @@
 ## Installation
 
 ```sh
-npm install hydrogen-sanity
+npm install hydrogen-sanity@beta
 ```
 
 ```sh
-yarn add hydrogen-sanity
+yarn add hydrogen-sanity@beta
 ```
 
 ```sh
-pnpm install hydrogen-sanity
+pnpm install hydrogen-sanity@beta
 ```
 
 ## Usage
@@ -287,12 +287,10 @@ Add this route to your project like below, or view the source to copy and modify
 ```tsx
 // ./app/routes/resource.preview.ts
 
-import {previewRoute} from 'hydrogen-sanity'
-
-export const {loader} = previewRoute
+export {loader} from 'hydrogen-sanity/preview/route'
 
 // Optionally, export the supplied action which will disable preview mode when POSTed to
-// export const {action, loader} = previewRoute
+// export {action, loader} from 'hydrogen-sanity/preview/route'
 ```
 
 ### Setup CORS for front-end domains
