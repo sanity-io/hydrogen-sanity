@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.4.1](https://github.com/sanity-io/hydrogen-sanity/compare/v3.4.0...v3.4.1) (2024-04-18)
+
+### Bug Fixes
+
+- update dependencies `@sanity/client` and `@sanity/preview-kit` ([facb066](https://github.com/sanity-io/hydrogen-sanity/commit/facb0665e32240a6210b397d0c626dbd3a599ec1))
+
 ## [3.4.0](https://github.com/sanity-io/hydrogen-sanity/compare/v3.3.1...v3.4.0) (2024-04-13)
 
 ### Features
