@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.4](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.3...v4.0.0-beta.4) (2024-04-18)
+
+### Bug Fixes
+
+- update dependencies `@sanity/client`, `@sanity/react-loader`, and `@sanity/visual-editing` ([7f25dee](https://github.com/sanity-io/hydrogen-sanity/commit/7f25dee57e1c4bb9f2bedc3bea2db356f6b064d5))
+
 ## [4.0.0-beta.3](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.2...v4.0.0-beta.3) (2024-04-08)
 
 ### Features
