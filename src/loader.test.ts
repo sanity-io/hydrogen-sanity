@@ -1,7 +1,24 @@
 /* eslint-disable max-nested-callbacks */
-import {describe, expect, it, vi} from 'vitest'
+import type {QueryStore} from '@sanity/react-loader'
+import {createWithCache} from '@shopify/hydrogen'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createSanityLoader} from './loader'
+
+const mockedLoadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
+
+vi.mock('@sanity/react-loader', async (importOriginal) => {
+  const module = await importOriginal<typeof import('@sanity/react-loader')>()
+  const queryStore = module.createQueryStore({client: false, ssr: true})
+
+  return {
+    ...module,
+    createQueryStore: vi.fn().mockReturnValue({
+      ...queryStore,
+      loadQuery: mockedLoadQuery,
+    }),
+  }
+})
 
 // Mock the global caches object
 const cache: Cache = {
@@ -18,13 +35,18 @@ function waitUntil() {
   return Promise.resolve()
 }
 
+const withCache = vi.fn().mockImplementation(createWithCache({cache, waitUntil}))
+
 const projectId = 'my-project-id'
 const dataset = 'my-dataset'
 
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 describe('when configured for preview', () => {
   const previewLoader = createSanityLoader({
-    cache,
-    waitUntil,
+    withCache,
     config: {
       projectId,
       dataset,
@@ -56,17 +78,17 @@ describe('when configured for preview', () => {
     expect(previewLoader.preview).toBe(true)
   })
 
-  it(`shouldn't cache queries`, () => {
-    previewLoader.loadQuery<boolean>('true', {})
-    expect(cache.match).not.toHaveBeenCalled()
+  it(`shouldn't cache queries`, async () => {
+    await previewLoader.loadQuery<boolean>('true')
+    expect(mockedLoadQuery).toHaveBeenCalledOnce()
+    expect(cache.put).not.toHaveBeenCalled()
   })
 })
 
 describe('when not configured for preview', () => {
-  it(`shouldn't cache queries when using API`, () => {
+  it(`shouldn't cache queries when using API`, async () => {
     const uncachedLoader = createSanityLoader({
-      cache,
-      waitUntil,
+      withCache,
       config: {
         projectId,
         dataset,
@@ -76,7 +98,8 @@ describe('when not configured for preview', () => {
 
     expect(uncachedLoader.client.config().useCdn).toBe(false)
 
-    uncachedLoader.loadQuery<boolean>('true', {})
-    expect(cache.match).not.toHaveBeenCalled()
+    await uncachedLoader.loadQuery<boolean>('true')
+    expect(mockedLoadQuery).toHaveBeenCalledOnce()
+    expect(cache.put).not.toHaveBeenCalled()
   })
 })

@@ -59,11 +59,14 @@ import {createSanityLoader} from 'hydrogen-sanity'
 export default () => {
   // ... Leave all other functions like the storefront client as-is
 
+  // (Prerequisite) If not already initialized, create a `withCache` handler...
+  const withCache = createWithCache({cache, waitUntil, request})
+
   // 1. Configure the Sanity Loader and preview mode
   const sanity = createSanityLoader({
-    // Required:
-    cache,
-    waitUntil,
+    // Required, to cache responses
+    withCache,
+
     // Required:
     // Pass configuration options for Sanity client
     config: {
@@ -72,8 +75,10 @@ export default () => {
       apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
       useCdn: process.env.NODE_ENV === 'production',
     },
-    // Optionally, set a global default cache strategy, defaults to CacheLong
+
+    // Optionally, set a default cache strategy, defaults to `CacheLong`
     // strategy: CacheShort() | null,
+
     // Optionally, enable Visual Editing
     // See "Visual Editing" section below to setup the preview route
     preview:
@@ -87,6 +92,7 @@ export default () => {
     // ...other settings
     getLoadContext: () => ({
       // ...other providers
+      withCache,
       sanity,
     }),
   })
@@ -355,6 +361,7 @@ import {createClient} from '@sanity/client';
 
 export default {
   // ... all other functions
+  const withCache = createWithCache({cache, waitUntil, request});
 
   // Create the Sanity Client
   const sanity = createClient({
@@ -370,7 +377,8 @@ export default {
     // ...other settings
     getLoadContext: () => ({
       // ...other context items
-      sanity
+      withCache,
+      sanity,
     }),
   });
 }
@@ -380,7 +388,22 @@ Then, in your loaders and actions you'll have access to Sanity Client in context
 
 ```ts
 export async function loader({context, params}: LoaderArgs) {
-  const homepage = await context.sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+  const {sanity} = context
+  const homepage = await sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+
+  return json({homepage})
+}
+```
+
+If you want to cache your query responses in Hydrogen, you can use the [`withCache` utility](https://shopify.dev/docs/custom-storefronts/hydrogen/caching/third-party#hydrogen-s-built-in-withcache-utility):
+
+```ts
+export async function loader({context, params}: LoaderArgs) {
+  const {withCache, sanity} = context
+
+  const homepage = await withCache('home', CacheLong(), () =>
+    sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+  )
 
   return json({homepage})
 }
