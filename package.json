@@ -37,6 +37,13 @@
       "require": "./dist/preview/route.js",
       "default": "./dist/preview/route.mjs"
     },
+    "./visual-editing": {
+      "types": "./dist/visual-editing/index.d.ts",
+      "source": "./src/visual-editing/index.ts",
+      "import": "./dist/visual-editing/index.mjs",
+      "require": "./dist/visual-editing/index.js",
+      "default": "./dist/visual-editing/index.mjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -61,7 +68,8 @@
   "dependencies": {
     "@sanity/client": "^6.15.17",
     "@sanity/react-loader": "^1.9.12",
-    "@sanity/visual-editing": "^1.8.12"
+    "@sanity/visual-editing": "^1.8.12",
+    "groq": "^3.40.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.1",
@@ -81,7 +89,6 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "groq": "^3.40.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.3.0",
     "npm-run-all": "^4.1.5",
@@ -98,6 +105,7 @@
     "@sanity/client": "^6.15.17",
     "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0",
     "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
+    "groq": "^3.40.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
