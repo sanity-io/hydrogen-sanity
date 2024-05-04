@@ -1,9 +1,10 @@
 /* eslint-disable max-nested-callbacks */
-import {SanityClient} from '@sanity/client'
 import type {QueryStore} from '@sanity/react-loader'
 import {CacheShort, createWithCache} from '@shopify/hydrogen'
+import groq from 'groq'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
+import {createClient, SanityClient} from './client'
 import {createSanityLoader} from './loader'
 import {hashQuery} from './utils'
 
@@ -38,25 +39,23 @@ function waitUntil() {
 }
 
 type WithCache = ReturnType<typeof createWithCache>
-
 const withCache: WithCache = vi.fn().mockImplementation(createWithCache({cache, waitUntil}))
 
-const projectId = 'my-project-id'
-const dataset = 'my-dataset'
+const client = createClient({projectId: 'my-project-id', dataset: 'my-dataset'})
+
+const query = groq`true`
+const params = {}
+const hashedQuery = await hashQuery(query, params)
 
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe('the loader', async () => {
-  const query = 'true'
-  const params = {}
-  const hashedQuery = await hashQuery(query, params)
-
-  const loader = createSanityLoader({withCache, config: {projectId, dataset}})
+describe('the loader', () => {
+  const loader = createSanityLoader({withCache, client})
 
   it('should return a client', () => {
-    expect(loader.client).toSatisfy((client) => client instanceof SanityClient)
+    expect(loader.client).toSatisfy((loaderClient) => loaderClient instanceof SanityClient)
   })
 
   it('queries should get cached using the default caching strategy', async () => {
@@ -64,7 +63,7 @@ describe('the loader', async () => {
 
     const loaderWithDefaultStrategy = createSanityLoader({
       withCache,
-      config: {projectId, dataset},
+      client,
       strategy,
     })
 
@@ -84,10 +83,7 @@ describe('the loader', async () => {
 describe('when configured for preview', () => {
   const previewLoader = createSanityLoader({
     withCache,
-    config: {
-      projectId,
-      dataset,
-    },
+    client,
     preview: {
       enabled: true,
       token: 'my-token',
@@ -98,7 +94,7 @@ describe('when configured for preview', () => {
   it('should throw if a token is not provided', () => {
     expect(() =>
       // @ts-expect-error
-      createSanityLoader({cache, waitUntil, config: {projectId, dataset}, preview: {enabled: true}})
+      createSanityLoader({cache, waitUntil, client, preview: {enabled: true}})
     ).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
   })
 
@@ -115,7 +111,7 @@ describe('when configured for preview', () => {
   })
 
   it(`shouldn't cache queries`, async () => {
-    await previewLoader.loadQuery<boolean>('true')
+    await previewLoader.loadQuery<boolean>(query)
     expect(loadQuery).toHaveBeenCalledOnce()
     expect(cache.put).not.toHaveBeenCalled()
   })

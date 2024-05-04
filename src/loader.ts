@@ -1,20 +1,20 @@
+import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
+import {CacheLong, createWithCache} from '@shopify/hydrogen'
+
 import {
   type ClientConfig,
   createClient,
   type QueryParams,
   type QueryWithoutParams,
   type ResponseQueryOptions,
-  type SanityClient,
-} from '@sanity/client'
-import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
-import {CacheLong, createWithCache} from '@shopify/hydrogen'
-
+  SanityClient,
+} from './client'
 import type {CachingStrategy} from './types'
 import {hashQuery} from './utils'
 
 export type CreateSanityLoaderOptions = {
   withCache: ReturnType<typeof createWithCache>
-  config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
+  client: SanityClient | ClientConfig
   strategy?: CachingStrategy | null
   preview?: {enabled: boolean; token: string; studioUrl: string}
 }
@@ -54,8 +54,9 @@ const queryStore = createQueryStore({client: false, ssr: true})
  * Configure Sanity's React Loader and Client.
  */
 export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
-  const {withCache, config, preview, strategy} = options
-  let client = createClient(config)
+  const {withCache, preview, strategy} = options
+  let client =
+    options.client instanceof SanityClient ? options.client : createClient(options.client)
 
   if (preview && preview.enabled) {
     if (!preview.token) {
