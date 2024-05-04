@@ -1,4 +1,4 @@
-import type {QueryParams, QueryWithoutParams} from '@sanity/client'
+import type {QueryParams, QueryWithoutParams} from './client'
 
 /**
  * Create an SHA-256 hash as a hex string

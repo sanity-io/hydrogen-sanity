@@ -53,7 +53,7 @@ Update the server file to include the Sanity Loader, and optionally, configure t
 
 // ...all other imports
 // Add imports for Sanity Loader and Preview Session
-import {createSanityLoader} from 'hydrogen-sanity'
+import {createSanityLoader, createClient} from 'hydrogen-sanity'
 
 // Inside the default export
 export default () => {
@@ -68,13 +68,25 @@ export default () => {
     withCache,
 
     // Required:
-    // Pass configuration options for Sanity client
-    config: {
+    client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET,
-      apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
+      apiVersion: env.SANITY_API_VERSION || '2023-03-30',
       useCdn: process.env.NODE_ENV === 'production',
-    },
+
+      // In preview mode, `stega` will automatically be enabled
+      // If you need to configure steganography, you can pass it here
+      // stega: {
+      //   logger: console
+      // }
+    }),
+    // You can also initialize a client and pass it instead
+    // client: createClient({
+    //   projectId: env.SANITY_PROJECT_ID,
+    //   dataset: env.SANITY_DATASET,
+    //   apiVersion: env.SANITY_API_VERSION || '2023-03-30',
+    //   useCdn: process.env.NODE_ENV === 'production',
+    // }),
 
     // Optionally, set a default cache strategy, defaults to `CacheLong`
     // strategy: CacheShort() | null,
