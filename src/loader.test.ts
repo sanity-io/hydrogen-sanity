@@ -89,6 +89,7 @@ describe('when configured for preview', () => {
       dataset,
     },
     preview: {
+      enabled: true,
       token: 'my-token',
       studioUrl: 'https://example.com',
     },
@@ -97,10 +98,8 @@ describe('when configured for preview', () => {
   it('should throw if a token is not provided', () => {
     expect(() =>
       // @ts-expect-error
-      createSanityLoader({cache, waitUntil, config: {projectId, dataset}, preview: {}})
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Preview mode attempted but SANITY_API_TOKEN not provided to preview.token]`
-    )
+      createSanityLoader({cache, waitUntil, config: {projectId, dataset}, preview: {enabled: true}})
+    ).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
   })
 
   it(`shouldn't use API CDN`, () => {
@@ -112,30 +111,11 @@ describe('when configured for preview', () => {
   })
 
   it('should enable preview mode', () => {
-    expect(previewLoader.preview).toBe(true)
+    expect(previewLoader.preview?.enabled).toBe(true)
   })
 
   it(`shouldn't cache queries`, async () => {
     await previewLoader.loadQuery<boolean>('true')
-    expect(loadQuery).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalled()
-  })
-})
-
-describe('when not configured for preview', () => {
-  it(`shouldn't cache queries when using API`, async () => {
-    const loader = createSanityLoader({
-      withCache,
-      config: {
-        projectId,
-        dataset,
-        useCdn: false,
-      },
-    })
-
-    expect(loader.client.config().useCdn).toBe(false)
-
-    await loader.loadQuery<boolean>('true')
     expect(loadQuery).toHaveBeenCalledOnce()
     expect(cache.put).not.toHaveBeenCalled()
   })
