@@ -16,7 +16,7 @@ export type CreateSanityLoaderOptions = {
   withCache: ReturnType<typeof createWithCache>
   config: ClientConfig & Required<Pick<ClientConfig, 'projectId' | 'dataset'>>
   strategy?: CachingStrategy | null
-  preview?: {token: string; studioUrl: string}
+  preview?: {enabled: boolean; token: string; studioUrl: string}
 }
 
 interface RequestInit {
@@ -41,7 +41,11 @@ export type Sanity = {
     options?: LoadQueryOptions
   ): Promise<QueryResponseInitial<T>>
   client: SanityClient
-  preview?: boolean
+  preview?: {
+    enabled: boolean
+    token: string
+    studioUrl: string
+  }
 }
 
 const queryStore = createQueryStore({client: false, ssr: true})
@@ -51,15 +55,12 @@ const queryStore = createQueryStore({client: false, ssr: true})
  */
 export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
   const {withCache, config, preview, strategy} = options
-  let previewMode = false
   let client = createClient(config)
 
-  if (preview) {
+  if (preview && preview.enabled) {
     if (!preview.token) {
-      throw new Error('Preview mode attempted but SANITY_API_TOKEN not provided to preview.token')
+      throw new Error('Enabling preview mode requires a token.')
     }
-
-    previewMode = true
 
     const previewConfig = {
       useCdn: false,
@@ -79,24 +80,9 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions
     ): Promise<QueryResponseInitial<T>> {
-      // Global default
-      let cacheStrategy: CachingStrategy = strategy || CacheLong()
+      const cacheStrategy = loaderOptions?.hydrogen?.cache || strategy || CacheLong()
 
-      if (loaderOptions?.hydrogen?.cache) {
-        // Configuration at time of use in Loader
-        cacheStrategy = loaderOptions.hydrogen.cache
-      }
-
-      // Skip Hydrogen cache when:
-      // - in preview mode
-      // - when not using Sanity CDN
-      // - cache strategy is null
-      if (
-        previewMode ||
-        client.config().useCdn == false ||
-        (loaderOptions && loaderOptions.useCdn === false) ||
-        !cacheStrategy
-      ) {
+      if (preview && preview.enabled) {
         return queryStore.loadQuery<T>(query, params, loaderOptions)
       }
 
@@ -107,7 +93,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
       })
     },
     client,
-    preview: previewMode,
+    preview,
   }
 
   return sanity

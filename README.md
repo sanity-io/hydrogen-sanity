@@ -81,10 +81,11 @@ export default () => {
 
     // Optionally, enable Visual Editing
     // See "Visual Editing" section below to setup the preview route
-    preview:
-      session.get('projectId') === env.SANITY_PROJECT_ID
-        ? {token: env.SANITY_API_TOKEN, studioUrl: 'http://localhost:3333'}
-        : undefined,
+    preview: {
+      enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
+      studioUrl: 'http://localhost:3333',
+      token: env.SANITY_API_TOKEN,
+    },
   })
 
   // 2. Make Sanity available to all action and loader contexts
@@ -151,11 +152,7 @@ declare module '@shopify/remix-oxygen' {
 
 Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy).
 
-`loadQuery` will not implement Hydrogen's caching when:
-
-- in preview mode or
-- when the Sanity Client config for `useCdn` is false or
-- when the `strategy` option is set to `null`.
+`loadQuery` results will skip Hydrogen's caching when in preview mode.
 
 Learn more about configuring [caching in Hydrogen on the Shopify documentation](https://shopify.dev/docs/custom-storefronts/hydrogen/caching).
 
@@ -175,6 +172,13 @@ If you need to pass any additional options to the request provide `queryOptions`
 
 ```ts
 const page = await context.sanity.loadQuery<HomePage>(query, params, {
+  // Optionally customize the cache strategy for this request
+  hydrogen: {
+    strategy: CacheShort(),
+    // Or disable caching for this request
+    // strategy: CacheNone(),
+  },
+
   // These additional options will be passed to sanity.loadQuery
   queryOptions: {
     tag: 'home',
@@ -182,10 +186,6 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
       'Accept-Encoding': 'br, gzip, *',
     },
   },
-  // Optionally customize the cache strategy for this request
-  // strategy: CacheShort(),
-  // Or disable caching for this request
-  // strategy: null,
 })
 ```
 
@@ -227,7 +227,7 @@ import {VisualEditing} from '@sanity/visual-editing/remix'
 export async function loader({context}: LoaderArgs) {
   return json({
     // ... other loader data
-    preview: context.sanity.preview,
+    preview: context.sanity.preview?.enabled,
   })
 }
 
@@ -482,7 +482,7 @@ export async function loader({context}: LoaderArgs) {
   return json({
     // ... other loader data
     // Return a boolean for if the app is in preview mode
-    preview: !!context.sanity.preview,
+    preview: context.sanity.preview?.enabled,
   })
 }
 

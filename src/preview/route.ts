@@ -20,12 +20,15 @@ export const action: ActionFunction = async ({context, request}) => {
 export const loader: LoaderFunction = async ({context, request}) => {
   const {env, sanity} = context
 
-  if (!env.SANITY_API_TOKEN) {
-    throw new Response('Preview mode missing token', {status: 401})
+  if (!sanity.preview?.token) {
+    throw new Response('Unable to enable preview mode. Please check your preview configuration', {
+      status: 401,
+    })
   }
 
   const clientWithToken = sanity.client.withConfig({
-    token: env.SANITY_API_TOKEN,
+    useCdn: false,
+    token: sanity.preview.token,
   })
 
   const {isValid, redirectTo = '/'} = await validatePreviewUrl(clientWithToken, request.url)
