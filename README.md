@@ -93,11 +93,13 @@ export default () => {
 
     // Optionally, enable Visual Editing
     // See "Visual Editing" section below to setup the preview route
-    preview: {
-      enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
-      studioUrl: 'http://localhost:3333',
-      token: env.SANITY_API_TOKEN,
-    },
+    preview: env.SANITY_API_TOKEN
+      ? {
+          enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
+          token: env.SANITY_API_TOKEN,
+          studioUrl: 'http://localhost:3333',
+        }
+      : undefined,
   })
 
   // 2. Make Sanity available to all action and loader contexts
@@ -234,7 +236,7 @@ First set up your root route to enable preview mode across the entire applicatio
 // ./app/root.tsx
 
 // ...other imports
-import {VisualEditing} from '@sanity/visual-editing/remix'
+import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 
 export async function loader({context}: LoaderArgs) {
   return json({
@@ -319,20 +321,22 @@ Add `http://localhost:3000` to the CORS origins in your Sanity project settings 
 
 ### Modify Content Security Policy for Studio domains
 
-You may receive errors in the console due to Content Security Policy (CSP) restrictions due to the default `frame-ancestors` configuration. Modify `entry.server.tsx` to allow any URL that the Studio runs on to display the app in an Iframe.
+You may receive errors in the console due to Content Security Policy (CSP) restrictions due to the default configuration. Modify `entry.server.tsx` to allow any URL that the Studio runs on to display the app in an Iframe.
 
 ```ts
 // ./app/entry.server.tsx
 
-// Replace this line
-// responseHeaders.set('Content-Security-Policy', header);
+const projectId = loadContext.env.SANITY_PROJECT_ID;
 
-// With this
-const safeFrameHeader = header.replace(
-  'frame-ancestors none',
-  'frame-ancestors http://localhost:3333'
-)
-responseHeaders.set('Content-Security-Policy', safeFrameHeader)
+const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+  // Include Sanity domains in the CSP
+  defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
+  connectSrc: [
+    `https://${projectId}.api.sanity.io`,
+    `wss://${projectId}.api.sanity.io`,
+  ],
+  frameAncestors: [`'self'`],
+});
 ```
 
 ### Setup Presentation Tool
@@ -350,7 +354,7 @@ export default defineConfig({
 
   plugins: [
     presentationTool({
-      previewUrl: {previewMode: {enable: 'http://localhost:3000/resource/preview'}},
+      previewUrl: {previewMode: {enable: '/resource/preview'}},
     }),
     // ..all other plugins
   ],
@@ -481,7 +485,7 @@ Update your imports:
 // ./root.tsx
 
 - import {PreviewProvider, getPreview} from 'hydrogen-sanity'
-+ import {VisualEditing} from '@sanity/visual-editing/remix'
++ import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 ```
 
 Update root loader and default export to remove the old `PreviewProvider` and replace it with the conditionally imported `VisualEditing` component:

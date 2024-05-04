@@ -58,6 +58,14 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
 
+  /**
+   * TODO: should this default to the latest API version?
+   * Or at least warn if a version that doesn't support perspectivves is used?
+   */
+  if (client.config().apiVersion === '1') {
+    client = client.withConfig({apiVersion: 'v2022-03-07'})
+  }
+
   if (preview && preview.enabled) {
     if (!preview.token) {
       throw new Error('Enabling preview mode requires a token.')
