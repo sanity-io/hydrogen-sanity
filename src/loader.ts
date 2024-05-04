@@ -97,6 +97,11 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
 
       const queryHash = await hashQuery(query, params)
 
+      /**
+       * TODO: add a way to add debug information to the subrequest profiler
+       * https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
+       * maybe in the `hydrogen` option?
+       */
       return withCache(queryHash, cacheStrategy, () => {
         return queryStore.loadQuery<T>(query, params, loaderOptions)
       })
