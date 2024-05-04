@@ -1,5 +1,6 @@
+/* eslint-disable no-return-await */
 import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
-import {CacheLong, createWithCache} from '@shopify/hydrogen'
+import {CacheLong, type WithCache} from '@shopify/hydrogen'
 
 import {
   type ClientConfig,
@@ -13,7 +14,7 @@ import type {CachingStrategy} from './types'
 import {hashQuery} from './utils'
 
 export type CreateSanityLoaderOptions = {
-  withCache: ReturnType<typeof createWithCache>
+  withCache: WithCache
   client: SanityClient | ClientConfig
   strategy?: CachingStrategy | null
   preview?: {enabled: boolean; token: string; studioUrl: string}
@@ -21,7 +22,19 @@ export type CreateSanityLoaderOptions = {
 
 interface RequestInit {
   hydrogen?: {
+    /**
+     * The caching strategy to use for the subrequest.
+     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
+     */
     cache?: CachingStrategy
+
+    /**
+     * Optional debugging information to be displayed in the subrequest profiler.
+     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
+     */
+    debug?: {
+      displayName: string
+    }
   }
 }
 
@@ -97,13 +110,22 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
 
       const queryHash = await hashQuery(query, params)
 
-      /**
-       * TODO: add a way to add debug information to the subrequest profiler
-       * https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
-       * maybe in the `hydrogen` option?
-       */
-      return withCache(queryHash, cacheStrategy, () => {
-        return queryStore.loadQuery<T>(query, params, loaderOptions)
+      return await withCache(queryHash, cacheStrategy, async ({addDebugData}) => {
+        try {
+          const result = await queryStore.loadQuery<T>(query, params, loaderOptions)
+
+          // eslint-disable-next-line no-process-env
+          if (process.env.NODE_ENV === 'development') {
+            addDebugData({
+              displayName: 'query Sanity',
+              ...(loaderOptions?.hydrogen?.debug ? loaderOptions.hydrogen.debug : {}),
+            })
+          }
+
+          return result
+        } catch (error) {
+          throw error
+        }
       })
     },
     client,

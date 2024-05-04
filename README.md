@@ -74,8 +74,9 @@ export default () => {
       apiVersion: env.SANITY_API_VERSION || '2023-03-30',
       useCdn: process.env.NODE_ENV === 'production',
 
-      // In preview mode, `stega` will automatically be enabled
-      // If you need to configure steganography, you can pass it here
+      // In preview mode, `stega` will be enabled automatically
+      // If you need to configure the client's steganography settings,
+      // you can do so here
       // stega: {
       //   logger: console
       // }
@@ -191,6 +192,12 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
     strategy: CacheShort(),
     // Or disable caching for this request
     // strategy: CacheNone(),
+
+    // If you'd like to add a custom display title that will
+    // display in the subrequest profiler, you can pass that here:
+    // debug: {
+    //   displayName: 'query Homepage'
+    // }
   },
 
   // These additional options will be passed to sanity.loadQuery
