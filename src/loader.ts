@@ -1,12 +1,12 @@
-import type {QueryParams} from '@sanity/client'
 import {
   type ClientConfig,
-  type ClientPerspective,
   createClient,
+  type QueryParams,
+  type QueryWithoutParams,
+  type ResponseQueryOptions,
   type SanityClient,
-  type UnfilteredResponseQueryOptions,
 } from '@sanity/client'
-import {createQueryStore, type QueryResponseInitial, type QueryStore} from '@sanity/react-loader'
+import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
 import {CacheLong, createWithCache} from '@shopify/hydrogen'
 
 import type {CachingStrategy} from './types'
@@ -19,19 +19,26 @@ export type CreateSanityLoaderOptions = {
   preview?: {token: string; studioUrl: string}
 }
 
-type LoadQueryParameters = Parameters<QueryStore['loadQuery']>
-type LoadQueryExtendedOptions = Partial<
-  LoadQueryParameters[2] & {
-    strategy?: CachingStrategy | null
-    queryOptions: Partial<UnfilteredResponseQueryOptions>
+interface RequestInit {
+  hydrogen?: {
+    cache?: CachingStrategy
   }
+}
+
+type HydrogenResponseQueryOptions = Omit<ResponseQueryOptions, 'next' | 'cache'> & {
+  hydrogen?: 'hydrogen' extends keyof RequestInit ? RequestInit['hydrogen'] : never
+}
+
+type LoadQueryOptions = Pick<
+  HydrogenResponseQueryOptions,
+  'perspective' | 'hydrogen' | 'useCdn' | 'stega'
 >
 
 export type Sanity = {
-  loadQuery<T>(
+  loadQuery<T = any>(
     query: string,
     params?: QueryParams,
-    options?: LoadQueryExtendedOptions
+    options?: LoadQueryOptions
   ): Promise<QueryResponseInitial<T>>
   client: SanityClient
   preview?: boolean
@@ -43,7 +50,7 @@ const queryStore = createQueryStore({client: false, ssr: true})
  * Configure Sanity's React Loader and Client.
  */
 export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
-  const {withCache, config, preview} = options
+  const {withCache, config, preview, strategy} = options
   let previewMode = false
   let client = createClient(config)
 
@@ -57,7 +64,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
     const previewConfig = {
       useCdn: false,
       token: preview.token,
-      perspective: 'previewDrafts' as ClientPerspective,
+      perspective: 'previewDrafts' as const,
       stega: {enabled: true, studioUrl: preview.studioUrl},
     }
 
@@ -67,29 +74,17 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
   queryStore.setServerClient(client)
 
   const sanity: Sanity = {
-    async loadQuery<T = any>(
+    async loadQuery<T>(
       query: string,
-      params: QueryParams | undefined = {},
-      loadQueryExtendedOptions?: LoadQueryExtendedOptions
+      params: QueryParams | QueryWithoutParams,
+      loaderOptions?: LoadQueryOptions
     ): Promise<QueryResponseInitial<T>> {
       // Global default
-      let cacheStrategy: CachingStrategy | null = CacheLong()
+      let cacheStrategy: CachingStrategy = strategy || CacheLong()
 
-      if (
-        loadQueryExtendedOptions &&
-        'strategy' in loadQueryExtendedOptions &&
-        // Could be null
-        loadQueryExtendedOptions.strategy !== undefined
-      ) {
+      if (loaderOptions?.hydrogen?.cache) {
         // Configuration at time of use in Loader
-        cacheStrategy = loadQueryExtendedOptions.strategy
-      } else if (
-        'strategy' in options &&
-        // Could be null
-        options.strategy !== undefined
-      ) {
-        // Configuration at base in server.ts
-        cacheStrategy = options.strategy
+        cacheStrategy = loaderOptions.hydrogen.cache
       }
 
       // Skip Hydrogen cache when:
@@ -98,17 +93,17 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
       // - cache strategy is null
       if (
         previewMode ||
-        client.config().useCdn === false ||
-        loadQueryExtendedOptions?.useCdn === false ||
+        client.config().useCdn == false ||
+        (loaderOptions && loaderOptions.useCdn === false) ||
         !cacheStrategy
       ) {
-        return queryStore.loadQuery<T>(query, params, loadQueryExtendedOptions?.queryOptions)
+        return queryStore.loadQuery<T>(query, params, loaderOptions)
       }
 
       const queryHash = await hashQuery(query, params)
 
       return withCache(queryHash, cacheStrategy, () => {
-        return queryStore.loadQuery<T>(query, params, loadQueryExtendedOptions?.queryOptions)
+        return queryStore.loadQuery<T>(query, params, loaderOptions)
       })
     },
     client,

@@ -1,11 +1,13 @@
 /* eslint-disable max-nested-callbacks */
+import {SanityClient} from '@sanity/client'
 import type {QueryStore} from '@sanity/react-loader'
-import {createWithCache} from '@shopify/hydrogen'
+import {CacheShort, createWithCache} from '@shopify/hydrogen'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createSanityLoader} from './loader'
+import {hashQuery} from './utils'
 
-const mockedLoadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
+const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
 
 vi.mock('@sanity/react-loader', async (importOriginal) => {
   const module = await importOriginal<typeof import('@sanity/react-loader')>()
@@ -15,7 +17,7 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
     ...module,
     createQueryStore: vi.fn().mockReturnValue({
       ...queryStore,
-      loadQuery: mockedLoadQuery,
+      loadQuery,
     }),
   }
 })
@@ -26,7 +28,7 @@ const cache: Cache = {
   addAll: vi.fn().mockResolvedValue(undefined),
   delete: vi.fn().mockResolvedValue(true),
   keys: vi.fn().mockResolvedValue([]),
-  match: vi.fn().mockResolvedValue(null),
+  match: vi.fn().mockResolvedValue(undefined),
   matchAll: vi.fn().mockResolvedValue([]),
   put: vi.fn().mockResolvedValue(undefined),
 }
@@ -35,13 +37,48 @@ function waitUntil() {
   return Promise.resolve()
 }
 
-const withCache = vi.fn().mockImplementation(createWithCache({cache, waitUntil}))
+type WithCache = ReturnType<typeof createWithCache>
+
+const withCache: WithCache = vi.fn().mockImplementation(createWithCache({cache, waitUntil}))
 
 const projectId = 'my-project-id'
 const dataset = 'my-dataset'
 
 beforeEach(() => {
   vi.clearAllMocks()
+})
+
+describe('the loader', async () => {
+  const query = 'true'
+  const params = {}
+  const hashedQuery = await hashQuery(query, params)
+
+  const loader = createSanityLoader({withCache, config: {projectId, dataset}})
+
+  it('should return a client', () => {
+    expect(loader.client).toSatisfy((client) => client instanceof SanityClient)
+  })
+
+  it('queries should get cached using the default caching strategy', async () => {
+    const strategy = CacheShort()
+
+    const loaderWithDefaultStrategy = createSanityLoader({
+      withCache,
+      config: {projectId, dataset},
+      strategy,
+    })
+
+    await loaderWithDefaultStrategy.loadQuery<boolean>(query, params)
+    expect(withCache).toHaveBeenCalledWith(hashedQuery, strategy, expect.any(Function))
+    expect(cache.put).toHaveBeenCalled()
+  })
+
+  it('queries should use the cache strategy passed in `loadQuery`', async () => {
+    const strategy = CacheShort()
+    await loader.loadQuery<boolean>(query, params, {hydrogen: {cache: strategy}})
+    expect(withCache).toHaveBeenCalledWith(hashedQuery, strategy, expect.any(Function))
+    expect(cache.put).toHaveBeenCalled()
+  })
 })
 
 describe('when configured for preview', () => {
@@ -80,14 +117,14 @@ describe('when configured for preview', () => {
 
   it(`shouldn't cache queries`, async () => {
     await previewLoader.loadQuery<boolean>('true')
-    expect(mockedLoadQuery).toHaveBeenCalledOnce()
+    expect(loadQuery).toHaveBeenCalledOnce()
     expect(cache.put).not.toHaveBeenCalled()
   })
 })
 
 describe('when not configured for preview', () => {
   it(`shouldn't cache queries when using API`, async () => {
-    const uncachedLoader = createSanityLoader({
+    const loader = createSanityLoader({
       withCache,
       config: {
         projectId,
@@ -96,10 +133,10 @@ describe('when not configured for preview', () => {
       },
     })
 
-    expect(uncachedLoader.client.config().useCdn).toBe(false)
+    expect(loader.client.config().useCdn).toBe(false)
 
-    await uncachedLoader.loadQuery<boolean>('true')
-    expect(mockedLoadQuery).toHaveBeenCalledOnce()
+    await loader.loadQuery<boolean>('true')
+    expect(loadQuery).toHaveBeenCalledOnce()
     expect(cache.put).not.toHaveBeenCalled()
   })
 })
