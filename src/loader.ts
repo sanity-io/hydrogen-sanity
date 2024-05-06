@@ -30,6 +30,7 @@ export type CreateSanityLoaderOptions = {
   /**
    * The default caching strategy to use for `loadQuery` subrequests.
    * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
+   *
    * Defaults to `CacheLong`
    */
   strategy?: CachingStrategy | null
@@ -116,17 +117,17 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
       throw new Error('Enabling preview mode requires a token.')
     }
 
-    const previewConfig = {
+    const previewClient = client.withConfig({
       useCdn: false,
       token: preview.token,
       perspective: 'previewDrafts' as const,
       stega: {enabled: true, studioUrl: preview.studioUrl},
-    }
+    })
 
-    client = client.withConfig(previewConfig)
+    queryStore.setServerClient(previewClient)
+  } else {
+    queryStore.setServerClient(client)
   }
-
-  queryStore.setServerClient(client)
 
   const sanity = {
     async loadQuery<T>(
