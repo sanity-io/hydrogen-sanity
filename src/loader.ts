@@ -13,10 +13,30 @@ import {
 import type {CachingStrategy} from './types'
 import {hashQuery} from './utils'
 
+const DEFAULT_CACHE_STRATEGY = CacheLong()
+
 export type CreateSanityLoaderOptions = {
+  /**
+   * Cache control utility from `@shopify/hydrogen`.
+   * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching/third-party
+   */
   withCache: WithCache
+
+  /**
+   * Sanity client or configuration to use.
+   */
   client: SanityClient | ClientConfig
+
+  /**
+   * The default caching strategy to use for `loadQuery` subrequests.
+   * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
+   * Defaults to `CacheLong`
+   */
   strategy?: CachingStrategy | null
+
+  /**
+   * Configuration for enabling preview mode.
+   */
   preview?: {enabled: boolean; token: string; studioUrl: string}
 }
 
@@ -48,17 +68,19 @@ type LoadQueryOptions = Pick<
 >
 
 export type SanityLoader = {
+  /**
+   * Query Sanity using the loader.
+   * @see https://www.sanity.io/docs/loaders
+   */
   loadQuery<T = any>(
     query: string,
     params?: QueryParams,
     options?: LoadQueryOptions
   ): Promise<QueryResponseInitial<T>>
+
   client: SanityClient
-  preview?: {
-    enabled: boolean
-    token: string
-    studioUrl: string
-  }
+
+  preview?: CreateSanityLoaderOptions['preview']
 }
 
 declare module '@shopify/remix-oxygen' {
@@ -74,7 +96,7 @@ declare module '@shopify/remix-oxygen' {
 const queryStore = createQueryStore({client: false, ssr: true})
 
 /**
- * Configure Sanity's React Loader and Client.
+ * @public
  */
 export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLoader {
   const {withCache, preview, strategy} = options
@@ -106,13 +128,13 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
 
   queryStore.setServerClient(client)
 
-  const sanity: SanityLoader = {
+  const sanity = {
     async loadQuery<T>(
       query: string,
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions
     ): Promise<QueryResponseInitial<T>> {
-      const cacheStrategy = loaderOptions?.hydrogen?.cache || strategy || CacheLong()
+      const cacheStrategy = loaderOptions?.hydrogen?.cache || strategy || DEFAULT_CACHE_STRATEGY
 
       if (preview && preview.enabled) {
         return queryStore.loadQuery<T>(query, params, loaderOptions)
