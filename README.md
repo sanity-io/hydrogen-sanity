@@ -333,17 +333,14 @@ You may receive errors in the console due to Content Security Policy (CSP) restr
 ```ts
 // ./app/entry.server.tsx
 
-const projectId = loadContext.env.SANITY_PROJECT_ID;
+const projectId = loadContext.env.SANITY_PROJECT_ID
 
 const {nonce, header, NonceProvider} = createContentSecurityPolicy({
   // Include Sanity domains in the CSP
   defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
-  connectSrc: [
-    `https://${projectId}.api.sanity.io`,
-    `wss://${projectId}.api.sanity.io`,
-  ],
+  connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
   frameAncestors: [`'self'`],
-});
+})
 ```
 
 ### Setup Presentation Tool
@@ -435,7 +432,6 @@ export async function loader({context, params}: LoaderArgs) {
 ## Migration Guides
 
 - [From `v3` to `v4`][migrate-v3-to-v4]
-
 
 ## License
 
