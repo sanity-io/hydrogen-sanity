@@ -1,6 +1,6 @@
 /* eslint-disable no-return-await */
 import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
-import {CacheLong, type HydrogenSession, type WithCache} from '@shopify/hydrogen'
+import {CacheLong, CacheNone, type HydrogenSession, type WithCache} from '@shopify/hydrogen'
 
 import {
   type ClientConfig,
@@ -135,11 +135,11 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions
     ): Promise<QueryResponseInitial<T>> {
-      const cacheStrategy = loaderOptions?.hydrogen?.cache || strategy || DEFAULT_CACHE_STRATEGY
-
-      if (preview && preview.enabled) {
-        return queryStore.loadQuery<T>(query, params, loaderOptions)
-      }
+      // Don't store response if preview is enabled
+      const cacheStrategy =
+        preview && preview.enabled
+          ? CacheNone()
+          : loaderOptions?.hydrogen?.cache || strategy || DEFAULT_CACHE_STRATEGY
 
       const queryHash = await hashQuery(query, params)
 
@@ -149,9 +149,11 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
 
           // eslint-disable-next-line no-process-env
           if (process.env.NODE_ENV === 'development') {
+            // Name displayed in the subrequest profiler
+            const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
+
             addDebugData({
-              displayName: 'query Sanity',
-              ...(loaderOptions?.hydrogen?.debug ? loaderOptions.hydrogen.debug : {}),
+              displayName,
             })
           }
 
