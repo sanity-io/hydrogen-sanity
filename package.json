@@ -42,6 +42,12 @@
       "require": "./dist/visual-editing/index.cjs",
       "default": "./dist/visual-editing/index.js"
     },
+    "./groq": {
+      "source": "./src/groq.ts",
+      "import": "./dist/groq.js",
+      "require": "./dist/groq.cjs",
+      "default": "./dist/groq.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -54,6 +60,9 @@
       ],
       "visual-editing": [
         "./dist/visual-editing/index.d.ts"
+      ],
+      "groq": [
+        "./dist/groq.d.ts"
       ]
     }
   },

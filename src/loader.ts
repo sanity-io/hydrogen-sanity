@@ -1,6 +1,6 @@
 /* eslint-disable no-return-await */
 import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
-import {CacheLong, type WithCache} from '@shopify/hydrogen'
+import {CacheLong, type HydrogenSession, type WithCache} from '@shopify/hydrogen'
 
 import {
   type ClientConfig,
@@ -47,7 +47,7 @@ type LoadQueryOptions = Pick<
   'perspective' | 'hydrogen' | 'useCdn' | 'stega'
 >
 
-export type Sanity = {
+export type SanityLoader = {
   loadQuery<T = any>(
     query: string,
     params?: QueryParams,
@@ -61,12 +61,22 @@ export type Sanity = {
   }
 }
 
+declare module '@shopify/remix-oxygen' {
+  /**
+   * Declare local additions to the Remix loader context.
+   */
+  export interface AppLoadContext {
+    session: HydrogenSession
+    sanity: SanityLoader
+  }
+}
+
 const queryStore = createQueryStore({client: false, ssr: true})
 
 /**
  * Configure Sanity's React Loader and Client.
  */
-export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
+export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLoader {
   const {withCache, preview, strategy} = options
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
@@ -96,7 +106,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): Sanity {
 
   queryStore.setServerClient(client)
 
-  const sanity: Sanity = {
+  const sanity: SanityLoader = {
     async loadQuery<T>(
       query: string,
       params: QueryParams | QueryWithoutParams,
