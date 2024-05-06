@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({context, request}) => {
 
   if (!sanity.preview?.token || !projectId) {
     throw new Response('Unable to enable preview mode. Please check your preview configuration', {
-      status: 401,
+      status: 500,
     })
   }
 

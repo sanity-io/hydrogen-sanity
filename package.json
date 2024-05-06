@@ -65,6 +65,7 @@
     "build": "pkg build --strict --clean --check",
     "format": "prettier --write --cache --ignore-unknown .",
     "link-watch": "plugin-kit link-watch",
+    "typecheck": "tsc",
     "lint": "eslint --ignore-path .gitignore .",
     "prepare": "husky",
     "prepublishOnly": "npm run build",
