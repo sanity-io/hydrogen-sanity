@@ -16,7 +16,7 @@ on:
   pull_request:
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
-    branches: [main]
+    branches: [main, beta]
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch:
     inputs:
@@ -50,7 +50,7 @@ jobs:
         with:
           cache: npm
           node-version: lts/*
-      - run: npm ci
+      - run: npm i
         # Linting can be skipped
       - run: npm run lint --if-present
         if: github.event.inputs.test != 'false'
@@ -74,7 +74,7 @@ jobs:
         include:
           - os: ubuntu-latest
             # Test the oldest LTS release of Node that's still receiving bugfixes and security patches, versions older than that have reached End-of-Life
-            node: lts/-2
+            node: lts/-1
           - os: ubuntu-latest
             # Test the actively developed version that will become the latest LTS release next October
             node: current
@@ -114,7 +114,7 @@ jobs:
         with:
           cache: npm
           node-version: lts/*
-      - run: npm ci
+      - run: npm i
         # Branches that will release new versions are defined in .releaserc.json
       - run: npx semantic-release
         # Don't allow interrupting the release step if the job is cancelled, as it can lead to an inconsistent state

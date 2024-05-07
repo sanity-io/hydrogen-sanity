@@ -1,3 +1,2 @@
 export * from './client'
-export * from './preview'
-export * from './types'
+export {createSanityLoader, type SanityLoader} from './loader'
