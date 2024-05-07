@@ -50,7 +50,7 @@ jobs:
         with:
           cache: npm
           node-version: lts/*
-      - run: npm ci
+      - run: npm i
         # Linting can be skipped
       - run: npm run lint --if-present
         if: github.event.inputs.test != 'false'
@@ -114,7 +114,7 @@ jobs:
         with:
           cache: npm
           node-version: lts/*
-      - run: npm ci
+      - run: npm i
         # Branches that will release new versions are defined in .releaserc.json
       - run: npx semantic-release
         # Don't allow interrupting the release step if the job is cancelled, as it can lead to an inconsistent state
