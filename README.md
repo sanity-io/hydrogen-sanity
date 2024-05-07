@@ -33,15 +33,15 @@
 ## Installation
 
 ```sh
-npm install hydrogen-sanity@beta
+npm install hydrogen-sanity
 ```
 
 ```sh
-yarn add hydrogen-sanity@beta
+yarn add hydrogen-sanity
 ```
 
 ```sh
-pnpm install hydrogen-sanity@beta
+pnpm install hydrogen-sanity
 ```
 
 ## Usage
@@ -449,4 +449,4 @@ Make sure to select the main branch and check "Release new version".
 
 Semantic release will only release on configured branches, so it is safe to run release on any branch.
 
-[migrate-v3-to-v4]: https://github.com/sanity-io/hydrogen-sanity/blob/beta/MIGRATE-v3-to-v4.md
+[migrate-v3-to-v4]: https://github.com/sanity-io/hydrogen-sanity/blob/main/MIGRATE-v3-to-v4.md
