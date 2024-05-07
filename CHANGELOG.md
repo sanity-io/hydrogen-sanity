@@ -5,6 +5,81 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/sanity-io/hydrogen-sanity/compare/v3.4.1...v4.0.0) (2024-05-07)
+
+### ⚠ BREAKING CHANGES
+
+- pass client to loader
+- adjust preview mode
+- import names and response shapes have changes
+
+- chore: add migration details
+
+- feat: rewrite readme, update loader
+
+- chore: more docs
+
+- feat: redo 'query' to 'loadQueryCached'
+
+- fix: remove loadQueryCached
+
+- fix: remove loadQueryCached
+
+- fix: improve cache option logic
+
+- chore: update readme
+
+- chore: add prerelease channel
+
+- chore: update prerelease
+
+- fix: make loader options param optional
+- import names and response shapes have changes
+
+- chore: add migration details
+
+- feat: rewrite readme, update loader
+
+- chore: more docs
+
+- feat: redo 'query' to 'loadQueryCached'
+
+- fix: remove loadQueryCached
+
+- fix: remove loadQueryCached
+
+- fix: improve cache option logic
+
+- chore: update readme
+
+- chore: add prerelease channel
+
+- chore: update prerelease
+
+- Feat/loaders (#50) ([53ec343](https://github.com/sanity-io/hydrogen-sanity/commit/53ec343092f80aff716fc812cb099ecf021ce55e)), closes [#50](https://github.com/sanity-io/hydrogen-sanity/issues/50)
+- hydrogen v4 prerelease (#49) ([07c4144](https://github.com/sanity-io/hydrogen-sanity/commit/07c4144672bff0149e2612aac6d03e40a2fefe6d)), closes [#49](https://github.com/sanity-io/hydrogen-sanity/issues/49)
+
+### Features
+
+- add `groq` export ([a9627f8](https://github.com/sanity-io/hydrogen-sanity/commit/a9627f82a80e88b284b8eb0e12287dfc6543957e))
+- add debug to loader ([2113f12](https://github.com/sanity-io/hydrogen-sanity/commit/2113f127bf2c9f78c07be87f4030ed71b8557f12))
+- add package export for preview route ([1097c03](https://github.com/sanity-io/hydrogen-sanity/commit/1097c038d4e0deee6f08d1fa46096d828e77cbcf))
+- adjust preview mode ([891a3c5](https://github.com/sanity-io/hydrogen-sanity/commit/891a3c502bc5fc97d706de42e1e0ccac7839251d))
+- export visual editing component ([c708c71](https://github.com/sanity-io/hydrogen-sanity/commit/c708c7193376cf220a00644c47d798f41b7bef55))
+- pass client to loader ([23c0487](https://github.com/sanity-io/hydrogen-sanity/commit/23c0487c228b8f7ac43a1207ee8c0fad80c992c2))
+- use `withCache` ([b874176](https://github.com/sanity-io/hydrogen-sanity/commit/b874176e35df0af35b9af9da1ccda8f1cf283099))
+- use projectId from client config ([612abf0](https://github.com/sanity-io/hydrogen-sanity/commit/612abf07be3bd999c9a0150974d02f188d3de9dc))
+
+### Bug Fixes
+
+- adjust preview route ([848b16e](https://github.com/sanity-io/hydrogen-sanity/commit/848b16ecf7da29d687da9aef7a225168fb88b420))
+- adjust types ([abbec6f](https://github.com/sanity-io/hydrogen-sanity/commit/abbec6fc24f55bf79de4befd4f58f2cade094d75))
+- don't rely on environment variable naming for route ([1b5746f](https://github.com/sanity-io/hydrogen-sanity/commit/1b5746f0ebf153691773f015a9903be390573980))
+- log uncached subrequests ([059d9b5](https://github.com/sanity-io/hydrogen-sanity/commit/059d9b5160d02b4dae529186bbc2e3cee167dd5c))
+- return client untouched and use preview client for preview loader ([b3db374](https://github.com/sanity-io/hydrogen-sanity/commit/b3db374a608e83893d406adb311e3c07e25ce323))
+- update dependencies `@sanity/client`, `@sanity/react-loader`, and `@sanity/visual-editing` ([7f25dee](https://github.com/sanity-io/hydrogen-sanity/commit/7f25dee57e1c4bb9f2bedc3bea2db356f6b064d5))
+- upgrade dependencies ([c7af2a1](https://github.com/sanity-io/hydrogen-sanity/commit/c7af2a13f5c57fca7788e7b876cf2d41356317d7))
+
 ## [4.0.0-beta.5](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.4...v4.0.0-beta.5) (2024-05-07)
 
 ### ⚠ BREAKING CHANGES
