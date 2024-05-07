@@ -5,6 +5,30 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.5](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.4...v4.0.0-beta.5) (2024-05-07)
+
+### ⚠ BREAKING CHANGES
+
+- pass client to loader
+- adjust preview mode
+
+### Features
+
+- add `groq` export ([a9627f8](https://github.com/sanity-io/hydrogen-sanity/commit/a9627f82a80e88b284b8eb0e12287dfc6543957e))
+- add debug to loader ([2113f12](https://github.com/sanity-io/hydrogen-sanity/commit/2113f127bf2c9f78c07be87f4030ed71b8557f12))
+- adjust preview mode ([891a3c5](https://github.com/sanity-io/hydrogen-sanity/commit/891a3c502bc5fc97d706de42e1e0ccac7839251d))
+- export visual editing component ([c708c71](https://github.com/sanity-io/hydrogen-sanity/commit/c708c7193376cf220a00644c47d798f41b7bef55))
+- pass client to loader ([23c0487](https://github.com/sanity-io/hydrogen-sanity/commit/23c0487c228b8f7ac43a1207ee8c0fad80c992c2))
+- use `withCache` ([b874176](https://github.com/sanity-io/hydrogen-sanity/commit/b874176e35df0af35b9af9da1ccda8f1cf283099))
+- use projectId from client config ([612abf0](https://github.com/sanity-io/hydrogen-sanity/commit/612abf07be3bd999c9a0150974d02f188d3de9dc))
+
+### Bug Fixes
+
+- don't rely on environment variable naming for route ([1b5746f](https://github.com/sanity-io/hydrogen-sanity/commit/1b5746f0ebf153691773f015a9903be390573980))
+- log uncached subrequests ([059d9b5](https://github.com/sanity-io/hydrogen-sanity/commit/059d9b5160d02b4dae529186bbc2e3cee167dd5c))
+- return client untouched and use preview client for preview loader ([b3db374](https://github.com/sanity-io/hydrogen-sanity/commit/b3db374a608e83893d406adb311e3c07e25ce323))
+- upgrade dependencies ([c7af2a1](https://github.com/sanity-io/hydrogen-sanity/commit/c7af2a13f5c57fca7788e7b876cf2d41356317d7))
+
 ## [4.0.0-beta.4](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.0-beta.3...v4.0.0-beta.4) (2024-04-18)
 
 ### Bug Fixes
