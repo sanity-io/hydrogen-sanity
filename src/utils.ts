@@ -21,7 +21,7 @@ export async function sha256(message: string): Promise<string> {
  */
 export function hashQuery(
   query: string,
-  params: QueryParams | QueryWithoutParams
+  params: QueryParams | QueryWithoutParams,
 ): Promise<string> {
   let hash = query
 

@@ -93,8 +93,8 @@ describe('when configured for preview', () => {
 
   it('should throw if a token is not provided', () => {
     expect(() =>
-      // @ts-expect-error
-      createSanityLoader({cache, waitUntil, client, preview: {enabled: true}})
+      // @ts-expect-error meant to test invalid configuration
+      createSanityLoader({cache, waitUntil, client, preview: {enabled: true}}),
     ).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
   })
 
