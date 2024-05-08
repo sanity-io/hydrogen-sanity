@@ -73,10 +73,11 @@ export type SanityLoader = {
    * Query Sanity using the loader.
    * @see https://www.sanity.io/docs/loaders
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadQuery<T = any>(
     query: string,
     params?: QueryParams,
-    options?: LoadQueryOptions
+    options?: LoadQueryOptions,
   ): Promise<QueryResponseInitial<T>>
 
   client: SanityClient
@@ -133,7 +134,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
     async loadQuery<T>(
       query: string,
       params: QueryParams | QueryWithoutParams,
-      loaderOptions?: LoadQueryOptions
+      loaderOptions?: LoadQueryOptions,
     ): Promise<QueryResponseInitial<T>> {
       // Don't store response if preview is enabled
       const cacheStrategy =
@@ -144,23 +145,17 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
       const queryHash = await hashQuery(query, params)
 
       return await withCache(queryHash, cacheStrategy, async ({addDebugData}) => {
-        try {
-          const result = await queryStore.loadQuery<T>(query, params, loaderOptions)
+        // eslint-disable-next-line no-process-env
+        if (process.env.NODE_ENV === 'development') {
+          // Name displayed in the subrequest profiler
+          const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
 
-          // eslint-disable-next-line no-process-env
-          if (process.env.NODE_ENV === 'development') {
-            // Name displayed in the subrequest profiler
-            const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
-
-            addDebugData({
-              displayName,
-            })
-          }
-
-          return result
-        } catch (error) {
-          throw error
+          addDebugData({
+            displayName,
+          })
         }
+
+        return await queryStore.loadQuery<T>(query, params, loaderOptions)
       })
     },
     client,
