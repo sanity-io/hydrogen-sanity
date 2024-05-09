@@ -16,7 +16,7 @@
     - [Modify Content Security Policy for Studio domains](#modify-content-security-policy-for-studio-domains)
     - [Setup Presentation Tool](#setup-presentation-tool)
   - [Using `@sanity/client` instead of hydrogen-sanity](#using-sanityclient-instead-of-hydrogen-sanity)
-- [Migrate to v4 from v3](#migrate-to-v4-from-v3)
+- [Migrate to v4 from v3](#migration-guides)
   - [License](#license)
   - [Develop \& test](#develop--test)
     - [Release new version](#release-new-version)
