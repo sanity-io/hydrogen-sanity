@@ -1,17 +1,32 @@
 import type {VisualEditingProps} from '@sanity/visual-editing/remix'
 import {lazy, type ReactElement, Suspense} from 'react'
 
-const VisualEditingComponent = lazy(() =>
-  import('@sanity/visual-editing/remix').then((mod) => ({default: mod.VisualEditing})),
-)
+/**
+ * Provide a consistent fallback to prevent hydration mismatch errors.
+ */
+function VisualEditingFallback(): ReactElement {
+  return <></>
+}
 
 /**
- * Enables visual editing on the front-end
- * @see https://www.sanity.io/docs/introduction-to-visual-editing
+ * If server-side rendering, then return the fallback instead of the heavy dependency.
+ * @see https://remix.run/docs/en/1.14.3/guides/constraints#browser-only-code-on-the-server
  */
+const VisualEditingComponent =
+  typeof document === 'undefined'
+    ? VisualEditingFallback
+    : lazy(
+        () =>
+          /**
+           * `lazy` expects the component as the default export
+           * @see https://react.dev/reference/react/lazy
+           */
+          import('./VisualEditing.client'),
+      )
+
 export function VisualEditing(props: VisualEditingProps): ReactElement {
   return (
-    <Suspense fallback={null}>
+    <Suspense>
       <VisualEditingComponent {...props} />
     </Suspense>
   )
