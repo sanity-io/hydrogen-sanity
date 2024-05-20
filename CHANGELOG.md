@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.3](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.2...v4.0.3) (2024-05-20)
+
+### Bug Fixes
+
+- ensure `VisualEditing` isn't added to the server bundle ([ba3d3e6](https://github.com/sanity-io/hydrogen-sanity/commit/ba3d3e6608b3f32e9769883610e49d00caeed71f))
+
 ## [4.0.2](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.1...v4.0.2) (2024-05-08)
 
 ### Bug Fixes
