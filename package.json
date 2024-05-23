@@ -2,10 +2,14 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "package"
+    "package",
+    "examples/*"
   ],
   "scripts": {
     "prepare": "husky",
+    "build": "npm -ws run build --if-present",
+    "typecheck": "npm -ws run build --if-present",
+    "lint": "npm -ws run lint --if-present",
     "test": "vitest",
     "format": "prettier --write --cache --ignore-unknown ."
   },
