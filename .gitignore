@@ -48,6 +48,7 @@ jspm_packages
 
 # Cache
 .cache
+.eslintcache
 
 # Yalc
 .yalc

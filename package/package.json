@@ -1,0 +1,106 @@
+{
+  "name": "hydrogen-sanity",
+  "version": "4.0.3",
+  "description": "Sanity.io toolkit for Hydrogen",
+  "keywords": [
+    "sanity",
+    "sanity.io",
+    "shopify",
+    "hydrogen",
+    "remix",
+    "live",
+    "preview"
+  ],
+  "homepage": "https://github.com/sanity-io/hydrogen-sanity#readme",
+  "bugs": {
+    "url": "https://github.com/sanity-io/hydrogen-sanity/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sanity-io/hydrogen-sanity.git"
+  },
+  "license": "MIT",
+  "author": "Sanity.io <hello@sanity.io>",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./preview/route": {
+      "source": "./src/preview/route.ts",
+      "import": "./dist/preview/route.js",
+      "require": "./dist/preview/route.cjs",
+      "default": "./dist/preview/route.js"
+    },
+    "./visual-editing": {
+      "source": "./src/visual-editing/index.ts",
+      "import": "./dist/visual-editing/index.js",
+      "require": "./dist/visual-editing/index.cjs",
+      "default": "./dist/visual-editing/index.js"
+    },
+    "./groq": {
+      "source": "./src/groq.ts",
+      "import": "./dist/groq.js",
+      "require": "./dist/groq.cjs",
+      "default": "./dist/groq.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "preview/route": [
+        "./dist/preview/route.d.ts"
+      ],
+      "visual-editing": [
+        "./dist/visual-editing/index.d.ts"
+      ],
+      "groq": [
+        "./dist/groq.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "pkg build --strict --clean --check",
+    "link-watch": "plugin-kit link-watch",
+    "lint": "eslint --cache .",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc",
+    "watch": "pkg-utils watch --strict"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.18.0",
+    "@sanity/preview-url-secret": "^1.6.13",
+    "@sanity/react-loader": "^1.9.17",
+    "@sanity/visual-editing": "^1.8.18",
+    "groq": "^3.41.0"
+  },
+  "devDependencies": {
+    "@shopify/hydrogen": "~2024.4.1",
+    "@shopify/remix-oxygen": "^2.0.4",
+    "@types/react": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "peerDependencies": {
+    "@sanity/client": "^6.18.0",
+    "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0",
+    "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
+    "groq": "^3.41.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

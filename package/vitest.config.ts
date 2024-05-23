@@ -1,8 +1,8 @@
 /// <reference types="vitest" />
-import {defineConfig} from 'vitest/config'
+import {defineProject} from 'vitest/config'
 import GithubActionsReporter from 'vitest-github-actions-reporter'
 
-export default defineConfig({
+export default defineProject({
   test: {
     isolate: false,
     setupFiles: ['./vitest.setup.ts'],
