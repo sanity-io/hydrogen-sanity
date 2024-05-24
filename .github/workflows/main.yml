@@ -43,28 +43,38 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     name: Lint & Build
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          cache: npm
+          cache: pnpm
           node-version: lts/*
-      - run: npm i
+      - run: corepack enable && pnpm --version
+      - run: pnpm install
         # Linting can be skipped
-      - run: npm -w hydrogen-sanity run lint --if-present
+      - run: pnpm --filter="hydrogen-sanity" run lint
         if: github.event.inputs.test != 'false'
         # Typechecking can be skipped
-      - run: npm -w hydrogen-sanity run typecheck --if-present
+      - run: pnpm --filter="hydrogen-sanity" run typecheck
         if: github.event.inputs.test != 'false'
         # But not the build script, as semantic-release will crash if this command fails so it makes sense to test it early
-      - run: npm -w hydrogen-sanity run prepublishOnly --if-present
+      - run: pnpm --filter="hydrogen-sanity" run prepublishOnly
 
   test:
     needs: build
     # The test matrix can be skipped, in case a new release needs to be fast-tracked and tests are already passing on main
     if: github.event.inputs.test != 'false'
     runs-on: ${{ matrix.os }}
+    env:
+      HUSKY: 0
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     name: Node.js ${{ matrix.node }} / ${{ matrix.os }}
     strategy:
       # A test failing on windows doesn't mean it'll fail on macos. It's useful to let all tests run to its completion to get the full picture
@@ -89,18 +99,22 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          cache: npm
+          cache: pnpm
           node-version: ${{ matrix.node }}
-      - run: npm i
-      - run: npm -w hydrogen-sanity test --if-present
+      - run: corepack enable && pnpm --version
+      - run: pnpm install
+      - run: pnpm --filter="hydrogen-sanity" test
 
   release:
     needs: [build, test]
     # only run if opt-in during workflow_dispatch
     if: always() && github.event.inputs.release == 'true' && needs.build.result != 'failure' && needs.test.result != 'failure' && needs.test.result != 'cancelled'
     runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
     name: Semantic release
     permissions:
       contents: write # to be able to publish a GitHub release
@@ -113,13 +127,15 @@ jobs:
           # Need to fetch entire commit history to
           # analyze every commit since last release
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          cache: npm
+          cache: pnpm
           node-version: lts/*
-      - run: npm i
+      - run: corepack enable && pnpm --version
+      - run: pnpm install
         # Branches that will release new versions are defined in .releaserc.json
-      - run: npx -w hydrogen-sanity semantic-release
+      - run: pnpm --filter="hydrogen-sanity" run release
         # Don't allow interrupting the release step if the job is cancelled, as it can lead to an inconsistent state
         # e.g. git tags were pushed but it exited before `npm publish`
         if: always()
@@ -127,7 +143,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
         # Re-run semantic release with rich logs if it failed to publish for easier debugging
-      - run: npx -w hydrogen-sanity semantic-release --dry-run --debug
+      - run: pnpm --filter="hydrogen-sanity" run release:debug
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

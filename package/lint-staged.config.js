@@ -1,4 +1,4 @@
-import {format, lint} from '../lintstaged.base.js'
+import {format, lint} from '../lint-staged.base.js'
 
 export default {
   '*.{js,jsx,ts,tsx}': [format, lint],
