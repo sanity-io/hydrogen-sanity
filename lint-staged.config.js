@@ -1,4 +1,4 @@
-import {format} from './lintstaged.base.js'
+import {format} from './lint-staged.base.js'
 
 export default {
   '*': format,

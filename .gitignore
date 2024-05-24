@@ -59,3 +59,6 @@ yalc.lock
 
 # Compiled plugin
 dist
+
+# Turbo
+.turbo
