@@ -66,12 +66,12 @@ export default () => {
     // Required, to cache responses
     withCache,
 
-    // Required:
+    // Required client configuration
     client: {
-      projectId: env.SANITY_PROJECT_ID,
-      dataset: env.SANITY_DATASET,
-      apiVersion: env.SANITY_API_VERSION || '2023-03-30',
-      useCdn: process.env.NODE_ENV === 'production',
+      projectId: env.PUBLIC_SANITY_PROJECT_ID,
+      dataset: env.PUBLIC_SANITY_DATASET,
+      // apiVersion: env.PUBLIC_SANITY_API_VERSION || '2023-03-30',
+      // useCdn: process.env.NODE_ENV === 'production',
 
       // In preview mode, `stega` will be enabled automatically
       // If you need to configure the client's steganography settings,
@@ -80,11 +80,12 @@ export default () => {
       //   logger: console
       // }
     }),
+
     // You can also initialize a client and pass it instead
     // client: createClient({
-    //   projectId: env.SANITY_PROJECT_ID,
-    //   dataset: env.SANITY_DATASET,
-    //   apiVersion: env.SANITY_API_VERSION || '2023-03-30',
+    //   projectId: env.PUBLIC_SANITY_PROJECT_ID,
+    //   dataset: env.PUBLIC_SANITY_DATASET,
+    //   apiVersion: env.PUBLIC_SANITY_API_VERSION || '2023-03-30',
     //   useCdn: process.env.NODE_ENV === 'production',
     // }),
 
@@ -93,13 +94,13 @@ export default () => {
 
     // Optionally, enable Visual Editing
     // See "Visual Editing" section below to setup the preview route
-    preview: env.SANITY_API_TOKEN
-      ? {
-          enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
-          token: env.SANITY_API_TOKEN,
-          studioUrl: 'http://localhost:3333',
-        }
-      : undefined,
+    // preview: env.SANITY_PREVIEW_TOKEN
+    //   ? {
+    //       enabled: session.get('projectId') === env.PUBLIC_SANITY_PROJECT_ID,
+    //       token: env.SANITY_PREVIEW_TOKEN,
+    //       studioUrl: 'http://localhost:3333',
+    //     }
+    //   : undefined,
   })
 
   // 2. Make Sanity available to all action and loader contexts
@@ -121,15 +122,15 @@ Update your environment variables with settings from your Sanity project.
 
 ```sh
 # Project ID
-SANITY_PROJECT_ID=""
+PUBLIC_SANITY_PROJECT_ID=""
 # Dataset name
-SANITY_DATASET=""
+PUBLIC_SANITY_DATASET=""
 # (Optional) Sanity API version
-SANITY_API_VERSION=""
+PUBLIC_SANITY_API_VERSION=""
 # Sanity token to authenticate requests in "preview" mode
 # must have `viewer` role or higher access
 # Create in sanity.io/manage
-SANITY_API_TOKEN=""
+SANITY_PREVIEW_TOKEN=""
 ```
 
 ### Satisfy TypeScript
@@ -144,16 +145,15 @@ declare global {
 
   interface Env {
     // ...other variables
-    SANITY_PROJECT_ID: string
-    SANITY_DATASET: string
-    SANITY_API_VERSION: string
-    SANITY_API_TOKEN: string
+    PUBLIC_SANITY_PROJECT_ID: string
+    PUBLIC_SANITY_DATASET: string
+    PUBLIC_SANITY_API_VERSION: string
+    SANITY_PREVIEW_TOKEN: string
   }
 }
 ```
 
 > **Note**: `hydrogen-sanity` will automatically add `sanity` to the `AppLoadContext` interface
->
 
 ## Interacting with Sanity data
 
@@ -192,7 +192,7 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
     // debug: {
     //   displayName: 'query Homepage'
     // }
-  }
+  },
 })
 ```
 
@@ -222,6 +222,7 @@ export async function action({context, request}: ActionFunctionArgs) {
 Enable real-time, interactive live preview inside the Presentation tool of your Sanity Studio. `hydrogen-sanity` comes with a ready-to-use version of the `VisualEditing` component that's compatible with Hydrogen and Oxygen.
 
 First set up your root route to enable preview mode across the entire application, if the preview session is active:
+
 ```tsx
 // ./app/root.tsx
 
@@ -256,6 +257,7 @@ export default function App() {
   )
 }
 ```
+
 This Visual Editing component will trigger incremental updates to draft documents from the server for users with a valid preview session. [Duplicate its source](https://github.com/sanity-io/visual-editing/blob/main/packages/visual-editing/src/remix/VisualEditing.tsx) into your own project if you wish to customize its behavior.
 
 ### Enabling preview mode
@@ -288,7 +290,7 @@ You may receive errors in the console due to Content Security Policy (CSP) restr
 ```ts
 // ./app/entry.server.tsx
 
-const projectId = loadContext.env.SANITY_PROJECT_ID
+const projectId = loadContext.env.PUBLIC_SANITY_PROJECT_ID
 
 const {nonce, header, NonceProvider} = createContentSecurityPolicy({
   // Include Sanity domains in the CSP
@@ -340,9 +342,9 @@ export default {
 
   // Create the Sanity Client
   const sanity = createClient({
-    projectId: env.SANITY_PROJECT_ID,
-    dataset: env.SANITY_DATASET,
-    apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
+    projectId: env.PUBLIC_SANITY_PROJECT_ID,
+    dataset: env.PUBLIC_SANITY_DATASET,
+    apiVersion: env.PUBLIC_SANITY_API_VERSION ?? '2023-03-30',
     useCdn: process.env.NODE_ENV === 'production',
   });
 
