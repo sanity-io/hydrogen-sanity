@@ -1,4 +1,4 @@
-import type {EntryContext} from '@shopify/remix-oxygen';
+import type {AppLoadContext, EntryContext} from '@shopify/remix-oxygen';
 import {RemixServer} from '@remix-run/react';
 import isbot from 'isbot';
 import {renderToReadableStream} from 'react-dom/server';
@@ -9,8 +9,19 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
+  loadContext: AppLoadContext,
 ) {
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy();
+  const projectId = loadContext.env.PUBLIC_SANITY_PROJECT_ID;
+
+  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    // Include Sanity domains in the CSP
+    defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
+    connectSrc: [
+      `https://${projectId}.api.sanity.io`,
+      `wss://${projectId}.api.sanity.io`,
+    ],
+    frameAncestors: [`'self'`],
+  });
 
   const body = await renderToReadableStream(
     <NonceProvider>
