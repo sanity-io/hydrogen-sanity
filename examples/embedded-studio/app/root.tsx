@@ -6,7 +6,6 @@ import {
   Outlet,
   Scripts,
   useRouteError,
-  useLoaderData,
   ScrollRestoration,
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
@@ -15,6 +14,9 @@ import favicon from './assets/favicon.svg';
 import resetStyles from './styles/reset.css?url';
 import appStyles from './styles/app.css?url';
 import {Layout} from '~/components/Layout';
+import type {PropsWithChildren} from 'react';
+import {VisualEditing} from 'hydrogen-sanity/visual-editing';
+import {useRootLoaderData} from '~/lib/root-data';
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -54,8 +56,8 @@ export function links() {
 }
 
 export async function loader({context}: LoaderFunctionArgs) {
-  const {storefront, customerAccount, cart} = context;
-  const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
+  const {storefront, customerAccount, cart, env, session, sanity} = context;
+  const publicStoreDomain = env.PUBLIC_STORE_DOMAIN;
 
   const isLoggedInPromise = customerAccount.isLoggedIn();
   const cartPromise = cart.get();
@@ -76,6 +78,8 @@ export async function loader({context}: LoaderFunctionArgs) {
     },
   });
 
+  const isPreviewMode = sanity.preview?.enabled || false;
+
   return defer(
     {
       cart: cartPromise,
@@ -83,42 +87,46 @@ export async function loader({context}: LoaderFunctionArgs) {
       header: await headerPromise,
       isLoggedIn: isLoggedInPromise,
       publicStoreDomain,
+      isPreviewMode,
     },
     {
       headers: {
-        'Set-Cookie': await context.session.commit(),
+        'Set-Cookie': await session.commit(),
       },
     },
   );
 }
 
-export default function App() {
+function RootLayout({children}: PropsWithChildren<object>) {
   const nonce = useNonce();
-  const data = useLoaderData<typeof loader>();
+  const rootData = useRootLoaderData();
 
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
       </head>
       <body>
-        <Layout {...data}>
-          <Outlet />
-        </Layout>
+        {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
+        {children}
+        {rootData.isPreviewMode ? <VisualEditing /> : null}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
     </html>
   );
 }
+export {RootLayout as Layout};
+
+export default function App() {
+  return <Outlet />;
+}
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  const rootData = useLoaderData<typeof loader>();
-  const nonce = useNonce();
+  const rootData = useRootLoaderData();
   let errorMessage = 'Unknown error';
   let errorStatus = 500;
 
@@ -130,29 +138,19 @@ export function ErrorBoundary() {
   }
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Layout {...rootData}>
-          <div className="route-error">
-            <h1>Oops</h1>
-            <h2>{errorStatus}</h2>
-            {errorMessage && (
-              <fieldset>
-                <pre>{errorMessage}</pre>
-              </fieldset>
-            )}
-          </div>
-        </Layout>
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-      </body>
-    </html>
+    <>
+      <Layout {...rootData}>
+        <div className="route-error">
+          <h1>Oops</h1>
+          <h2>{errorStatus}</h2>
+          {errorMessage && (
+            <fieldset>
+              <pre>{errorMessage}</pre>
+            </fieldset>
+          )}
+        </div>
+      </Layout>
+    </>
   );
 }
 
