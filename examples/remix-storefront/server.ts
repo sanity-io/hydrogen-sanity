@@ -7,6 +7,7 @@ import {
   createStorefrontClient,
   storefrontRedirect,
   createCustomerAccountClient,
+  createWithCache,
 } from '@shopify/hydrogen';
 import {
   createRequestHandler,
@@ -38,6 +39,7 @@ export default {
         caches.open('hydrogen'),
         AppSession.init(request, [env.SESSION_SECRET]),
       ]);
+      const withCache = createWithCache({cache, waitUntil, request});
 
       /**
        * Create Hydrogen's Storefront client.
@@ -76,6 +78,26 @@ export default {
         cartQueryFragment: CART_QUERY_FRAGMENT,
       });
 
+      const sanity = createSanityLoader({
+        withCache,
+
+        client: {
+          projectId: env.PUBLIC_SANITY_PROJECT_ID,
+          dataset: env.PUBLIC_SANITY_DATASET || 'production',
+          apiVersion: env.PUBLIC_SANITY_API_VERSION || 'v2022-03-07',
+          useCdn: process.env.NODE_ENV === 'production',
+        },
+
+        preview: env.SANITY_PREVIEW_TOKEN
+          ? {
+              enabled:
+                session.get('projectId') === env.PUBLIC_SANITY_PROJECT_ID,
+              token: env.SANITY_PREVIEW_TOKEN,
+              studioUrl: '/studio',
+            }
+          : undefined,
+      });
+
       /**
        * Create a Remix request handler and pass
        * Hydrogen's Storefront client to the loader context.
@@ -88,6 +110,7 @@ export default {
           storefront,
           customerAccount,
           cart,
+          sanity,
           env,
           waitUntil,
         }),
@@ -112,3 +135,15 @@ export default {
     }
   },
 };
+function createSanityLoader(arg0: {
+  withCache: any;
+  client: {
+    projectId: string;
+    dataset: string;
+    apiVersion: string;
+    useCdn: boolean;
+  };
+  preview: {enabled: boolean; token: string; studioUrl: string} | undefined;
+}) {
+  throw new Error('Function not implemented.');
+}

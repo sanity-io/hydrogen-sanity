@@ -10,7 +10,10 @@ export default async function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy();
+  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    // Include Sanity domains in the CSP
+    defaultSrc: ['https://cdn.sanity.io'],
+  });
 
   const body = await renderToReadableStream(
     <NonceProvider>
