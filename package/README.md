@@ -2,23 +2,24 @@
 
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2023.7.0`.
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Satisfy TypeScript](#satisfy-typescript)
+- [hydrogen-sanity](#hydrogen-sanity)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Satisfy TypeScript](#satisfy-typescript)
   - [Interacting with Sanity data](#interacting-with-sanity-data)
-  - [Preferred: Cached fetches using `loadQuery`](#preferred-cached-fetches-using-loadquery)
-    - [`loadQuery` request options](#loadquery-request-options)
-  - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
+    - [Preferred: Cached fetches using `loadQuery`](#preferred-cached-fetches-using-loadquery)
+    - [`loadQuery` Request Options](#loadquery-request-options)
+    - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
   - [Visual Editing](#visual-editing)
     - [Enabling preview mode](#enabling-preview-mode)
     - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
     - [Modify Content Security Policy for Studio domains](#modify-content-security-policy-for-studio-domains)
-    - [Setup Presentation tool](#setup-presentation-tool)
+    - [Setup Presentation Tool](#setup-presentation-tool)
   - [Using `@sanity/client` instead of hydrogen-sanity](#using-sanityclient-instead-of-hydrogen-sanity)
-- [Migration Guides](#migration-guides)
-- [License](#license)
-- [Develop \& test](#develop--test)
-  - [Release new version](#release-new-version)
+  - [Migration Guides](#migration-guides)
+  - [License](#license)
+  - [Develop \& test](#develop--test)
+    - [Release new version](#release-new-version)
 
 **Features:**
 
@@ -291,15 +292,30 @@ You may receive errors in the console due to Content Security Policy (CSP) restr
 ```ts
 // ./app/entry.server.tsx
 
-const projectId = loadContext.env.SANITY_PROJECT_ID
+// ...all other imports
+import type {AppLoadContext, EntryContext} from '@shopify/remix-oxygen'
 
-const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-  // Include Sanity domains in the CSP
-  defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
-  connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
-  frameAncestors: [`'self'`],
-})
+export default async function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  remixContext: EntryContext,
+  loadContext: AppLoadContext
+) {
+  const projectId = loadContext.env.SANITY_PROJECT_ID
+
+  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    // Include Sanity domains in the CSP
+    defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
+    connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
+    frameAncestors: [`http://localhost:3333`, `'self'`],
+  })
+
+  // ...and the rest
+}
 ```
+
+Note that `frameAncestors` will need to be updated with every URL from which the Sanity Studio is served and displays your Hydrogen front-end inside the Presentation tool's iframe.
 
 ### Setup Presentation Tool
 
@@ -380,7 +396,7 @@ export async function loader({context, params}: LoaderArgs) {
   const {withCache, sanity} = context
 
   const homepage = await withCache('home', CacheLong(), () =>
-    sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'}),
+    sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
   )
 
   return json({homepage})
