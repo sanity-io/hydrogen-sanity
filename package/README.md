@@ -300,7 +300,7 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  loadContext: AppLoadContext
+  loadContext: AppLoadContext,
 ) {
   const projectId = loadContext.env.SANITY_PROJECT_ID
 
@@ -396,7 +396,7 @@ export async function loader({context, params}: LoaderArgs) {
   const {withCache, sanity} = context
 
   const homepage = await withCache('home', CacheLong(), () =>
-    sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+    sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'}),
   )
 
   return json({homepage})
