@@ -1,13 +1,5 @@
 {
   "extends": "@sanity/semantic-release-preset",
-  "plugins": [
-    [
-      "semantic-release-pnpm",
-      {
-        "tarballDir": ".semantic-release"
-      }
-    ]
-  ],
   "branches": [
     "main",
     {
