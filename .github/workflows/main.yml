@@ -134,9 +134,8 @@ jobs:
           node-version: lts/*
       - run: corepack enable && pnpm --version
       - run: pnpm install
-      - run: pushd package
         # Branches that will release new versions are defined in .releaserc.json
-      - run: pnpm run release
+      - run: npm -w hydrogen-sanity run release
         # Don't allow interrupting the release step if the job is cancelled, as it can lead to an inconsistent state
         # e.g. git tags were pushed but it exited before `npm publish`
         if: always()
@@ -144,9 +143,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
         # Re-run semantic release with rich logs if it failed to publish for easier debugging
-      - run: pnpm run release:debug
+      - run: npm -w hydrogen-sanity run release:debug
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-      - run: popd
