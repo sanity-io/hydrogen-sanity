@@ -195,8 +195,17 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
     //   displayName: 'query Homepage'
     // }
   },
+
+  // ...as well as other request options
+  // tag: 'home',
+  // headers: {
+  //   'Accept-Encoding': 'br, gzip, *',
+  // },
 })
 ```
+
+> [!NOTE]
+> You can learn more about request tagging in [our documentation](https://www.sanity.io/docs/reference-api-request-tags)
 
 ### Alternatively: Using `client` directly
 

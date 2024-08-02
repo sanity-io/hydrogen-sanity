@@ -65,7 +65,7 @@ type HydrogenResponseQueryOptions = Omit<ResponseQueryOptions, 'next' | 'cache'>
 
 type LoadQueryOptions = Pick<
   HydrogenResponseQueryOptions,
-  'perspective' | 'hydrogen' | 'useCdn' | 'stega'
+  'perspective' | 'hydrogen' | 'useCdn' | 'stega' | 'headers' | 'tag'
 >
 
 export type SanityLoader = {

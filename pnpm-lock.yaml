@@ -310,13 +310,13 @@ importers:
         version: 6.21.0(debug@3.2.7)
       '@sanity/preview-url-secret':
         specifier: ^1.6.13
-        version: 1.6.18(@sanity/client@6.21.0)
+        version: 1.6.18(@sanity/client@6.21.0(debug@4.3.4))
       '@sanity/react-loader':
-        specifier: ^1.9.17
-        version: 1.10.4(@sanity/client@6.21.0)(react@18.3.1)
+        specifier: ^1.10.5
+        version: 1.10.5(@sanity/client@6.21.0(debug@4.3.4))(react@18.3.1)
       '@sanity/visual-editing':
         specifier: ^1.8.18
-        version: 1.8.22(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0)
+        version: 1.8.22(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0(debug@4.3.4))
       groq:
         specifier: ^3.41.0
         version: 3.52.0
@@ -3157,11 +3157,11 @@ packages:
     resolution: {integrity: sha512-2TjYEvOftD0v7ukx3Csdh9QIu44P2z7NDJtlC3qITJRYV36J7R6Vfd3trVhFnN77/7CZrGjqngrtohv8VqO5nw==}
     engines: {node: '>=18.0.0'}
 
-  '@sanity/core-loader@1.6.20':
-    resolution: {integrity: sha512-QmfpCtGFoa3WsGwCKZbkL/AnRYygqaVFucG4gQqo0s52YYVKA0bsAb/QOK1BvK27afFzr/BJ1jaD0tBuxxg/tg==}
+  '@sanity/core-loader@1.6.21':
+    resolution: {integrity: sha512-eGoBGBRcH6cV8WoGnltaxOfUqCGRFRfWjACQbGG2oRSN5prEFi8cGHWnXp6otQpetfrj34p8QE5T42No8fIISg==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@sanity/client': ^6.20.1
+      '@sanity/client': ^6.21.1
 
   '@sanity/diff-match-patch@3.1.1':
     resolution: {integrity: sha512-dSZqGeYjHKGIkqAzGqLcG92LZyJGX+nYbs/FWawhBbTBDWi21kvQ0hsL3DJThuFVWtZMWTQijN3z6Cnd44Pf2g==}
@@ -3254,11 +3254,11 @@ packages:
     peerDependencies:
       '@sanity/client': ^6.20.1
 
-  '@sanity/react-loader@1.10.4':
-    resolution: {integrity: sha512-C7KIkac62fmIspTuS3ao70VGaxc8RJEx+SHuIblBBnBGWZy8VZq64kg/RGbxmV5isfdBqkh5ASdwB7YrhUOyjA==}
+  '@sanity/react-loader@1.10.5':
+    resolution: {integrity: sha512-VQ2f37aT9kb0MxA2OnO6R7bavvWJpYokj+MRyJgTPhlrrb3abeNnALjV/XwsN1mCEabq30CmQi7WP4PNMc1Cbw==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@sanity/client': ^6.20.1
+      '@sanity/client': ^6.21.1
       react: ^18.3 || >=19.0.0-rc
 
   '@sanity/schema@3.43.0':
@@ -10510,7 +10510,7 @@ snapshots:
       '@babel/traverse': 7.24.8
       '@babel/types': 7.24.9
       convert-source-map: 2.0.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -10583,7 +10583,7 @@ snapshots:
       '@babel/core': 7.24.9
       '@babel/helper-compilation-targets': 7.24.8
       '@babel/helper-plugin-utils': 7.24.8
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       lodash.debounce: 4.0.8
       resolve: 1.22.8
     transitivePeerDependencies:
@@ -11375,7 +11375,7 @@ snapshots:
       '@babel/helper-split-export-declaration': 7.24.7
       '@babel/parser': 7.24.8
       '@babel/types': 7.24.9
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -12028,7 +12028,7 @@ snapshots:
   '@eslint/eslintrc@2.1.4':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       espree: 9.6.1
       globals: 13.24.0
       ignore: 5.3.1
@@ -12413,7 +12413,7 @@ snapshots:
       '@types/js-yaml': 4.0.9
       '@whatwg-node/fetch': 0.9.17
       chalk: 4.1.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       dotenv: 16.4.5
       graphql: 16.8.1
       graphql-request: 6.1.0(graphql@16.8.1)
@@ -12496,7 +12496,7 @@ snapshots:
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -12565,7 +12565,7 @@ snapshots:
 
   '@kwsites/file-exists@1.1.1':
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -13450,7 +13450,7 @@ snapshots:
       '@sanity/telemetry': 0.7.8(react@18.3.1)
       '@sanity/util': 3.43.0(debug@4.3.4)
       chalk: 4.1.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       decompress: 4.2.1
       esbuild: 0.21.4
       esbuild-register: 3.5.0(esbuild@0.21.4)
@@ -13492,7 +13492,7 @@ snapshots:
       '@babel/register': 7.24.6(@babel/core@7.24.9)
       '@babel/traverse': 7.24.8
       '@babel/types': 7.24.9
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       globby: 10.0.2
       groq: 3.43.0
       groq-js: 1.9.0
@@ -13504,7 +13504,7 @@ snapshots:
 
   '@sanity/color@3.0.6': {}
 
-  '@sanity/core-loader@1.6.20(@sanity/client@6.21.0)':
+  '@sanity/core-loader@1.6.21(@sanity/client@6.21.0(debug@4.3.4))':
     dependencies:
       '@sanity/client': 6.21.0(debug@3.2.7)
 
@@ -13526,7 +13526,7 @@ snapshots:
       '@sanity/client': 6.21.0(debug@4.3.4)
       '@sanity/util': 3.37.2(debug@4.3.4)
       archiver: 7.0.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       get-it: 8.6.3(debug@4.3.4)
       lodash: 4.17.21
       mississippi: 4.0.0
@@ -13552,7 +13552,7 @@ snapshots:
       '@sanity/generate-help-url': 3.0.0
       '@sanity/mutator': 3.37.2
       '@sanity/uuid': 3.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       file-url: 2.0.2
       get-it: 8.6.3(debug@4.3.4)
       get-uri: 2.0.4
@@ -13584,7 +13584,7 @@ snapshots:
       '@sanity/types': 3.43.0(debug@4.3.4)
       '@sanity/util': 3.43.0(debug@4.3.4)
       arrify: 2.0.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       fast-fifo: 1.3.2
       groq-js: 1.9.0
       p-map: 7.0.2
@@ -13595,7 +13595,7 @@ snapshots:
     dependencies:
       '@sanity/diff-match-patch': 3.1.1
       '@sanity/uuid': 3.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       lodash: 4.17.21
     transitivePeerDependencies:
       - supports-color
@@ -13604,7 +13604,7 @@ snapshots:
     dependencies:
       '@sanity/diff-match-patch': 3.1.1
       '@sanity/uuid': 3.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       lodash: 4.17.21
     transitivePeerDependencies:
       - supports-color
@@ -13769,7 +13769,7 @@ snapshots:
     dependencies:
       '@sanity/client': 6.21.0(debug@3.2.7)
       '@sanity/icons': 2.11.8(react@18.3.1)
-      '@sanity/preview-url-secret': 1.6.18(@sanity/client@6.21.0)
+      '@sanity/preview-url-secret': 1.6.18(@sanity/client@6.21.0(debug@4.3.4))
       '@sanity/ui': 2.1.12(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/uuid': 3.0.2
       '@types/lodash.isequal': 4.5.8
@@ -13787,15 +13787,15 @@ snapshots:
       - react-is
       - styled-components
 
-  '@sanity/preview-url-secret@1.6.18(@sanity/client@6.21.0)':
+  '@sanity/preview-url-secret@1.6.18(@sanity/client@6.21.0(debug@4.3.4))':
     dependencies:
       '@sanity/client': 6.21.0(debug@3.2.7)
       '@sanity/uuid': 3.0.2
 
-  '@sanity/react-loader@1.10.4(@sanity/client@6.21.0)(react@18.3.1)':
+  '@sanity/react-loader@1.10.5(@sanity/client@6.21.0(debug@4.3.4))(react@18.3.1)':
     dependencies:
       '@sanity/client': 6.21.0(debug@3.2.7)
-      '@sanity/core-loader': 1.6.20(@sanity/client@6.21.0)
+      '@sanity/core-loader': 1.6.21(@sanity/client@6.21.0(debug@4.3.4))
       react: 18.3.1
 
   '@sanity/schema@3.43.0(debug@3.2.7)':
@@ -13913,9 +13913,9 @@ snapshots:
       '@types/uuid': 8.3.4
       uuid: 8.3.2
 
-  '@sanity/visual-editing@1.8.22(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0)':
+  '@sanity/visual-editing@1.8.22(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0(debug@4.3.4))':
     dependencies:
-      '@sanity/preview-url-secret': 1.6.18(@sanity/client@6.21.0)
+      '@sanity/preview-url-secret': 1.6.18(@sanity/client@6.21.0(debug@4.3.4))
       '@vercel/stega': 0.1.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -13940,7 +13940,7 @@ snapshots:
       conventional-changelog-angular: 7.0.0
       conventional-commits-filter: 4.0.0
       conventional-commits-parser: 5.0.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       import-from-esm: 1.3.4
       lodash-es: 4.17.21
       micromatch: 4.0.7
@@ -13956,7 +13956,7 @@ snapshots:
     dependencies:
       '@semantic-release/error': 3.0.0
       aggregate-error: 3.1.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       execa: 5.1.1
       lodash: 4.17.21
       parse-json: 5.2.0
@@ -13968,7 +13968,7 @@ snapshots:
     dependencies:
       '@semantic-release/error': 3.0.0
       aggregate-error: 3.1.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       dir-glob: 3.0.1
       execa: 5.1.1
       lodash: 4.17.21
@@ -13986,7 +13986,7 @@ snapshots:
       '@octokit/plugin-throttling': 9.3.0(@octokit/core@6.1.2)
       '@semantic-release/error': 4.0.0
       aggregate-error: 5.0.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       dir-glob: 3.0.1
       globby: 14.0.1
       http-proxy-agent: 7.0.2
@@ -14023,7 +14023,7 @@ snapshots:
       conventional-changelog-writer: 7.0.1
       conventional-commits-filter: 4.0.0
       conventional-commits-parser: 5.0.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       get-stream: 7.0.1
       import-from-esm: 1.3.4
       into-stream: 7.0.0
@@ -14514,7 +14514,7 @@ snapshots:
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/type-utils': 5.62.0(eslint@8.57.0)(typescript@5.5.3)
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.0)(typescript@5.5.3)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
       graphemer: 1.4.0
       ignore: 5.3.1
@@ -14557,7 +14557,7 @@ snapshots:
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.5.3)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
     optionalDependencies:
       typescript: 5.5.3
@@ -14570,7 +14570,7 @@ snapshots:
       '@typescript-eslint/types': 7.16.1
       '@typescript-eslint/typescript-estree': 7.16.1(typescript@5.5.3)
       '@typescript-eslint/visitor-keys': 7.16.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
     optionalDependencies:
       typescript: 5.5.3
@@ -14591,7 +14591,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.5.3)
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.0)(typescript@5.5.3)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
       tsutils: 3.21.0(typescript@5.5.3)
     optionalDependencies:
@@ -14603,7 +14603,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 7.16.1(typescript@5.5.3)
       '@typescript-eslint/utils': 7.16.1(eslint@8.57.0)(typescript@5.5.3)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
       ts-api-utils: 1.3.0(typescript@5.5.3)
     optionalDependencies:
@@ -14619,7 +14619,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.6.2
@@ -14633,7 +14633,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 7.16.1
       '@typescript-eslint/visitor-keys': 7.16.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.4
@@ -14848,7 +14848,7 @@ snapshots:
 
   agent-base@7.1.1:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -15394,7 +15394,7 @@ snapshots:
 
   capnp-ts@0.7.0:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       tslib: 2.6.2
     transitivePeerDependencies:
       - supports-color
@@ -16336,14 +16336,14 @@ snapshots:
 
   esbuild-register@3.5.0(esbuild@0.21.4):
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       esbuild: 0.21.4
     transitivePeerDependencies:
       - supports-color
 
   esbuild-register@3.5.0(esbuild@0.23.0):
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       esbuild: 0.23.0
     transitivePeerDependencies:
       - supports-color
@@ -16551,7 +16551,7 @@ snapshots:
 
   eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.7)(eslint-plugin-import@2.29.1)(eslint@8.57.0):
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       enhanced-resolve: 5.16.1
       eslint: 8.57.0
       eslint-module-utils: 2.8.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.7)(eslint-plugin-import@2.29.1)(eslint@8.57.0))(eslint@8.57.0)
@@ -16823,7 +16823,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.2.2
@@ -17216,7 +17216,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       commander: 5.1.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -17279,7 +17279,7 @@ snapshots:
 
   follow-redirects@1.15.6(debug@4.3.4):
     optionalDependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
 
   for-each@0.3.3:
     dependencies:
@@ -17752,7 +17752,7 @@ snapshots:
 
   groq-js@1.9.0:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -17888,7 +17888,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -17900,7 +17900,7 @@ snapshots:
   https-proxy-agent@7.0.4:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -17921,9 +17921,9 @@ snapshots:
   hydrogen-sanity@4.0.4(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0)(@shopify/hydrogen@2024.4.2(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@remix-run/server-runtime@2.9.2(typescript@5.5.3))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.2.11(@types/node@20.12.12)(terser@5.31.0)))(@shopify/remix-oxygen@2.0.5(@remix-run/server-runtime@2.9.2(typescript@5.5.3))(@shopify/oxygen-workers-types@4.0.0))(groq@3.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@sanity/client': 6.21.0(debug@3.2.7)
-      '@sanity/preview-url-secret': 1.6.18(@sanity/client@6.21.0)
-      '@sanity/react-loader': 1.10.4(@sanity/client@6.21.0)(react@18.3.1)
-      '@sanity/visual-editing': 1.8.22(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0)
+      '@sanity/preview-url-secret': 1.6.18(@sanity/client@6.21.0(debug@4.3.4))
+      '@sanity/react-loader': 1.10.5(@sanity/client@6.21.0(debug@4.3.4))(react@18.3.1)
+      '@sanity/visual-editing': 1.8.22(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@sanity/client@6.21.0(debug@4.3.4))
       '@shopify/hydrogen': 2024.4.2(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3))(@remix-run/server-runtime@2.9.2(typescript@5.5.3))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.2.11(@types/node@20.12.12)(terser@5.31.0))
       '@shopify/remix-oxygen': 2.0.5(@remix-run/server-runtime@2.9.2(typescript@5.5.3))(@shopify/oxygen-workers-types@4.0.0)
       groq: 3.52.0
@@ -17978,7 +17978,7 @@ snapshots:
 
   import-from-esm@1.3.4:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       import-meta-resolve: 4.1.0
     transitivePeerDependencies:
       - supports-color
@@ -18535,7 +18535,7 @@ snapshots:
     dependencies:
       chalk: 5.3.0
       commander: 12.1.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       execa: 8.0.1
       lilconfig: 3.1.1
       listr2: 8.2.1
@@ -19110,7 +19110,7 @@ snapshots:
   micromark@3.2.0:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       decode-named-character-reference: 1.0.2
       micromark-core-commonmark: 1.1.0
       micromark-factory-space: 1.1.0
@@ -20496,7 +20496,7 @@ snapshots:
   rollup-plugin-esbuild@6.1.1(esbuild@0.21.4)(rollup@4.18.1):
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.18.1)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       es-module-lexer: 1.5.3
       esbuild: 0.21.4
       get-tsconfig: 4.7.5
@@ -20507,7 +20507,7 @@ snapshots:
   rollup-plugin-esbuild@6.1.1(esbuild@0.23.0)(rollup@4.18.1):
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.18.1)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       es-module-lexer: 1.5.3
       esbuild: 0.23.0
       get-tsconfig: 4.7.5
@@ -20638,7 +20638,7 @@ snapshots:
       console-table-printer: 2.12.0
       dataloader: 2.2.2
       date-fns: 2.30.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       esbuild: 0.21.4
       esbuild-register: 3.5.0(esbuild@0.21.4)
       execa: 2.1.0
@@ -20744,7 +20744,7 @@ snapshots:
       '@semantic-release/release-notes-generator': 13.0.0(semantic-release@23.1.1(typescript@5.5.3))
       aggregate-error: 5.0.0
       cosmiconfig: 9.0.0(typescript@5.5.3)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       env-ci: 11.0.0
       execa: 9.1.0
       figures: 6.1.0
@@ -20896,7 +20896,7 @@ snapshots:
     dependencies:
       '@kwsites/file-exists': 1.1.1
       '@kwsites/promise-deferred': 1.1.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -21898,7 +21898,7 @@ snapshots:
   vite-node@1.6.0(@types/node@20.12.12)(terser@5.31.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       pathe: 1.1.2
       picocolors: 1.0.1
       vite: 5.2.11(@types/node@20.12.12)(terser@5.31.0)
@@ -21914,7 +21914,7 @@ snapshots:
 
   vite-tsconfig-paths@4.3.2(typescript@5.5.3)(vite@5.2.11(@types/node@20.12.12)(terser@5.31.0)):
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 3.0.3(typescript@5.5.3)
     optionalDependencies:
@@ -21957,7 +21957,7 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.4.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4(supports-color@8.1.1)
       execa: 8.0.1
       local-pkg: 0.5.0
       magic-string: 0.30.10
