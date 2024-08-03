@@ -91,7 +91,7 @@
   "devDependencies": {
     "@sanity/pkg-utils": "^6.10.8",
     "@sanity/plugin-kit": "^4.0.18",
-    "@sanity/semantic-release-preset": "^4.1.8",
+    "@sanity/semantic-release-preset": "^5.0.0",
     "@shopify/hydrogen": "~2024.7.2",
     "@shopify/remix-oxygen": "^2.0.5",
     "@types/react": "^18.3.3",
