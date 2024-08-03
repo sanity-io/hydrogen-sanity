@@ -19,5 +19,10 @@
     "turbo": "^2.0.11",
     "vitest": "^2.0.5"
   },
-  "packageManager": "pnpm@9.6.0"
+  "packageManager": "pnpm@9.6.0",
+  "pnpm": {
+    "overrides": {
+      "hydrogen-sanity": "workspace:*"
+    }
+  }
 }
