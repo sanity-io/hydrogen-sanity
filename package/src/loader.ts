@@ -107,7 +107,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
 
   /**
    * TODO: should this default to the latest API version?
-   * Or at least warn if a version that doesn't support perspectivves is used?
+   * Or at least warn if a version that doesn't support perspectives is used?
    */
   if (client.config().apiVersion === '1') {
     client = client.withConfig({apiVersion: 'v2022-03-07'})
@@ -122,7 +122,11 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
       useCdn: false,
       token: preview.token,
       perspective: 'previewDrafts' as const,
-      stega: {enabled: true, studioUrl: preview.studioUrl},
+      stega: {
+        ...client.config().stega,
+        enabled: true,
+        studioUrl: preview.studioUrl,
+      },
     })
 
     queryStore.setServerClient(previewClient)
