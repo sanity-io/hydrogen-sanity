@@ -89,8 +89,8 @@
     "groq": "^3.52.4"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.10.6",
-    "@sanity/plugin-kit": "^4.0.17",
+    "@sanity/pkg-utils": "^6.10.8",
+    "@sanity/plugin-kit": "^4.0.18",
     "@sanity/semantic-release-preset": "^4.1.8",
     "@shopify/hydrogen": "~2024.7.2",
     "@shopify/remix-oxygen": "^2.0.5",
@@ -101,14 +101,14 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-sanity": "^7.1.2",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.34.4",
+    "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "semantic-release": "^23.1.1",
-    "typescript": "^5.5.3",
-    "vitest": "^1.6.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
     "vitest-github-actions-reporter": "^0.11.1"
   },
   "peerDependencies": {
