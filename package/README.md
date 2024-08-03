@@ -2,29 +2,32 @@
 
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2023.7.0`.
 
-- [hydrogen-sanity](#hydrogen-sanity)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Satisfy TypeScript](#satisfy-typescript)
-  - [Interacting with Sanity data](#interacting-with-sanity-data)
-    - [Preferred: Cached fetches using `loadQuery`](#preferred-cached-fetches-using-loadquery)
-    - [`loadQuery` Request Options](#loadquery-request-options)
-    - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
-  - [Visual Editing](#visual-editing)
-    - [Enabling preview mode](#enabling-preview-mode)
-    - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
-    - [Modify Content Security Policy for Studio domains](#modify-content-security-policy-for-studio-domains)
-    - [Setup Presentation Tool](#setup-presentation-tool)
-  - [Using `@sanity/client` instead of hydrogen-sanity](#using-sanityclient-instead-of-hydrogen-sanity)
-  - [Migration Guides](#migration-guides)
-  - [License](#license)
-  - [Develop \& test](#develop--test)
-    - [Release new version](#release-new-version)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Satisfy TypeScript](#satisfy-typescript)
+- [Interacting with Sanity data](#interacting-with-sanity-data)
+  - [Preferred: Cached fetches using `loadQuery`](#preferred-cached-fetches-using-loadquery)
+  - [`loadQuery` Request Options](#loadquery-request-options)
+  - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
+- [Visual Editing](#visual-editing)
+  - [Enabling preview mode](#enabling-preview-mode)
+  - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
+  - [Modify Content Security Policy for Studio domains](#modify-content-security-policy-for-studio-domains)
+  - [Setup Presentation Tool](#setup-presentation-tool)
+- [Using `@sanity/client` instead of hydrogen-sanity](#using-sanityclient-instead-of-hydrogen-sanity)
+- [Migration Guides](#migration-guides)
+- [License](#license)
+- [Develop \& test](#develop--test)
+  - [Release new version](#release-new-version)
 
 **Features:**
 
 - Cacheable queries to [Sanity API CDN](https://www.sanity.io/docs/api-cdn)
 - Interactive live preview with [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays)
+
+> [!NOTE]
+>
+> If you'd prefer a self-paced course on how to use Sanity and Hydrogen, check out the [Sanity and Shopify with Hydrogen on Sanity Learn](https://www.sanity.io/learn/course/sanity-and-shopify-with-hydrogen).
 
 > [!NOTE]
 >
@@ -205,7 +208,7 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
 ```
 
 > [!NOTE]
-> You can learn more about request tagging in [our documentation](https://www.sanity.io/docs/reference-api-request-tags)
+> You can learn more about request tagging in [the documentation](https://www.sanity.io/docs/reference-api-request-tags).
 
 ### Alternatively: Using `client` directly
 
@@ -231,6 +234,10 @@ export async function action({context, request}: ActionFunctionArgs) {
 ## Visual Editing
 
 Enable real-time, interactive live preview inside the Presentation tool of your Sanity Studio. `hydrogen-sanity` comes with a ready-to-use version of the `VisualEditing` component that's compatible with Hydrogen and Oxygen.
+
+> [!NOTE]
+>
+> These instructions assume some familiarity with Sanity's Visual Editing concepts, like loaders and overlays. To learn more, please visit the [Visual Editing documentation](https://www.sanity.io/docs/introduction-to-visual-editing).
 
 First set up your root route to enable preview mode across the entire application, if the preview session is active:
 
@@ -277,6 +284,12 @@ For users to enter preview mode, they will need to visit a route that performs s
 
 `hydrogen-sanity` comes with a preconfigured route for this purpose. It checks the value of a secret in the URL used by Presentation tool - and if valid - writes the `projectId` to the Hydrogen session.
 
+> [!NOTE]
+>
+> By default, `hydrogen-sanity` will enable stega-encoded Content Source Maps when preview mode is enabled.
+>
+> You can learn more about Content Source Maps and working with stega-encoded strings in [the documentation](https://www.sanity.io/docs/stega).
+
 Add this route to your project like below, or view the source to copy and modify it in your project.
 
 ```tsx
@@ -317,6 +330,7 @@ export default async function handleRequest(
     // Include Sanity domains in the CSP
     defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
     connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
+    // Consider using an environment variable here
     frameAncestors: [`http://localhost:3333`, `'self'`],
   })
 
