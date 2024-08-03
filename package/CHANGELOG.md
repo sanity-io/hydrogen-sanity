@@ -5,6 +5,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.5...v4.1.0) (2024-08-03)
+
+### Features
+
+- pass `tag` and `headers` options to `loadQuery` ([f371c72](https://github.com/sanity-io/hydrogen-sanity/commit/f371c7293e92582f74eb1e84383ba2f032e952e3))
+
+### Bug Fixes
+
+- add missing stega options ([72d33dc](https://github.com/sanity-io/hydrogen-sanity/commit/72d33dcb425f1399ae45bd80fae2fd7655d9cdd6))
+- **deps:** update non-major ([ba02af2](https://github.com/sanity-io/hydrogen-sanity/commit/ba02af2ab538817f8092c611cd73817f8d4fa1a5))
+- **deps:** upgrade non-major ([f138ca7](https://github.com/sanity-io/hydrogen-sanity/commit/f138ca7278db05f7bf2060009c0e023f90ece68a))
+
 ## [4.0.5](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.4...v4.0.5) (2024-07-11)
 
 ### Bug Fixes
