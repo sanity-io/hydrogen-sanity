@@ -52,7 +52,7 @@ pnpm install hydrogen-sanity
 Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 ```ts
-// ./server.ts
+// ./app/lib/context.ts
 
 // ...all other imports
 // Add imports for Sanity Loader and Preview Session
