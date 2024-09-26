@@ -141,13 +141,12 @@ SANITY_API_TOKEN=""
 Update the environment variables in `Env` to include the ones you created above:
 
 ```ts
-// ./remix.env.d.ts
+// ./env.d.ts
 
 declare global {
   // ...other Types
 
-  interface Env {
-    // ...other variables
+  interface Env extends HydrogenEnv {
     SANITY_PROJECT_ID: string
     SANITY_DATASET: string
     SANITY_API_VERSION: string
