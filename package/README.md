@@ -6,15 +6,15 @@
 - [Usage](#usage)
   - [Satisfy TypeScript](#satisfy-typescript)
 - [Interacting with Sanity data](#interacting-with-sanity-data)
-  - [Preferred: Cached fetches using `loadQuery`](#preferred-cached-fetches-using-loadquery)
-  - [`loadQuery` Request Options](#loadquery-request-options)
+  - [Preferred: Cached queries using `loadQuery`](#preferred-cached-queries-using-loadquery)
+  - [Additional `loadQuery` options](#additional-loadquery-options)
   - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
-- [Visual Editing](#visual-editing)
+- [Enable Visual Editing](#enable-visual-editing)
   - [Enabling preview mode](#enabling-preview-mode)
   - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
-  - [Modify Content Security Policy for Studio domains](#modify-content-security-policy-for-studio-domains)
-  - [Setup Presentation Tool](#setup-presentation-tool)
-- [Using `@sanity/client` instead of hydrogen-sanity](#using-sanityclient-instead-of-hydrogen-sanity)
+  - [Modify storefront's Content Security Policy (CSP)](#modify-storefronts-content-security-policy-csp)
+  - [Setup Presentation tool](#setup-presentation-tool)
+- [Using `@sanity/client` instead of `hydrogen-sanity`](#using-sanityclient-instead-of-hydrogen-sanity)
 - [Migration Guides](#migration-guides)
 - [License](#license)
 - [Develop \& test](#develop--test)
@@ -25,7 +25,7 @@
 - Cacheable queries to [Sanity API CDN](https://www.sanity.io/docs/api-cdn)
 - Interactive live preview with [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays)
 
-> [!NOTE]
+> [!TIP]
 >
 > If you'd prefer a self-paced course on how to use Sanity and Hydrogen, check out the [Sanity and Shopify with Hydrogen on Sanity Learn](https://www.sanity.io/learn/course/sanity-and-shopify-with-hydrogen).
 
@@ -52,15 +52,17 @@ pnpm install hydrogen-sanity
 Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 ```ts
-// ./server.ts
+// ./lib/context.ts
 
 // ...all other imports
-// Add imports for Sanity Loader and Preview Session
-import {createSanityLoader, createClient} from 'hydrogen-sanity'
+import {createSanityLoader} from 'hydrogen-sanity';
 
-// Inside the default export
-export default () => {
-  // ... Leave all other functions like the storefront client as-is
+export async function createAppLoadContext(
+  request: Request,
+  env: Env,
+  executionContext: ExecutionContext,
+) {
+  // ... Leave all other functions like the Hydrogen context as-is
 
   // (Prerequisite) If not already initialized, create a `withCache` handler...
   const withCache = createWithCache({cache, waitUntil, request})
@@ -73,8 +75,8 @@ export default () => {
     // Required:
     client: {
       projectId: env.SANITY_PROJECT_ID,
-      dataset: env.SANITY_DATASET,
-      apiVersion: env.SANITY_API_VERSION || '2023-03-30',
+      dataset: env.SANITY_DATASET || 'production',
+      apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
       useCdn: process.env.NODE_ENV === 'production',
 
       // In preview mode, `stega` will be enabled automatically
@@ -84,6 +86,7 @@ export default () => {
       //   logger: console
       // }
     }),
+
     // You can also initialize a client and pass it instead
     // client: createClient({
     //   projectId: env.SANITY_PROJECT_ID,
@@ -97,24 +100,20 @@ export default () => {
 
     // Optionally, enable Visual Editing
     // See "Visual Editing" section below to setup the preview route
-    preview: env.SANITY_API_TOKEN
-      ? {
-          enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
-          token: env.SANITY_API_TOKEN,
-          studioUrl: 'http://localhost:3333',
-        }
-      : undefined,
+    // preview: env.SANITY_API_TOKEN
+    //   ? {
+    //       enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
+    //       token: env.SANITY_API_TOKEN,
+    //       studioUrl: 'http://localhost:3333',
+    //     }
+    //   : undefined,
   })
 
-  // 2. Make Sanity available to all action and loader contexts
-  const handleRequest = createRequestHandler({
-    // ...other settings
-    getLoadContext: () => ({
-      // ...other providers
-      withCache,
-      sanity,
-    }),
-  })
+  // 2. Make Sanity available to loaders and actions in the request context
+  return {
+    ...hydrogenContext,
+    sanity,
+  };
 }
 ```
 
@@ -144,28 +143,30 @@ Update the environment variables in `Env` to include the ones you created above:
 // ./env.d.ts
 
 declare global {
-  // ...other Types
+  // ...other types
 
   interface Env extends HydrogenEnv {
+    // ...other environment variables
+
     SANITY_PROJECT_ID: string
-    SANITY_DATASET: string
-    SANITY_API_VERSION: string
+    SANITY_DATASET?: string
+    SANITY_API_VERSION?: string
     SANITY_API_TOKEN: string
   }
 }
 ```
 
-> [!NOTE]
+> [!WARNING]
 >
 > `hydrogen-sanity` will automatically add `sanity` to the `AppLoadContext` interface
 
 ## Interacting with Sanity data
 
-### Preferred: Cached fetches using `loadQuery`
+### Preferred: Cached queries using `loadQuery`
 
 Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy). While in preview mode, `loadQuery` will use `CacheNone` to prevent results from being cached.
 
-> [!NOTE]
+> [!TIP]
 > You can use [Sanity TypeGen tooling](https://www.sanity.io/docs/sanity-typegen) to generate TypeScript definitions for your GROQ queries.
 
 Learn more about configuring [caching in Hydrogen on the Shopify documentation](https://shopify.dev/docs/custom-storefronts/hydrogen/caching).
@@ -182,7 +183,7 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 }
 ```
 
-### `loadQuery` Request Options
+### Additional `loadQuery` options
 
 If you need to pass any additional options to the request provide `queryOptions` like so:
 
@@ -209,7 +210,7 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
 })
 ```
 
-> [!NOTE]
+> [!TIP]
 > You can learn more about request tagging in [the documentation](https://www.sanity.io/docs/reference-api-request-tags).
 
 ### Alternatively: Using `client` directly
@@ -233,7 +234,7 @@ export async function action({context, request}: ActionFunctionArgs) {
 }
 ```
 
-## Visual Editing
+## Enable Visual Editing
 
 Enable real-time, interactive live preview inside the Presentation tool of your Sanity Studio. `hydrogen-sanity` comes with a ready-to-use version of the `VisualEditing` component that's compatible with Hydrogen and Oxygen.
 
@@ -252,15 +253,16 @@ import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 export async function loader({context}: LoaderArgs) {
   return json({
     // ... other loader data
-    preview: context.sanity.preview?.enabled,
+    isPreviewEnabled: context.sanity.preview?.enabled,
   })
 }
 
-export default function App() {
-  const {preview, ...data} = useLoaderData<typeof loader>()
+export function Layout({children}: {children?: React.ReactNode}) {
+  const nonce = useNonce()
+  const {isPreviewEnabled, ...data} = useRouteLoaderData<RootLoader>('root')
 
   return (
-    <html>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -268,10 +270,13 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
-        {preview ? <VisualEditing /> : null}
-        <ScrollRestoration />
-        <Scripts />
+        {/* ...rest of the root layout */}
+
+        {/* Conditionally render `VisualEditing` component only when in preview mode */}
+        {isPreviewEnabled ? <VisualEditing /> : null}
+
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
       </body>
     </html>
   )
@@ -309,9 +314,13 @@ If your Sanity Studio is not embedded in your Hydrogen App, you will need to add
 
 Add `http://localhost:3000` to the CORS origins in your Sanity project settings at [sanity.io/manage](https://sanity.io/manage).
 
-### Modify Content Security Policy for Studio domains
+### Modify storefront's Content Security Policy (CSP)
 
-You may receive errors in the console due to Content Security Policy (CSP) restrictions due to the default configuration. Modify `entry.server.tsx` to allow any URL that the Studio runs on to display the app in an Iframe.
+Since Sanity Studio's Presentation tool displays the storefront inside an iframe, you will need to adjust the Content Security Policy (CSP) in `entry.server.tsx`.
+
+> [!TIP]
+>
+> Review Hydrogen's [content security policy documentation](https://shopify.dev/docs/storefronts/headless/hydrogen/content-security-policy) to ensure your storefront is secure.
 
 ```ts
 // ./app/entry.server.tsx
@@ -327,24 +336,36 @@ export default async function handleRequest(
   loadContext: AppLoadContext,
 ) {
   const projectId = loadContext.env.SANITY_PROJECT_ID
+  const studioHostname = loadContext.env.SANITY_STUDIO_HOSTNAME || 'http://localhost:3333'
+  const isPreviewEnabled = loadContext.sanity.preview?.enabled
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    // Include Sanity domains in the CSP
+    // If your storefront and Studio are on separate domains...
+    // ...allow Sanity assets loaded from the CDN to be loaded in your storefront
+    defaultSrc: ['https://cdn.sanity.io'],
+    // ...allow Studio to load your storefront in Presentation's iframe
+    frameAncestors: isPreviewEnabled ? [studioHostname] : undefined,
+
+    // If you've embedded your Studio in your storefront...
+    // ...allow Sanity assets to be loaded in your storefront and allow user avatars in Studio
     defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
+    // ...allow client-side requests for Studio to do realtime collaboration
     connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
-    // Consider using an environment variable here
-    frameAncestors: [`http://localhost:3333`, `'self'`],
+    // ...allow embedded Studio to load storefront
+    frameAncestors: [`'self'`],
   })
 
   // ...and the rest
 }
 ```
 
-Note that `frameAncestors` will need to be updated with every URL from which the Sanity Studio is served and displays your Hydrogen front-end inside the Presentation tool's iframe.
-
-### Setup Presentation Tool
+### Setup Presentation tool
 
 Now in your Sanity Studio config, import the Presentation tool with the Preview URL set to the preview route you created.
+
+> [!TIP]
+>
+> Consult the Visual Editing documentation for how to [configure the Presentation tool](https://www.sanity.io/docs/configuring-the-presentation-tool).
 
 ```ts
 // ./sanity.config.ts
@@ -357,7 +378,14 @@ export default defineConfig({
 
   plugins: [
     presentationTool({
-      previewUrl: {previewMode: {enable: '/resource/preview'}},
+      previewUrl: {
+        // If you're hosting your storefront on a separate domain, you'll need to provide an `origin`:
+        // origin: process.env.SANITY_STUDIO_STOREFRONT_ORIGIN
+        previewMode: {
+          // This path is relative to the origin above and should match the route in your storefront that you've setup above
+          enable: '/resource/preview',
+        },
+      },
     }),
     // ..all other plugins
   ],
@@ -366,21 +394,31 @@ export default defineConfig({
 
 You should now be able to view your Hydrogen app in the Presentation tool, click to edit any Sanity content and see live updates as you make changes.
 
-## Using `@sanity/client` instead of hydrogen-sanity
+> [!NOTE]
+>
+> If you're able to see Presentation working locally, but not when you've deployed your application, check that your session cookie is using `sameSite: 'none'` and `secure: true`.
+>
+> Since Presentation displays your site in an iframe, the session cookie by default won't be sent through. You can learn more about session cookie configuation in [MDN's documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value).
+
+## Using `@sanity/client` instead of `hydrogen-sanity`
 
 For whatever reason, if you choose not to use `hydrogen-sanity` you could still configure `@sanity/react-loader` or `@sanity/client` to get Sanity content into your Hydrogen storefront.
 
-The following example configures Sanity Client.
+The following example configures Sanity Client and provides it in the request context.
 
 ```ts
 // ./server.ts
 
 // ...all other imports
-import {createClient} from '@sanity/client';
+import {createClient} from '@sanity/client'
 
-export default {
+export async function createAppLoadContext(
+  request: Request,
+  env: Env,
+  executionContext: ExecutionContext,
+) {
   // ... all other functions
-  const withCache = createWithCache({cache, waitUntil, request});
+  const withCache = createWithCache({cache, waitUntil, request})
 
   // Create the Sanity Client
   const sanity = createClient({
@@ -388,18 +426,16 @@ export default {
     dataset: env.SANITY_DATASET,
     apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
     useCdn: process.env.NODE_ENV === 'production',
-  });
+  })
 
   // Pass it along to every request by
   // adding it to `handleRequest`
-  const handleRequest = createRequestHandler({
-    // ...other settings
-    getLoadContext: () => ({
-      // ...other context items
-      withCache,
-      sanity,
-    }),
-  });
+  return {
+    ...hydrogenContext,
+
+    sanity,
+    withCache,
+  }
 }
 ```
 
