@@ -9,8 +9,10 @@ export const action: ActionFunction = async ({context, request}) => {
     return json({message: 'Method not allowed'}, 405)
   }
 
+  // TODO: make this a callback? `onExitPreview`?
   await context.session.unset('projectId')
 
+  // TODO: confirm that the redirect and setting cookie has to happen here?
   return redirect('/', {
     headers: {
       'Set-Cookie': await context.session.commit(),
@@ -42,8 +44,10 @@ export const loader: LoaderFunction = async ({context, request}) => {
     throw new Response('Invalid secret', {status: 401})
   }
 
+  // TODO: make this a callback? `onEnterPreview`?
   await context.session.set('projectId', projectId)
 
+  // TODO: confirm that the redirect and setting cookie has to happen here?
   return redirect(redirectTo, {
     headers: {
       'Set-Cookie': await context.session.commit(),
