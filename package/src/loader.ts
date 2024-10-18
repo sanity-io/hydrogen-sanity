@@ -1,6 +1,12 @@
 /* eslint-disable no-return-await */
 import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
-import {CacheLong, CacheNone, type HydrogenSession, type WithCache} from '@shopify/hydrogen'
+import {
+  CacheLong,
+  CacheNone,
+  type CachingStrategy,
+  type HydrogenSession,
+  type WithCache,
+} from '@shopify/hydrogen'
 
 import {
   type ClientConfig,
@@ -10,7 +16,6 @@ import {
   type ResponseQueryOptions,
   SanityClient,
 } from './client'
-import type {CachingStrategy} from './types'
 import {hashQuery} from './utils'
 
 const DEFAULT_CACHE_STRATEGY = CacheLong()
