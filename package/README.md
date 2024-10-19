@@ -191,9 +191,9 @@ If you need to pass any additional options to the request provide `queryOptions`
 const page = await context.sanity.loadQuery<HomePage>(query, params, {
   // Optionally customize the cache strategy for this request
   hydrogen: {
-    strategy: CacheShort(),
+    cache: CacheShort(),
     // Or disable caching for this request
-    // strategy: CacheNone(),
+    // cache: CacheNone(),
 
     // If you'd like to add a custom display title that will
     // display in the subrequest profiler, you can pass that here:
