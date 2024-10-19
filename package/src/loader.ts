@@ -1,4 +1,4 @@
-import {createQueryStore, type QueryResponseInitial} from '@sanity/react-loader'
+import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
 import {
   CacheLong,
   CacheNone,
@@ -99,8 +99,6 @@ declare module '@shopify/remix-oxygen' {
   }
 }
 
-const queryStore = createQueryStore({client: false, ssr: true})
-
 /**
  * @deprecated Use `createSanityContext` instead
  */
@@ -132,9 +130,9 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
       },
     })
 
-    queryStore.setServerClient(previewClient)
+    setServerClient(previewClient)
   } else {
-    queryStore.setServerClient(client)
+    setServerClient(client)
   }
 
   const sanity = {
@@ -162,7 +160,7 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
           })
         }
 
-        return await queryStore.loadQuery<T>(query, params, loaderOptions)
+        return await loadQuery<T>(query, params, loaderOptions)
       })
     },
     client,

@@ -52,7 +52,7 @@ pnpm install hydrogen-sanity
 Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 > [!NOTE]
-> The examples below are up-to-date as of `2024.7.10`
+> The examples below are up-to-date as of `npm create @shopify/hydrogen@2024.7.10`
 
 ```ts
 // ./lib/context.ts
