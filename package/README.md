@@ -51,6 +51,9 @@ pnpm install hydrogen-sanity
 
 Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
 
+> [!NOTE]
+> The examples below are up-to-date as of `2024.7.10`
+
 ```ts
 // ./lib/context.ts
 
@@ -73,7 +76,7 @@ export async function createAppLoadContext(
   const sanity = createSanityContext({
     request,
 
-    // Caching mechanism
+    // To use the Hydrogen cache for queries
     cache,
     waitUntil,
 
