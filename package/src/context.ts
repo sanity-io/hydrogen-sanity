@@ -3,8 +3,8 @@ import {
   CacheLong,
   CacheNone,
   type CachingStrategy,
+  createWithCache,
   type HydrogenSession,
-  type WithCache,
 } from '@shopify/hydrogen'
 
 import {
@@ -19,12 +19,13 @@ import {hashQuery} from './utils'
 
 const DEFAULT_CACHE_STRATEGY = CacheLong()
 
-export type CreateSanityLoaderOptions = {
-  /**
-   * Cache control utility from `@shopify/hydrogen`.
-   * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching/third-party
-   */
-  withCache: WithCache
+type WaitUntil = (promise: Promise<unknown>) => void
+
+export type CreateSanityContextOptions = {
+  request: Request
+
+  cache?: Cache | undefined
+  waitUntil?: WaitUntil | undefined
 
   /**
    * Sanity client or configuration to use.
@@ -37,7 +38,7 @@ export type CreateSanityLoaderOptions = {
    *
    * Defaults to `CacheLong`
    */
-  strategy?: CachingStrategy | null
+  defaultStrategy?: CachingStrategy | null
 
   /**
    * Configuration for enabling preview mode.
@@ -72,7 +73,7 @@ type LoadQueryOptions = Pick<
   'perspective' | 'hydrogen' | 'useCdn' | 'stega' | 'headers' | 'tag'
 >
 
-export type SanityLoader = {
+export type SanityContext = {
   /**
    * Query Sanity using the loader.
    * @see https://www.sanity.io/docs/loaders
@@ -86,7 +87,7 @@ export type SanityLoader = {
 
   client: SanityClient
 
-  preview?: CreateSanityLoaderOptions['preview']
+  preview?: CreateSanityContextOptions['preview']
 }
 
 declare module '@shopify/remix-oxygen' {
@@ -95,17 +96,18 @@ declare module '@shopify/remix-oxygen' {
    */
   export interface AppLoadContext {
     session: HydrogenSession
-    sanity: SanityLoader
+    sanity: SanityContext
   }
 }
 
 const queryStore = createQueryStore({client: false, ssr: true})
 
 /**
- * @deprecated Use `createSanityContext` instead
+ * @public
  */
-export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLoader {
-  const {withCache, preview, strategy} = options
+export function createSanityContext(options: CreateSanityContextOptions): SanityContext {
+  const {cache, waitUntil = () => Promise.resolve(), request, preview, defaultStrategy} = options
+  const withCache = cache ? createWithCache({cache, waitUntil, request}) : null
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
 
@@ -147,23 +149,24 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
       const cacheStrategy =
         preview && preview.enabled
           ? CacheNone()
-          : loaderOptions?.hydrogen?.cache || strategy || DEFAULT_CACHE_STRATEGY
+          : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
 
       const queryHash = await hashQuery(query, params)
 
-      return await withCache(queryHash, cacheStrategy, async ({addDebugData}) => {
-        // eslint-disable-next-line no-process-env
-        if (process.env.NODE_ENV === 'development') {
-          // Name displayed in the subrequest profiler
-          const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
+      return await (withCache
+        ? withCache(queryHash, cacheStrategy, async ({addDebugData}) => {
+            if (process.env.NODE_ENV === 'development') {
+              // Name displayed in the subrequest profiler
+              const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
 
-          addDebugData({
-            displayName,
+              addDebugData({
+                displayName,
+              })
+            }
+
+            return await queryStore.loadQuery<T>(query, params, loaderOptions)
           })
-        }
-
-        return await queryStore.loadQuery<T>(query, params, loaderOptions)
-      })
+        : queryStore.loadQuery<T>(query, params, loaderOptions))
     },
     client,
     preview,

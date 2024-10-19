@@ -55,7 +55,7 @@ Update the server file to include the Sanity Loader, and optionally, configure t
 // ./lib/context.ts
 
 // ...all other imports
-import {createSanityLoader} from 'hydrogen-sanity';
+import {createSanityContext} from 'hydrogen-sanity';
 
 export async function createAppLoadContext(
   request: Request,
@@ -63,16 +63,21 @@ export async function createAppLoadContext(
   executionContext: ExecutionContext,
 ) {
   // ... Leave all other functions like the Hydrogen context as-is
-
-  // (Prerequisite) If not already initialized, create a `withCache` handler...
-  const withCache = createWithCache({cache, waitUntil, request})
+  const waitUntil = executionContext.waitUntil.bind(executionContext);
+  const [cache, session] = await Promise.all([
+    caches.open('hydrogen'),
+    AppSession.init(request, [env.SESSION_SECRET]),
+  ]);
 
   // 1. Configure the Sanity Loader and preview mode
-  const sanity = createSanityLoader({
-    // Required, to cache responses
-    withCache,
+  const sanity = createSanityContext({
+    request,
 
-    // Required:
+    // Caching mechanism
+    cache,
+    waitUntil,
+
+    // Sanity client configuration
     client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET || 'production',
