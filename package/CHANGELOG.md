@@ -5,6 +5,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/sanity-io/hydrogen-sanity/compare/v4.1.1...v4.2.0) (2024-10-19)
+
+### Features
+
+- deprecate 'loader' in favor of 'context' ([55de865](https://github.com/sanity-io/hydrogen-sanity/commit/55de865262b3d74e08b6a28628166dd456e03d8c))
+
+### Bug Fixes
+
+- add better error messages in preview route ([83e9a2e](https://github.com/sanity-io/hydrogen-sanity/commit/83e9a2e4f1eb12cfe84ece4a5661b14c45566c94))
+- don't create query store ([8e6068a](https://github.com/sanity-io/hydrogen-sanity/commit/8e6068a2d4ecefa54abc710ca511f38ecdf376e1))
+
 ## [4.1.1](https://github.com/sanity-io/hydrogen-sanity/compare/v4.1.0...v4.1.1) (2024-10-19)
 
 ### Bug Fixes
