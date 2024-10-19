@@ -429,7 +429,7 @@ export async function createAppLoadContext(
   const sanity = createClient({
     projectId: env.SANITY_PROJECT_ID,
     dataset: env.SANITY_DATASET,
-    apiVersion: env.SANITY_API_VERSION ?? '2023-03-30',
+    apiVersion: env.SANITY_API_VERSION ?? 'v2024-08-08',
     useCdn: process.env.NODE_ENV === 'production',
   })
 
