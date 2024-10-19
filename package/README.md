@@ -14,6 +14,7 @@
   - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
   - [Modify storefront's Content Security Policy (CSP)](#modify-storefronts-content-security-policy-csp)
   - [Setup Presentation tool](#setup-presentation-tool)
+  - [Troubleshooting](#troubleshooting)
 - [Using `@sanity/client` instead of `hydrogen-sanity`](#using-sanityclient-instead-of-hydrogen-sanity)
 - [Migration Guides](#migration-guides)
 - [License](#license)
@@ -164,10 +165,6 @@ declare global {
 }
 ```
 
-> [!WARNING]
->
-> `hydrogen-sanity` will automatically add `sanity` to the `AppLoadContext` interface
-
 ## Interacting with Sanity data
 
 ### Preferred: Cached queries using `loadQuery`
@@ -267,7 +264,7 @@ export async function loader({context}: LoaderArgs) {
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce()
-  const {isPreviewEnabled, ...data} = useRouteLoaderData<RootLoader>('root')
+  const data = useRouteLoaderData<RootLoader>('root')
 
   return (
     <html lang="en">
@@ -281,7 +278,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ...rest of the root layout */}
 
         {/* Conditionally render `VisualEditing` component only when in preview mode */}
-        {isPreviewEnabled ? <VisualEditing /> : null}
+        {data?.isPreviewEnabled ? <VisualEditing /> : null}
 
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
@@ -308,7 +305,7 @@ For users to enter preview mode, they will need to visit a route that performs s
 Add this route to your project like below, or view the source to copy and modify it in your project.
 
 ```tsx
-// ./app/routes/resource.preview.ts
+// ./app/routes/api.preview.ts
 
 export {loader} from 'hydrogen-sanity/preview/route'
 
@@ -341,11 +338,11 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  loadContext: AppLoadContext,
+  context: AppLoadContext,
 ) {
-  const projectId = loadContext.env.SANITY_PROJECT_ID
-  const studioHostname = loadContext.env.SANITY_STUDIO_HOSTNAME || 'http://localhost:3333'
-  const isPreviewEnabled = loadContext.sanity.preview?.enabled
+  const projectId = context.env.SANITY_PROJECT_ID
+  const studioHostname = context.env.SANITY_STUDIO_HOSTNAME || 'http://localhost:3333'
+  const isPreviewEnabled = context.sanity.preview?.enabled
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     // If your storefront and Studio are on separate domains...
@@ -391,7 +388,7 @@ export default defineConfig({
         // origin: process.env.SANITY_STUDIO_STOREFRONT_ORIGIN
         previewMode: {
           // This path is relative to the origin above and should match the route in your storefront that you've setup above
-          enable: '/resource/preview',
+          enable: '/api/preview',
         },
       },
     }),
@@ -407,6 +404,20 @@ You should now be able to view your Hydrogen app in the Presentation tool, click
 > If you're able to see Presentation working locally, but not when you've deployed your application, check that your session cookie is using `sameSite: 'none'` and `secure: true`.
 >
 > Since Presentation displays your site in an iframe, the session cookie by default won't be sent through. You can learn more about session cookie configuation in [MDN's documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value).
+
+### Troubleshooting
+
+Are you getting the following error when trying to load your storefront in the Presentation tool?
+
+> Unable to connect to visual editing. Make sure you've setup '@sanity/visual-editing' correctly
+
+Presentation will throw this error if it can't establish a connection to your storefront. Here are a few things to double-check in your setup to try and troubleshoot:
+
+1. Confirm that you've provided `preview` configuration to the Sanity context.
+2. Confirm that you've added the `VisualEditing` component to your root layout.
+3. If you've followed the instructions above, the `VisualEditing` component will be conditionally rendered if the app has been successfully put into preview mode.
+4. If you're using a session cookie, check your browser devtools and confirm that the cookie has been set as expected.
+5. Since Presentation loads your storefront in an `iframe`, double check your cookie and CSP configuration.
 
 ## Using `@sanity/client` instead of `hydrogen-sanity`
 
