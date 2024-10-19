@@ -1,11 +1,5 @@
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
-import {
-  CacheLong,
-  CacheNone,
-  type CachingStrategy,
-  createWithCache,
-  type HydrogenSession,
-} from '@shopify/hydrogen'
+import {CacheLong, CacheNone, type CachingStrategy, createWithCache} from '@shopify/hydrogen'
 
 import {
   type ClientConfig,
@@ -88,16 +82,6 @@ export type SanityContext = {
   client: SanityClient
 
   preview?: CreateSanityContextOptions['preview']
-}
-
-declare module '@shopify/remix-oxygen' {
-  /**
-   * Declare local additions to the Remix loader context.
-   */
-  export interface AppLoadContext {
-    session: HydrogenSession
-    sanity: SanityContext
-  }
 }
 
 /**
