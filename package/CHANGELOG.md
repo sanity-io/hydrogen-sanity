@@ -5,6 +5,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.1](https://github.com/sanity-io/hydrogen-sanity/compare/v4.1.0...v4.1.1) (2024-10-19)
+
+### Bug Fixes
+
+- **deps:** upgrade non-major ([9f3c5fa](https://github.com/sanity-io/hydrogen-sanity/commit/9f3c5fa7969e7ba7132a01b715529f783fa964eb))
+- use Hydrogen caching strategy type ([6e09811](https://github.com/sanity-io/hydrogen-sanity/commit/6e09811e6df3f3086a653a4a9caff332ebbeda18))
+
 ## [4.1.0](https://github.com/sanity-io/hydrogen-sanity/compare/v4.0.5...v4.1.0) (2024-08-03)
 
 ### Features
