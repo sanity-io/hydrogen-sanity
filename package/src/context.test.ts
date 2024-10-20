@@ -37,14 +37,10 @@ vi.mock('@shopify/hydrogen', async (importOriginal) => {
 
 vi.mock('@sanity/react-loader', async (importOriginal) => {
   const module = await importOriginal<typeof import('@sanity/react-loader')>()
-  const queryStore = module.createQueryStore({client: false, ssr: true})
 
   return {
     ...module,
-    createQueryStore: vi.fn().mockReturnValue({
-      ...queryStore,
-      loadQuery,
-    }),
+    loadQuery,
   }
 })
 
