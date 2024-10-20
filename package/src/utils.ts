@@ -1,5 +1,3 @@
-import type {HydrogenSession} from '@shopify/hydrogen'
-
 import type {QueryParams, QueryWithoutParams} from './client'
 
 /**
@@ -32,19 +30,4 @@ export function hashQuery(
   }
 
   return sha256(hash)
-}
-
-export function assertSession(session: unknown): session is HydrogenSession {
-  return (
-    !!session &&
-    typeof session === 'object' &&
-    'get' in session &&
-    typeof session.get === 'function' &&
-    'set' in session &&
-    typeof session.set === 'function' &&
-    'unset' in session &&
-    typeof session.unset === 'function' &&
-    'commit' in session &&
-    typeof session.commit === 'function'
-  )
 }

@@ -1,10 +1,10 @@
 import type {QueryStore} from '@sanity/react-loader'
-import {CacheShort, WithCache} from '@shopify/hydrogen'
-import groq from 'groq'
+import {CacheShort, type WithCache} from '@shopify/hydrogen'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createClient, SanityClient} from './client'
 import {createSanityContext} from './context'
+import {groq} from './groq'
 import {hashQuery} from './utils'
 
 // Mock the global caches object
@@ -96,7 +96,11 @@ describe('when configured for preview', () => {
     preview: {
       enabled: true,
       token: 'my-token',
-      studioUrl: 'https://example.com',
+      studioUrl: '/',
+      // eslint-disable-next-line no-empty-function
+      onEnablePreview: () => {},
+      // eslint-disable-next-line no-empty-function
+      onDisablePreview: () => {},
     },
   })
 

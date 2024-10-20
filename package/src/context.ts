@@ -1,5 +1,6 @@
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
 import {CacheLong, CacheNone, type CachingStrategy, createWithCache} from '@shopify/hydrogen'
+import {AppLoadContext} from '@shopify/remix-oxygen'
 
 import {
   type ClientConfig,
@@ -18,8 +19,8 @@ type WaitUntil = (promise: Promise<unknown>) => void
 export type CreateSanityContextOptions = {
   request: Request
 
-  cache?: Cache | undefined
-  waitUntil?: WaitUntil | undefined
+  cache?: Cache
+  waitUntil?: WaitUntil
 
   /**
    * Sanity client or configuration to use.
@@ -37,7 +38,13 @@ export type CreateSanityContextOptions = {
   /**
    * Configuration for enabling preview mode.
    */
-  preview?: {enabled: boolean; token: string; studioUrl: string}
+  preview?: {
+    enabled: boolean
+    token: string
+    studioUrl: string
+    onEnablePreview: (context: AppLoadContext) => void | Promise<void>
+    onDisablePreview: (context: AppLoadContext) => void | Promise<void>
+  }
 }
 
 interface RequestInit {
@@ -67,7 +74,7 @@ type LoadQueryOptions = Pick<
   'perspective' | 'hydrogen' | 'useCdn' | 'stega' | 'headers' | 'tag'
 >
 
-export type SanityContext = {
+export interface SanityContext {
   /**
    * Query Sanity using the loader.
    * @see https://www.sanity.io/docs/loaders

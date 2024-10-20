@@ -1,28 +1,25 @@
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
-import type {HydrogenSession} from '@shopify/hydrogen'
 import {type ActionFunction, json, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
 
 import type {SanityContext} from '../context'
-import {assertSession} from '../utils'
 
 /**
  * A `POST` request to this route will exit preview mode
  */
 export const action: ActionFunction = async ({context, request}) => {
-  if (request.method !== 'POST') {
-    return json({message: 'Method not allowed'}, 405)
-  }
-
   try {
-    const {session} = context
-    if (!assertSession(session)) {
-      throw new Error('Session is not an instance of HydrogenSession')
+    if (request.method !== 'POST') {
+      return json({message: 'Method not allowed'}, 405)
     }
 
-    // TODO: make this a callback? `onExitPreview`?
-    await session.unset('projectId')
+    const {sanity} = context as {sanity: SanityContext}
 
-    // TODO: confirm that the redirect and setting cookie has to happen here?
+    if (!sanity.preview) {
+      return new Response('Preview mode is not enabled in this environment.', {status: 403})
+    }
+
+    await sanity.preview.onDisablePreview(context)
+
     return redirect('/')
   } catch (error) {
     console.error(error)
@@ -37,9 +34,7 @@ export const action: ActionFunction = async ({context, request}) => {
  */
 export const loader: LoaderFunction = async ({context, request}) => {
   try {
-    // TODO: to remove
-    const {sanity, session} = context as {sanity: SanityContext; session: HydrogenSession}
-    const projectId = sanity.client.config().projectId
+    const {sanity} = context as {sanity: SanityContext}
 
     if (!sanity.preview) {
       return new Response('Preview mode is not enabled in this environment.', {status: 403})
@@ -47,14 +42,6 @@ export const loader: LoaderFunction = async ({context, request}) => {
 
     if (!sanity.preview.token) {
       throw new Error('Enabling preview mode requires a token.')
-    }
-
-    if (!projectId) {
-      throw new Error('No `projectId` found in the client config.')
-    }
-
-    if (!assertSession(session)) {
-      throw new Error('Session is not an instance of HydrogenSession')
     }
 
     const clientWithToken = sanity.client.withConfig({
@@ -68,10 +55,8 @@ export const loader: LoaderFunction = async ({context, request}) => {
       return new Response('Invalid secret', {status: 401})
     }
 
-    // TODO: make this a callback? `onEnterPreview`?
-    await session.set('projectId', projectId)
+    await sanity.preview.onEnablePreview(context)
 
-    // TODO: confirm that the redirect and setting cookie has to happen here?
     return redirect(redirectTo)
   } catch (error) {
     console.error(error)

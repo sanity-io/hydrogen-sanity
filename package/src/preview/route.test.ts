@@ -1,10 +1,16 @@
 import type {HydrogenSession} from '@shopify/hydrogen'
-import {describe, expect, it, vi} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createSanityContext, type SanityContext} from '../context'
 import {action, loader} from './route'
 
-vi.mock('./client', {spy: true})
+vi.mock('@sanity/preview-url-secret', async (importOriginal) => {
+  const module = await importOriginal<typeof import('@sanity/preview-url-secret')>()
+  return {
+    ...module,
+    validatePreviewUrl: vi.fn().mockResolvedValue({isValid: true, redirectTo: '/'}),
+  }
+})
 
 type AppLoadContext = {
   session: HydrogenSession
@@ -31,8 +37,15 @@ class Session implements HydrogenSession {
   }
 }
 
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 describe('the preview route', () => {
   const request = new Request('https://example.com')
+
+  const onEnablePreview = vi.fn()
+  const onDisablePreview = vi.fn()
 
   const sanity = createSanityContext({
     request,
@@ -41,6 +54,8 @@ describe('the preview route', () => {
       enabled: true,
       token: 'my-token',
       studioUrl: 'https://example.com',
+      onEnablePreview,
+      onDisablePreview,
     },
   })
 
@@ -51,11 +66,18 @@ describe('the preview route', () => {
 
   it('should enable preview mode', async () => {
     const response = await loader({context, request, params: {}})
-    expect(response).toBeInstanceOf(Response)
+    expect(response).toSatisfy(
+      (value) => value instanceof Response && value.status >= 300 && value.status < 400,
+    )
+    expect(onEnablePreview).toHaveBeenCalledOnce()
   })
 
   it('should disable preview mode', async () => {
-    const response = await action({context, request, params: {}})
-    expect(response).toBeInstanceOf(Response)
+    const disablePreviewRequest = new Request('https://example.com', {method: 'POST'})
+    const response = await action({context, request: disablePreviewRequest, params: {}})
+    expect(response).toSatisfy(
+      (value) => value instanceof Response && value.status >= 300 && value.status < 400,
+    )
+    expect(onDisablePreview).toHaveBeenCalledOnce()
   })
 })
