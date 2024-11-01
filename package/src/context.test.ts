@@ -1,5 +1,5 @@
 import type {QueryStore} from '@sanity/react-loader'
-import {CacheShort, WithCache} from '@shopify/hydrogen'
+import {CacheShort, type WithCache} from '@shopify/hydrogen'
 import groq from 'groq'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
@@ -25,9 +25,11 @@ let withCache = vi.hoisted<WithCache | null>(() => null)
 
 vi.mock('@shopify/hydrogen', async (importOriginal) => {
   const module = await importOriginal<typeof import('@shopify/hydrogen')>()
-  withCache = vi
-    .fn()
-    .mockImplementation(module.createWithCache({cache, waitUntil: () => Promise.resolve()}))
+  withCache = module.createWithCache({
+    cache,
+    waitUntil: () => Promise.resolve(),
+    request: new Request('https://example.com'),
+  })
 
   return {
     ...module,
@@ -43,6 +45,8 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
     loadQuery,
   }
 })
+
+const runWithCache = vi.spyOn(withCache!, 'run')
 
 const client = createClient({projectId: 'my-project-id', dataset: 'my-dataset'})
 
@@ -73,8 +77,12 @@ describe('the Sanity request context', () => {
     })
 
     await contextWithDefaultStrategy.loadQuery<boolean>(query, params)
-    expect(withCache).toHaveBeenCalledWith(hashedQuery, defaultStrategy, expect.any(Function))
-    expect(cache.put).toHaveBeenCalled()
+    expect(runWithCache).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: defaultStrategy}),
+      expect.any(Function),
+    )
+    expect(cache.put).toHaveBeenCalledOnce()
   })
 
   it('queries should use the cache strategy passed in `loadQuery`', async () => {
@@ -82,8 +90,12 @@ describe('the Sanity request context', () => {
     await sanityContext.loadQuery<boolean>(query, params, {
       hydrogen: {cache: strategy},
     })
-    expect(withCache).toHaveBeenCalledWith(hashedQuery, strategy, expect.any(Function))
-    expect(cache.put).toHaveBeenCalled()
+    expect(runWithCache).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: strategy}),
+      expect.any(Function),
+    )
+    expect(cache.put).toHaveBeenCalledOnce()
   })
 })
 
@@ -122,6 +134,6 @@ describe('when configured for preview', () => {
   it(`shouldn't cache queries`, async () => {
     await previewContext.loadQuery<boolean>(query)
     expect(loadQuery).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalled()
+    expect(cache.put).not.toHaveBeenCalledOnce()
   })
 })
