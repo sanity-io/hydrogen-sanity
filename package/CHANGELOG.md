@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0](https://github.com/sanity-io/hydrogen-sanity/compare/v4.2.1...v4.3.0) (2024-11-03)
+
+### Features
+
+- add `shouldCacheResult` option ([#96](https://github.com/sanity-io/hydrogen-sanity/issues/96)) ([4fa7337](https://github.com/sanity-io/hydrogen-sanity/commit/4fa73371b8ca64bd7f59936e7a0716b1ae0c9360))
+
 ## [4.2.1](https://github.com/sanity-io/hydrogen-sanity/compare/v4.2.0...v4.2.1) (2024-10-31)
 
 ### Bug Fixes
