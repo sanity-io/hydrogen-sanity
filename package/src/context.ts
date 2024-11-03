@@ -75,7 +75,7 @@ type LoadQueryOptions<T> = Pick<
   hydrogen?: {
     /**
      * Whether to cache the result of the query or not.
-     * @default () => true
+     * @defaultValue () => true
      */
     shouldCacheResult?: (value: QueryResponseInitial<T>) => boolean
   }
