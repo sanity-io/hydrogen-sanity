@@ -89,10 +89,10 @@
     "groq": "^3.62.3"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.11.7",
+    "@sanity/pkg-utils": "^6.11.8",
     "@sanity/plugin-kit": "^4.0.18",
     "@sanity/semantic-release-preset": "^4.1.8",
-    "@shopify/hydrogen": "~2024.7.9",
+    "@shopify/hydrogen": "~2024.10.0",
     "@shopify/remix-oxygen": "^2.0.9",
     "@types/react": "^18.3.12",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -113,7 +113,7 @@
   },
   "peerDependencies": {
     "@sanity/client": "^6.18.0",
-    "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0 || ~2024.7.0",
+    "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0 || ~2024.7.0 || ~2024.10.0",
     "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
     "groq": "^3.41.0",
     "react": "^18.0.0",

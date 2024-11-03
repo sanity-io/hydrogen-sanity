@@ -1,5 +1,11 @@
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
-import {CacheLong, CacheNone, type CachingStrategy, createWithCache} from '@shopify/hydrogen'
+import {
+  CacheLong,
+  CacheNone,
+  type CachingStrategy,
+  createWithCache,
+  type WithCache,
+} from '@shopify/hydrogen'
 
 import {
   type ClientConfig,
@@ -62,10 +68,18 @@ type HydrogenResponseQueryOptions = Omit<ResponseQueryOptions, 'next' | 'cache'>
   hydrogen?: 'hydrogen' extends keyof RequestInit ? RequestInit['hydrogen'] : never
 }
 
-type LoadQueryOptions = Pick<
+type LoadQueryOptions<T> = Pick<
   HydrogenResponseQueryOptions,
   'perspective' | 'hydrogen' | 'useCdn' | 'stega' | 'headers' | 'tag'
->
+> & {
+  hydrogen?: {
+    /**
+     * Whether to cache the result of the query or not.
+     * @defaultValue () => true
+     */
+    shouldCacheResult?: (value: QueryResponseInitial<T>) => boolean
+  }
+}
 
 export type SanityContext = {
   /**
@@ -76,7 +90,7 @@ export type SanityContext = {
   loadQuery<T = any>(
     query: string,
     params?: QueryParams,
-    options?: LoadQueryOptions,
+    options?: LoadQueryOptions<T>,
   ): Promise<QueryResponseInitial<T>>
 
   client: SanityClient
@@ -125,8 +139,12 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
     async loadQuery<T>(
       query: string,
       params: QueryParams | QueryWithoutParams,
-      loaderOptions?: LoadQueryOptions,
+      loaderOptions?: LoadQueryOptions<T>,
     ): Promise<QueryResponseInitial<T>> {
+      if (!withCache) {
+        return await loadQuery<T>(query, params, loaderOptions)
+      }
+
       // Don't store response if preview is enabled
       const cacheStrategy =
         preview && preview.enabled
@@ -134,21 +152,28 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
           : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
 
       const queryHash = await hashQuery(query, params)
+      const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
-      return await (withCache
-        ? withCache(queryHash, cacheStrategy, async ({addDebugData}) => {
-            if (process.env.NODE_ENV === 'development') {
-              // Name displayed in the subrequest profiler
-              const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
+      const runWithCache = async function runWithCache({
+        addDebugData,
+      }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<QueryResponseInitial<T>> {
+        // eslint-disable-next-line no-process-env
+        if (process.env.NODE_ENV === 'development') {
+          // Name displayed in the subrequest profiler
+          const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
 
-              addDebugData({
-                displayName,
-              })
-            }
-
-            return await loadQuery<T>(query, params, loaderOptions)
+          addDebugData({
+            displayName,
           })
-        : loadQuery<T>(query, params, loaderOptions))
+        }
+
+        return await loadQuery<T>(query, params, loaderOptions)
+      }
+
+      return await ('run' in withCache
+        ? withCache.run({cacheKey: queryHash, cacheStrategy, shouldCacheResult}, runWithCache)
+        : // @ts-expect-error for compatibility, remove in next major
+          withCache(queryHash, cacheStrategy, runWithCache))
     },
     client,
     preview,

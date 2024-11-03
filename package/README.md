@@ -204,7 +204,12 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
     // display in the subrequest profiler, you can pass that here:
     // debug: {
     //   displayName: 'query Homepage'
-    // }
+    // },
+
+    // You can also pass a function do determine whether or not to cache the response
+    // shouldCacheResult(value){
+    //  return true
+    // },
   },
 
   // ...as well as other request options

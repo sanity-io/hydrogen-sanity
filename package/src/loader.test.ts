@@ -33,8 +33,8 @@ function waitUntil() {
   return Promise.resolve()
 }
 
-type WithCache = ReturnType<typeof createWithCache>
-const withCache: WithCache = vi.fn().mockImplementation(createWithCache({cache, waitUntil}))
+const withCache = createWithCache({cache, waitUntil, request: new Request('https://example.com')})
+const runWithCache = vi.spyOn(withCache, 'run')
 
 const client = createClient({projectId: 'my-project-id', dataset: 'my-dataset'})
 
@@ -63,15 +63,23 @@ describe('the loader', () => {
     })
 
     await loaderWithDefaultStrategy.loadQuery<boolean>(query, params)
-    expect(withCache).toHaveBeenCalledWith(hashedQuery, strategy, expect.any(Function))
-    expect(cache.put).toHaveBeenCalled()
+    expect(runWithCache).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: strategy}),
+      expect.any(Function),
+    )
+    expect(cache.put).toHaveBeenCalledOnce()
   })
 
   it('queries should use the cache strategy passed in `loadQuery`', async () => {
     const strategy = CacheShort()
     await loader.loadQuery<boolean>(query, params, {hydrogen: {cache: strategy}})
-    expect(withCache).toHaveBeenCalledWith(hashedQuery, strategy, expect.any(Function))
-    expect(cache.put).toHaveBeenCalled()
+    expect(runWithCache).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: strategy}),
+      expect.any(Function),
+    )
+    expect(cache.put).toHaveBeenCalledOnce()
   })
 })
 
@@ -108,6 +116,6 @@ describe('when configured for preview', () => {
   it(`shouldn't cache queries`, async () => {
     await previewLoader.loadQuery<boolean>(query)
     expect(loadQuery).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalled()
+    expect(cache.put).not.toHaveBeenCalledOnce()
   })
 })
