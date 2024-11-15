@@ -89,7 +89,7 @@
     "groq": "^3.62.3"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.11.8",
+    "@sanity/pkg-utils": "^6.11.11",
     "@sanity/plugin-kit": "^4.0.18",
     "@sanity/semantic-release-preset": "^4.1.8",
     "@shopify/hydrogen": "~2024.10.0",
@@ -108,7 +108,7 @@
     "react-dom": "^18.3.1",
     "semantic-release": "^23.1.1",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.4",
+    "vitest": "^2.1.5",
     "vitest-github-actions-reporter": "^0.11.1"
   },
   "peerDependencies": {
