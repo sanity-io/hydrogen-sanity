@@ -331,8 +331,8 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/babel__core@7.20.5)(@types/node@22.9.0)(eslint@8.57.1)(typescript@5.6.3)
       '@sanity/semantic-release-preset':
-        specifier: ^4.1.8
-        version: 4.1.8(semantic-release@23.1.1(typescript@5.6.3))
+        specifier: ^5.0.0
+        version: 5.0.0(semantic-release@23.1.1(typescript@5.6.3))
       '@shopify/hydrogen':
         specifier: ~2024.10.0
         version: 2024.10.0(@remix-run/react@2.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(@remix-run/server-runtime@2.11.0(typescript@5.6.3))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.10(@types/node@22.9.0)(terser@5.36.0))(xstate@5.19.0)
@@ -3267,11 +3267,11 @@ packages:
   '@sanity/schema@3.52.4':
     resolution: {integrity: sha512-OYwVPBRqGrf3U69lv278ZlDr58XtgTpDXtfuevtyVyKmXIzSuBdsPhiJI+KMIldc6xK7VNUpglbWSGtLbmbD/w==}
 
-  '@sanity/semantic-release-preset@4.1.8':
-    resolution: {integrity: sha512-D9M2R7sDj3cMEIcCdvCMpFqr8yIAkFbpbMSE5m9LrPgnFl12sfaSeMCeFHM5/ArHsJVIcQIVsQFbP+c1m1a8vg==}
+  '@sanity/semantic-release-preset@5.0.0':
+    resolution: {integrity: sha512-2lCuU57OZW6WY7O8d4vjbpghQIc9lnxS9+dLnzrBYh8e6pA467DxlCNum4NgDeDyHxNh9HGXNalXEWJz8tec+A==}
     engines: {node: '>= 20.8'}
     peerDependencies:
-      semantic-release: ^22.0.12 || ^23.0.2 || ^24.0.0
+      semantic-release: ^24
 
   '@sanity/telemetry@0.7.9':
     resolution: {integrity: sha512-TBBRK2SUwiNND+ZJPwdWSu8tbEjdIz7UjagmCCBBWcfXtDKXXlWawC/DOEWuI4Q+WcA5OWLDjboxZT4ApWjVbw==}
@@ -13987,7 +13987,7 @@ snapshots:
       - debug
       - supports-color
 
-  '@sanity/semantic-release-preset@4.1.8(semantic-release@23.1.1(typescript@5.6.3))':
+  '@sanity/semantic-release-preset@5.0.0(semantic-release@23.1.1(typescript@5.6.3))':
     dependencies:
       '@semantic-release/changelog': 6.0.3(semantic-release@23.1.1(typescript@5.6.3))
       '@semantic-release/exec': 6.0.3(semantic-release@23.1.1(typescript@5.6.3))
