@@ -1,0 +1,1 @@
+export {sanity} from './plugin'
