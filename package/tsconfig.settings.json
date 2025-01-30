@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "target": "esnext",
     "module": "esnext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
