@@ -16,6 +16,7 @@
   "dependencies": {
     "@remix-run/react": "^2.15.3",
     "@remix-run/server-runtime": "^2.15.3",
+    "@sanity/vision": "^3.79.0",
     "@shopify/hydrogen": "2025.1.2",
     "@shopify/remix-oxygen": "^2.0.11",
     "graphql": "^16.6.0",
