@@ -1,6 +1,6 @@
-import type {EntryContext} from '@shopify/remix-oxygen';
+import type {EntryContext, AppLoadContext} from '@shopify/remix-oxygen';
 import {RemixServer} from '@remix-run/react';
-import isbot from 'isbot';
+import {isbot} from 'isbot';
 import {renderToReadableStream} from 'react-dom/server';
 import {createContentSecurityPolicy} from '@shopify/hydrogen';
 
@@ -9,21 +9,41 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
+  context: AppLoadContext,
 ) {
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    // Include Sanity domains in the CSP
-    defaultSrc: ['https://cdn.sanity.io'],
+    shop: {
+      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
+      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+    },
+
+    /**
+     * Only allow Sanity assets loaded from your project and dataset
+     *
+     * @example https://cdn.sanity.io/images/$projectId/$dataset/
+     * NOTE: Host source should end with a `/` to match any path it is a prefix of
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy#host-source
+     */
+    defaultSrc: [
+      ...(context.env.PUBLIC_SANITY_PROJECT_ID &&
+      context.env.PUBLIC_SANITY_DATASET
+        ? [
+            `https://cdn.sanity.io/images/${context.env.PUBLIC_SANITY_PROJECT_ID}/${context.env.PUBLIC_SANITY_DATASET}/`,
+            `https://cdn.sanity.io/files/${context.env.PUBLIC_SANITY_PROJECT_ID}/${context.env.PUBLIC_SANITY_DATASET}/`,
+          ]
+        : []),
+    ],
   });
 
   const body = await renderToReadableStream(
     <NonceProvider>
-      <RemixServer context={remixContext} url={request.url} />
+      <RemixServer context={remixContext} url={request.url} nonce={nonce} />
     </NonceProvider>,
     {
       nonce,
       signal: request.signal,
       onError(error) {
-        // eslint-disable-next-line no-console
         console.error(error);
         responseStatusCode = 500;
       },

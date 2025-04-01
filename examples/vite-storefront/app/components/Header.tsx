@@ -1,14 +1,28 @@
-import {Await, NavLink} from '@remix-run/react';
 import {Suspense} from 'react';
-import type {HeaderQuery} from 'storefrontapi.generated';
-import type {LayoutProps} from './Layout';
-import {useRootLoaderData} from '~/lib/root-data';
+import {Await, NavLink, useAsyncValue} from '@remix-run/react';
+import {
+  type CartViewPayload,
+  useAnalytics,
+  useOptimisticCart,
+} from '@shopify/hydrogen';
+import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
+import {useAside} from '~/components/Aside';
 
-type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'isLoggedIn'>;
+interface HeaderProps {
+  header: HeaderQuery;
+  cart: Promise<CartApiQueryFragment | null>;
+  isLoggedIn: Promise<boolean>;
+  publicStoreDomain: string;
+}
 
 type Viewport = 'desktop' | 'mobile';
 
-export function Header({header, isLoggedIn, cart}: HeaderProps) {
+export function Header({
+  header,
+  isLoggedIn,
+  cart,
+  publicStoreDomain,
+}: HeaderProps) {
   const {shop, menu} = header;
   return (
     <header className="header">
@@ -19,6 +33,7 @@ export function Header({header, isLoggedIn, cart}: HeaderProps) {
         menu={menu}
         viewport="desktop"
         primaryDomainUrl={header.shop.primaryDomain.url}
+        publicStoreDomain={publicStoreDomain}
       />
       <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
     </header>
@@ -29,27 +44,22 @@ export function HeaderMenu({
   menu,
   primaryDomainUrl,
   viewport,
+  publicStoreDomain,
 }: {
   menu: HeaderProps['header']['menu'];
-  primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
+  primaryDomainUrl: HeaderProps['header']['shop']['primaryDomain']['url'];
   viewport: Viewport;
+  publicStoreDomain: HeaderProps['publicStoreDomain'];
 }) {
-  const {publicStoreDomain} = useRootLoaderData();
   const className = `header-menu-${viewport}`;
-
-  function closeAside(event: React.MouseEvent<HTMLAnchorElement>) {
-    if (viewport === 'mobile') {
-      event.preventDefault();
-      window.location.href = event.currentTarget.href;
-    }
-  }
+  const {close} = useAside();
 
   return (
     <nav className={className} role="navigation">
       {viewport === 'mobile' && (
         <NavLink
           end
-          onClick={closeAside}
+          onClick={close}
           prefetch="intent"
           style={activeLinkStyle}
           to="/"
@@ -72,7 +82,7 @@ export function HeaderMenu({
             className="header-menu-item"
             end
             key={item.id}
-            onClick={closeAside}
+            onClick={close}
             prefetch="intent"
             style={activeLinkStyle}
             to={url}
@@ -106,32 +116,63 @@ function HeaderCtas({
 }
 
 function HeaderMenuMobileToggle() {
+  const {open} = useAside();
   return (
-    <a className="header-menu-mobile-toggle" href="#mobile-menu-aside">
+    <button
+      className="header-menu-mobile-toggle reset"
+      onClick={() => open('mobile')}
+    >
       <h3>☰</h3>
-    </a>
+    </button>
   );
 }
 
 function SearchToggle() {
-  return <a href="#search-aside">Search</a>;
+  const {open} = useAside();
+  return (
+    <button className="reset" onClick={() => open('search')}>
+      Search
+    </button>
+  );
 }
 
-function CartBadge({count}: {count: number}) {
-  return <a href="#cart-aside">Cart {count}</a>;
+function CartBadge({count}: {count: number | null}) {
+  const {open} = useAside();
+  const {publish, shop, cart, prevCart} = useAnalytics();
+
+  return (
+    <a
+      href="/cart"
+      onClick={(e) => {
+        e.preventDefault();
+        open('cart');
+        publish('cart_viewed', {
+          cart,
+          prevCart,
+          shop,
+          url: window.location.href || '',
+        } as CartViewPayload);
+      }}
+    >
+      Cart {count === null ? <span>&nbsp;</span> : count}
+    </a>
+  );
 }
 
 function CartToggle({cart}: Pick<HeaderProps, 'cart'>) {
   return (
-    <Suspense fallback={<CartBadge count={0} />}>
+    <Suspense fallback={<CartBadge count={null} />}>
       <Await resolve={cart}>
-        {(cart) => {
-          if (!cart) return <CartBadge count={0} />;
-          return <CartBadge count={cart.totalQuantity || 0} />;
-        }}
+        <CartBanner />
       </Await>
     </Suspense>
   );
+}
+
+function CartBanner() {
+  const originalCart = useAsyncValue() as CartApiQueryFragment | null;
+  const cart = useOptimisticCart(originalCart);
+  return <CartBadge count={cart?.totalQuantity ?? 0} />;
 }
 
 const FALLBACK_HEADER_MENU = {
