@@ -1,29 +1,72 @@
-import type {Plugin} from 'vite'
+import {type Plugin, transformWithEsbuild} from 'vite'
 
-// import * as VirtualModule from './vmod'
+import * as VirtualModule from './vmod'
 
-// const studioRoute = VirtualModule.id('studio')
-// const vmods = [studioRoute]
+// Define virtual module IDs that our plugin will handle
+const studio = VirtualModule.id('studio')
+// const configRoute = VirtualModule.id('config')
+const vmods = [studio]
 
+/**
+ * Sanity Vite plugin that provides virtual modules for the Sanity Studio.
+ * This allows importing Sanity Studio components and configuration through
+ * virtual module imports.
+ */
 export function sanity(): Plugin {
+  let isProduction: boolean = false
+
   return {
     name: 'sanity',
 
-    // resolveId(id) {
-    //   if (vmods.includes(id)) {
-    //     return VirtualModule.resolve(id)
-    //   }
+    configResolved(config) {
+      isProduction = config.isProduction
+    },
 
-    //   return null
-    // },
+    /**
+     * Resolve virtual module IDs to their internal form.
+     * This is called when Vite encounters an import of our virtual modules.
+     */
+    resolveId(id: string) {
+      // Type assertion since we know vmods contains valid virtual module IDs
+      if (vmods.includes(id as (typeof vmods)[number])) {
+        return VirtualModule.resolve(id)
+      }
 
-    // async load(id: string) {
-    //   if (id === VirtualModule.resolve(studioRoute)) {
-    //     const studioRoot = new URL('./studio/studio.tsx', import.meta.url).pathname
-    //     return `export * from "${studioRoot}"`
-    //   }
+      return null
+    },
 
-    //   return null
-    // },
+    /**
+     * Load the content of virtual modules.
+     * This is called after resolveId to get the actual module content.
+     */
+    async load(id: string) {
+      if (id === VirtualModule.resolve(studio)) {
+        const clientEntry = await transformWithEsbuild(
+          `
+import {startTransition${isProduction ? '' : ', StrictMode'}} from 'react';
+import {hydrateRoot} from 'react-dom/client';
+import {Studio} from 'hydrogen-sanity/studio';
+
+startTransition(() => {
+  hydrateRoot(
+    document,
+    ${isProduction ? '' : '<StrictMode>'}
+      <Studio />
+    ${isProduction ? '' : '</StrictMode>'}
+  );
+});
+          `,
+          id,
+          {
+            loader: 'jsx',
+            jsx: 'automatic',
+          },
+        )
+
+        return clientEntry.code
+      }
+
+      return null
+    },
   }
 }
