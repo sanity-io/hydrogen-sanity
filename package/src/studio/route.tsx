@@ -3,15 +3,20 @@ import type {LoaderFunction} from '@shopify/remix-oxygen'
 import {renderToReadableStream} from 'react-dom/server'
 
 import * as VirtualModule from '../vite/vmod'
-import {StudioApp} from './StudioApp'
+import {Studio} from './Studio'
 
-export const loader: LoaderFunction = async ({request}) => {
+export const loader: LoaderFunction = async ({request, params}) => {
+  const url = new URL(request.url)
+  const currentPath = url.pathname
+  const {'*': splat} = params
+  const basePath = splat ? currentPath.replace(`/${splat}`, '') : currentPath
+
   try {
     const {nonce, header: cspHeader, NonceProvider} = createContentSecurityPolicy()
 
     const stream = await renderToReadableStream(
       <NonceProvider>
-        <StudioApp />
+        <Studio basePath={basePath} />
       </NonceProvider>,
       {
         nonce,

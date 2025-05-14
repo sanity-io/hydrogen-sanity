@@ -1,1 +1,1 @@
-export {StudioApp as Studio} from './StudioApp'
+export {Studio} from './Studio'

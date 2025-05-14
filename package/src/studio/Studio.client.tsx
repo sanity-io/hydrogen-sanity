@@ -1,5 +1,5 @@
 import type {ReactElement} from 'react'
-import {Studio} from 'sanity'
+import {Studio, StudioProps} from 'sanity'
 
 /**
  * Prevent a consumer from importing into a worker/server bundle.
@@ -13,7 +13,9 @@ if (typeof document === 'undefined') {
 /**
  * Enables the Studio App on the front-end
  */
-export default function StudioClient(): ReactElement {
+function ClientStudio(props: Pick<StudioProps, 'basePath'>): ReactElement {
   // @ts-expect-error will add config
-  return <Studio config={{}} />
+  return <Studio {...props} config={{}} />
 }
+
+export {ClientStudio as default}

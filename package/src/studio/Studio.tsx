@@ -1,22 +1,20 @@
 import {useNonce} from '@shopify/hydrogen'
 import {lazy, type ReactElement, Suspense} from 'react'
+import type {StudioProps} from 'sanity'
 
-/**
- * Provide a consistent fallback to prevent hydration mismatch errors.
- */
-function StudioAppFallback(): ReactElement {
+function StudioFallback(): ReactElement {
   return <></>
 }
 
 /**
  * If server-side rendering, then return the fallback instead of the heavy dependency.
  */
-const Studio =
-  typeof document === 'undefined' ? StudioAppFallback : lazy(() => import('./StudioApp.client'))
+const StudioComponent =
+  typeof document === 'undefined' ? StudioFallback : lazy(() => import('./Studio.client'))
 
 const bridgeScriptUrl = 'https://core.sanity-cdn.com/bridge.js'
 
-export function StudioApp(): ReactElement {
+export function Studio(props: Pick<StudioProps, 'basePath'>): ReactElement {
   const nonce = useNonce()
 
   return (
@@ -30,7 +28,7 @@ export function StudioApp(): ReactElement {
       </head>
       <body>
         <Suspense>
-          <Studio />
+          <StudioComponent {...props} />
         </Suspense>
         <style nonce={nonce}>
           {`
