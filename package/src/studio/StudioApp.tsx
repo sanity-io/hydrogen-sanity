@@ -32,6 +32,18 @@ export function StudioApp(): ReactElement {
         <Suspense>
           <Studio />
         </Suspense>
+        <style nonce={nonce}>
+          {`
+html,body {
+  height: 100vh;
+  max-height: 100dvh;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  overflow: auto;
+  margin: unset;
+}
+          `}
+        </style>
       </body>
     </html>
   )

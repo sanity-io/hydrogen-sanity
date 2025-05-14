@@ -5,7 +5,7 @@ import * as VirtualModule from './vmod'
 // Define virtual module IDs that our plugin will handle
 const studio = VirtualModule.id('studio')
 // const configRoute = VirtualModule.id('config')
-const vmods = [studio]
+// const vmods = [studio]
 
 /**
  * Sanity Vite plugin that provides virtual modules for the Sanity Studio.
@@ -13,27 +13,22 @@ const vmods = [studio]
  * virtual module imports.
  */
 export function sanity(): Plugin {
-  let isProduction: boolean = false
-
   return {
     name: 'sanity',
-
-    configResolved(config) {
-      isProduction = config.isProduction
-    },
 
     /**
      * Resolve virtual module IDs to their internal form.
      * This is called when Vite encounters an import of our virtual modules.
      */
-    resolveId(id: string) {
-      // Type assertion since we know vmods contains valid virtual module IDs
-      if (vmods.includes(id as (typeof vmods)[number])) {
-        return VirtualModule.resolve(id)
-      }
+    // resolveId(id: string) {
+    //   // Type assertion since we know vmods contains valid virtual module IDs
+    //   if (vmods.includes(id as (typeof vmods)[number])) {
+    //     console.log(id)
+    //     return VirtualModule.resolve(id)
+    //   }
 
-      return null
-    },
+    //   return null
+    // },
 
     /**
      * Load the content of virtual modules.
@@ -43,16 +38,16 @@ export function sanity(): Plugin {
       if (id === VirtualModule.resolve(studio)) {
         const clientEntry = await transformWithEsbuild(
           `
-import {startTransition${isProduction ? '' : ', StrictMode'}} from 'react';
+import {startTransition, StrictMode} from 'react';
 import {hydrateRoot} from 'react-dom/client';
 import {Studio} from 'hydrogen-sanity/studio';
 
 startTransition(() => {
   hydrateRoot(
     document,
-    ${isProduction ? '' : '<StrictMode>'}
+    <StrictMode>
       <Studio />
-    ${isProduction ? '' : '</StrictMode>'}
+    </StrictMode>
   );
 });
           `,
