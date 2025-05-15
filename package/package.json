@@ -54,24 +54,6 @@
       "require": "./dist/vite/index.cjs",
       "default": "./dist/vite/index.js"
     },
-    "./studio/router": {
-      "source": "./src/studio/router.ts",
-      "import": "./dist/studio/router.js",
-      "require": "./dist/studio/router.cjs",
-      "default": "./dist/studio/router.js"
-    },
-    "./studio/route": {
-      "source": "./src/studio/route.tsx",
-      "import": "./dist/studio/route.js",
-      "require": "./dist/studio/route.cjs",
-      "default": "./dist/studio/route.js"
-    },
-    "./studio": {
-      "source": "./src/studio/index.ts",
-      "import": "./dist/studio/index.js",
-      "require": "./dist/studio/index.cjs",
-      "default": "./dist/studio/index.js"
-    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -90,15 +72,6 @@
       ],
       "vite": [
         "./dist/vite/index.d.ts"
-      ],
-      "studio/router": [
-        "./dist/studio/router.d.ts"
-      ],
-      "studio/route": [
-        "./dist/studio/route.d.ts"
-      ],
-      "studio": [
-        "./dist/studio/index.d.ts"
       ]
     }
   },
@@ -144,7 +117,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "sanity": "^3.79.0",
+    "sanity": "^3.88.3",
     "semantic-release": "^23.1.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.14",

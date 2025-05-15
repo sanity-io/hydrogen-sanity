@@ -15,7 +15,24 @@ export default defineConfig({
   plugins: [
     hydrogen(),
     oxygen(),
-    sanity(),
+    sanity({
+      contentSecurityPolicy(env, _mode) {
+        return {
+          // TODO: add a CSP helper function?
+          defaultSrc: [],
+          imgSrc: [
+            `https://cdn.sanity.io/images/${env.SANITY_STUDIO_PROJECT_ID}/${env.SANITY_STUDIO_DATASET}/`,
+            'https://lh3.googleusercontent.com',
+            'https://avatars.githubusercontent.com',
+            'blob:',
+          ],
+          connectSrc: [
+            `https://${env.SANITY_STUDIO_PROJECT_ID}.api.sanity.io`,
+            `wss://${env.SANITY_STUDIO_PROJECT_ID}.api.sanity.io`,
+          ],
+        };
+      },
+    }),
     remix({
       // presets: [hydrogen.preset()],
       ignoredRouteFiles: ['**/*'],
