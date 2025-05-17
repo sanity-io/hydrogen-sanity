@@ -5,7 +5,7 @@ export default defineConfig({
   tsconfig: 'tsconfig.dist.json',
   minify: false,
 
-  external: ['virtual:sanity/studio', 'virtual:sanity/csp'],
+  external: ['virtual:sanity/studio', 'virtual:sanity/csp', 'virtual:sanity/route-client'],
 
   reactCompilerOptions: {
     target: '18',

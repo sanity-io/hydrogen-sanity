@@ -13,3 +13,8 @@ declare module 'virtual:sanity/config' {
   const config: Config
   export default config
 }
+
+declare module 'virtual:sanity/route-client' {
+  const routeClient: string
+  export default routeClient
+}

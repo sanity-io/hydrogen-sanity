@@ -20,9 +20,11 @@ type SanityPluginOptions = {
 
 const studioConfigId = VirtualModule.id('config')
 const cspId = VirtualModule.id('csp')
+const routeClientId = VirtualModule.id('route-client')
 
 export function sanity(options?: SanityPluginOptions | undefined | null): Plugin[] {
   let contentSecurityPolicy: ContentSecurityPolicy = {}
+  let mode: string
 
   return [
     {
@@ -69,6 +71,8 @@ export {default} from "${resolvedStudioConfig.id}";
       name: 'sanity:studio',
 
       configResolved(config) {
+        mode = config.mode
+
         contentSecurityPolicy =
           // eslint-disable-next-line no-nested-ternary
           options && options.contentSecurityPolicy
@@ -83,7 +87,7 @@ export {default} from "${resolvedStudioConfig.id}";
        * This is called when Vite encounters an import of our virtual modules.
        */
       resolveId(id) {
-        if (id === cspId) {
+        if (id === cspId || id === routeClientId) {
           return VirtualModule.resolve(id)
         }
 
@@ -95,20 +99,25 @@ export {default} from "${resolvedStudioConfig.id}";
        * This is called after resolveId to get the actual module content.
        */
       async load(id: string) {
+        if (id === VirtualModule.resolve(routeClientId)) {
+          return {
+            code:
+              mode === 'production'
+                ? `import clientPath from 'hydrogen-sanity/studio/route-client?url'; export default clientPath;`
+                : `export default '/@id/hydrogen-sanity/studio/route-client';`,
+            moduleSideEffects: false,
+          }
+        }
+
         if (id === VirtualModule.resolve(cspId)) {
-          const csp = await transformWithEsbuild(
-            `
+          return {
+            code: `
 import {createContentSecurityPolicy} from '@shopify/hydrogen'
 
 export const contentSecurityPolicy = ${JSON.stringify(contentSecurityPolicy)}
             `,
-            id,
-            {
-              loader: 'js',
-            },
-          )
-
-          return csp.code
+            moduleSideEffects: false,
+          }
         }
 
         return null

@@ -3,6 +3,7 @@ import type {LoaderFunction} from '@shopify/remix-oxygen'
 import {Layout} from 'hydrogen-sanity/studio'
 import {renderToReadableStream} from 'react-dom/server'
 import {contentSecurityPolicy} from 'virtual:sanity/csp'
+import routeClient from 'virtual:sanity/route-client'
 
 export const loader: LoaderFunction = async ({request}) => {
   try {
@@ -18,7 +19,7 @@ export const loader: LoaderFunction = async ({request}) => {
       </NonceProvider>,
       {
         nonce,
-        bootstrapModules: ['/@id/hydrogen-sanity/studio/route-client'],
+        bootstrapModules: [routeClient],
         signal: request.signal,
         onError(error) {
           console.error(error)
@@ -30,6 +31,7 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: {
         'Content-Type': 'text/html',
         'Content-Security-Policy': cspHeader,
+        Link: `<${routeClient}>; rel=modulepreload; as=script`,
       },
     })
   } catch (error) {
