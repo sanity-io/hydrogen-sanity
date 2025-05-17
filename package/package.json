@@ -54,6 +54,11 @@
       "require": "./dist/vite/index.cjs",
       "default": "./dist/vite/index.js"
     },
+    "./studio/route": {
+      "source": "./src/studio/route.tsx",
+      "import": "./dist/studio/route.js",
+      "default": "./dist/studio/route.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -72,6 +77,9 @@
       ],
       "vite": [
         "./dist/vite/index.d.ts"
+      ],
+      "studio/route": [
+        "./dist/studio/route.d.ts"
       ]
     }
   },
@@ -80,7 +88,7 @@
     "src"
   ],
   "scripts": {
-    "build": "pkg build --strict --clean --check",
+    "build": "pkg build --strict --clean",
     "release": "semantic-release",
     "release:debug": "semantic-release --dry-run --debug",
     "release:no-ci": "GITHUB_TOKEN=`gh auth token` semantic-release --no-ci --debug --dryRun",
@@ -108,6 +116,7 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "babel-plugin-react-compiler": "19.1.0-rc.2",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-sanity": "^7.1.3",

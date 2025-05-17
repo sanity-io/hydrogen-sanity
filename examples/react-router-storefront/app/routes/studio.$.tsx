@@ -1,3 +1,1 @@
-// @ts-expect-error
-// eslint-disable-next-line import/no-unresolved
-export * from 'virtual:sanity/studio';
+export * from 'hydrogen-sanity/studio/route';

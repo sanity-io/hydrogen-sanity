@@ -20,10 +20,10 @@ type SanityPluginOptions = {
 
 // Define virtual module IDs that our plugin will handle
 const clientEntryId = VirtualModule.id('entry.client')
-const studioRouteId = VirtualModule.id('studio')
-const studioId = VirtualModule.id('studio-layout')
+const studioId = VirtualModule.id('studio')
 const clientStudioId = VirtualModule.id('studio.client')
 const studioConfigId = VirtualModule.id('config.client')
+const cspId = VirtualModule.id('csp')
 
 /**
  * Sanity Vite plugin that provides virtual modules for the Sanity Studio.
@@ -92,7 +92,7 @@ export {default} from "${resolvedStudioConfig.id}";
        * This is called when Vite encounters an import of our virtual modules.
        */
       resolveId(id) {
-        if (([clientEntryId, studioId, studioRouteId, clientStudioId] as string[]).includes(id)) {
+        if (([clientEntryId, studioId, clientStudioId, cspId] as string[]).includes(id)) {
           return VirtualModule.resolve(id)
         }
 
@@ -225,47 +225,20 @@ html,body {
           return studio.code
         }
 
-        if (id === VirtualModule.resolve(studioRouteId)) {
-          const studioRoute = await transformWithEsbuild(
+        if (id === VirtualModule.resolve(cspId)) {
+          const csp = await transformWithEsbuild(
             `
 import {createContentSecurityPolicy} from '@shopify/hydrogen'
-import {renderToReadableStream} from 'react-dom/server'
-import {Studio} from '${studioId}'
 
-export async function loader({request}) {
-  try {
-    const {nonce, header: cspHeader, NonceProvider} = createContentSecurityPolicy(${JSON.stringify(contentSecurityPolicy)})
-
-    const stream = await renderToReadableStream(
-      <NonceProvider>
-        <Studio />
-      </NonceProvider>,
-      {
-        nonce,
-        bootstrapModules: ["${VirtualModule.url(clientEntryId)}"],
-        signal: request.signal,
-        onError(error) {
-          console.error(error)
-        },
-      },
-    )
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/html',
-        'Content-Security-Policy': cspHeader,
-      },
-    })
-  } catch (error) {
-    console.error(error)
-    return new Response('An unexpected error occurred', {status: 500})
-  }
-}
-  `,
+export const contentSecurityPolicy = ${JSON.stringify(contentSecurityPolicy)}
+            `,
             id,
-            {loader: 'jsx', jsx: 'automatic'},
+            {
+              loader: 'js',
+            },
           )
-          return studioRoute.code
+
+          return csp.code
         }
 
         return null
