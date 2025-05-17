@@ -1,6 +1,6 @@
 import {type RouteConfig} from '@remix-run/route-config';
 import {flatRoutes} from '@remix-run/fs-routes';
-// import {defineStudioRoute} from 'hydrogen-sanity/studio/router';
+import {defineStudioRoute} from 'hydrogen-sanity/studio/utils';
 
 const routes = [
   ...(await flatRoutes({rootDirectory: './routes'})),

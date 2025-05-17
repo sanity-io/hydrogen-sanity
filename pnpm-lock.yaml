@@ -468,10 +468,10 @@ importers:
         version: 2.16.0(@remix-run/dev@2.16.1(@remix-run/react@2.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.2))(@types/node@22.15.18)(terser@5.39.0)(typescript@5.8.2)(vite@5.4.14(@types/node@22.15.18)(terser@5.39.0)))(typescript@5.8.2)
       '@sanity/pkg-utils':
         specifier: ^6.11.11
-        version: 6.13.4(@types/babel__core@7.20.5)(@types/node@22.15.18)(babel-plugin-react-compiler@19.1.0-rc.2)(typescript@5.8.2)
+        version: 6.13.4(@types/babel__core@7.20.5)(@types/node@22.15.18)(typescript@5.8.2)
       '@sanity/plugin-kit':
         specifier: ^4.0.18
-        version: 4.0.19(@types/babel__core@7.20.5)(@types/node@22.15.18)(babel-plugin-react-compiler@19.1.0-rc.2)(eslint@8.57.1)(typescript@5.8.2)
+        version: 4.0.19(@types/babel__core@7.20.5)(@types/node@22.15.18)(eslint@8.57.1)(typescript@5.8.2)
       '@sanity/semantic-release-preset':
         specifier: ^4.1.8
         version: 4.1.8(semantic-release@23.1.1(typescript@5.8.2))
@@ -493,9 +493,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^7.18.0
         version: 7.18.0(eslint@8.57.1)(typescript@5.8.2)
-      babel-plugin-react-compiler:
-        specifier: 19.1.0-rc.2
-        version: 19.1.0-rc.2
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -5840,9 +5837,6 @@ packages:
     resolution: {integrity: sha512-7gD3pRadPrbjhjLyxebmx/WrFYcuSjZ0XbdUujQMZ/fcE9oeewk2U/7PCvez84UeuK3oSjmPZ0Ch0dlupQvGzw==}
     peerDependencies:
       '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
-
-  babel-plugin-react-compiler@19.1.0-rc.2:
-    resolution: {integrity: sha512-kSNA//p5fMO6ypG8EkEVPIqAjwIXm5tMjfD1XRPL/sRjYSbJ6UsvORfaeolNWnZ9n310aM0xJP7peW26BuCVzA==}
 
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
@@ -17376,15 +17370,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@sanity/client@7.2.1':
-    dependencies:
-      '@sanity/eventsource': 5.0.2
-      get-it: 8.6.8
-      nanoid: 3.3.11
-      rxjs: 7.8.2
-    transitivePeerDependencies:
-      - debug
-
   '@sanity/client@7.2.1(debug@4.4.1)':
     dependencies:
       '@sanity/eventsource': 5.0.2
@@ -17622,7 +17607,7 @@ snapshots:
   '@sanity/insert-menu@1.1.5(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.88.3(@types/react@18.3.18))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@sanity/icons': 3.7.0(react@18.3.1)
-      '@sanity/types': 3.88.3(@types/react@18.3.18)
+      '@sanity/types': 3.88.3(@types/react@18.3.18)(debug@4.4.1)
       '@sanity/ui': 2.15.6(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       lodash: 4.17.21
       react: 18.3.1
@@ -17739,7 +17724,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@sanity/pkg-utils@6.12.1(@types/babel__core@7.20.5)(@types/node@22.15.18)(babel-plugin-react-compiler@19.1.0-rc.2)(typescript@5.8.2)':
+  '@sanity/pkg-utils@6.12.1(@types/babel__core@7.20.5)(@types/node@22.15.18)(typescript@5.8.2)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.10)
@@ -17783,15 +17768,13 @@ snapshots:
       uuid: 11.1.0
       zod: 3.24.1
       zod-validation-error: 3.4.0(zod@3.24.1)
-    optionalDependencies:
-      babel-plugin-react-compiler: 19.1.0-rc.2
     transitivePeerDependencies:
       - '@types/babel__core'
       - '@types/node'
       - debug
       - supports-color
 
-  '@sanity/pkg-utils@6.13.4(@types/babel__core@7.20.5)(@types/node@22.15.18)(babel-plugin-react-compiler@19.1.0-rc.2)(typescript@5.8.2)':
+  '@sanity/pkg-utils@6.13.4(@types/babel__core@7.20.5)(@types/node@22.15.18)(typescript@5.8.2)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.10)
@@ -17835,8 +17818,6 @@ snapshots:
       uuid: 11.1.0
       zod: 3.24.1
       zod-validation-error: 3.4.0(zod@3.24.1)
-    optionalDependencies:
-      babel-plugin-react-compiler: 19.1.0-rc.2
     transitivePeerDependencies:
       - '@types/babel__core'
       - '@types/node'
@@ -17893,10 +17874,10 @@ snapshots:
       - debug
       - supports-color
 
-  '@sanity/plugin-kit@4.0.19(@types/babel__core@7.20.5)(@types/node@22.15.18)(babel-plugin-react-compiler@19.1.0-rc.2)(eslint@8.57.1)(typescript@5.8.2)':
+  '@sanity/plugin-kit@4.0.19(@types/babel__core@7.20.5)(@types/node@22.15.18)(eslint@8.57.1)(typescript@5.8.2)':
     dependencies:
       '@rexxars/choosealicense-list': 1.1.2
-      '@sanity/pkg-utils': 6.12.1(@types/babel__core@7.20.5)(@types/node@22.15.18)(babel-plugin-react-compiler@19.1.0-rc.2)(typescript@5.8.2)
+      '@sanity/pkg-utils': 6.12.1(@types/babel__core@7.20.5)(@types/node@22.15.18)(typescript@5.8.2)
       chalk: 4.1.2
       concurrently: 8.2.2
       discover-path: 1.0.0
@@ -18132,13 +18113,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@sanity/types@3.88.3(@types/react@18.3.18)':
-    dependencies:
-      '@sanity/client': 7.2.1
-      '@types/react': 18.3.18
-    transitivePeerDependencies:
-      - debug
-
   '@sanity/types@3.88.3(@types/react@18.3.18)(debug@4.4.1)':
     dependencies:
       '@sanity/client': 7.2.1(debug@4.4.1)
@@ -18284,7 +18258,7 @@ snapshots:
     dependencies:
       '@sanity/client': 6.28.3(debug@4.4.0)
     optionalDependencies:
-      '@sanity/types': 3.88.3(@types/react@18.3.18)
+      '@sanity/types': 3.88.3(@types/react@18.3.18)(debug@4.4.1)
 
   '@sanity/visual-editing-types@1.0.18(@sanity/client@7.2.1)(@sanity/types@3.88.3(@types/react@18.3.18)(debug@4.4.1))':
     dependencies:
@@ -19904,10 +19878,6 @@ snapshots:
       '@babel/helper-define-polyfill-provider': 0.6.4(@babel/core@7.27.1)
     transitivePeerDependencies:
       - supports-color
-
-  babel-plugin-react-compiler@19.1.0-rc.2:
-    dependencies:
-      '@babel/types': 7.27.1
 
   bail@2.0.2: {}
 
@@ -22497,17 +22467,6 @@ snapshots:
       follow-redirects: 1.15.9(debug@4.4.1)
       is-retry-allowed: 2.2.0
       progress-stream: 2.0.0
-      tunnel-agent: 0.6.0
-    transitivePeerDependencies:
-      - debug
-
-  get-it@8.6.8:
-    dependencies:
-      '@types/follow-redirects': 1.14.4
-      decompress-response: 7.0.0
-      follow-redirects: 1.15.9(debug@4.4.0)
-      is-retry-allowed: 2.2.0
-      through2: 4.0.2
       tunnel-agent: 0.6.0
     transitivePeerDependencies:
       - debug

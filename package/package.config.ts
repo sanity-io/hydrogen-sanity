@@ -5,11 +5,7 @@ export default defineConfig({
   tsconfig: 'tsconfig.dist.json',
   minify: false,
 
-  external: ['react-compiler-runtime', 'virtual:sanity/studio', 'virtual:sanity/csp'],
-
-  babel: {
-    reactCompiler: true,
-  },
+  external: ['virtual:sanity/studio', 'virtual:sanity/csp'],
 
   reactCompilerOptions: {
     target: '18',

@@ -1,8 +1,8 @@
 import {createContentSecurityPolicy} from '@shopify/hydrogen'
 import type {LoaderFunction} from '@shopify/remix-oxygen'
+import {Layout} from 'hydrogen-sanity/studio'
 import {renderToReadableStream} from 'react-dom/server'
 import {contentSecurityPolicy} from 'virtual:sanity/csp'
-import {Studio} from 'virtual:sanity/studio'
 
 export const loader: LoaderFunction = async ({request}) => {
   try {
@@ -14,11 +14,11 @@ export const loader: LoaderFunction = async ({request}) => {
 
     const stream = await renderToReadableStream(
       <NonceProvider>
-        <Studio />
+        <Layout />
       </NonceProvider>,
       {
         nonce,
-        bootstrapModules: ['/@id/__x00__virtual:sanity/entry.client'],
+        bootstrapModules: ['/@id/hydrogen-sanity/studio/route-client'],
         signal: request.signal,
         onError(error) {
           console.error(error)

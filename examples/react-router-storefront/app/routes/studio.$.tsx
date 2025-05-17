@@ -1,1 +1,1 @@
-export * from 'hydrogen-sanity/studio/route';
+export {loader} from 'hydrogen-sanity/studio/route';

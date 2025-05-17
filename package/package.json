@@ -54,10 +54,25 @@
       "require": "./dist/vite/index.cjs",
       "default": "./dist/vite/index.js"
     },
+    "./studio": {
+      "source": "./src/studio/root.tsx",
+      "import": "./dist/studio/root.js",
+      "default": "./dist/studio/root.js"
+    },
+    "./studio/utils": {
+      "source": "./src/studio/utils.ts",
+      "import": "./dist/studio/utils.js",
+      "default": "./dist/studio/utils.js"
+    },
     "./studio/route": {
-      "source": "./src/studio/route.tsx",
-      "import": "./dist/studio/route.js",
-      "default": "./dist/studio/route.js"
+      "source": "./src/studio/entry.server.tsx",
+      "import": "./dist/studio/entry.server.js",
+      "default": "./dist/studio/entry.server.js"
+    },
+    "./studio/route-client": {
+      "source": "./src/studio/entry.client.tsx",
+      "import": "./dist/studio/entry.client.js",
+      "default": "./dist/studio/entry.client.js"
     },
     "./package.json": "./package.json"
   },
@@ -78,8 +93,8 @@
       "vite": [
         "./dist/vite/index.d.ts"
       ],
-      "studio/route": [
-        "./dist/studio/route.d.ts"
+      "studio/utils": [
+        "./dist/studio/utils.d.ts"
       ]
     }
   },
@@ -116,7 +131,6 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "babel-plugin-react-compiler": "19.1.0-rc.2",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-sanity": "^7.1.3",
