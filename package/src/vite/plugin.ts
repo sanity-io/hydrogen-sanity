@@ -100,22 +100,19 @@ export {default} from "${resolvedStudioConfig.id}";
        */
       async load(id: string) {
         if (id === VirtualModule.resolve(routeClientId)) {
+          const moduleId = 'hydrogen-sanity/studio/route-client'
           return {
             code:
               mode === 'production'
-                ? `import clientPath from 'hydrogen-sanity/studio/route-client?url'; export default clientPath;`
-                : `export default '/@id/hydrogen-sanity/studio/route-client';`,
+                ? `export {default} from '${moduleId}?url';`
+                : `export default '/@id/${moduleId}';`,
             moduleSideEffects: false,
           }
         }
 
         if (id === VirtualModule.resolve(cspId)) {
           return {
-            code: `
-import {createContentSecurityPolicy} from '@shopify/hydrogen'
-
-export const contentSecurityPolicy = ${JSON.stringify(contentSecurityPolicy)}
-            `,
+            code: `export const contentSecurityPolicy = ${JSON.stringify(contentSecurityPolicy)}`,
             moduleSideEffects: false,
           }
         }
