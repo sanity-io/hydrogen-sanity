@@ -1,0 +1,39 @@
+{
+  "include": [
+    "./**/*.d.ts",
+    "./**/*.ts",
+    "./**/*.tsx",
+    ".react-router/types/**/*"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "module": "ES2022",
+    "target": "ES2022",
+    "strict": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "types": [
+      "@shopify/oxygen-workers-types",
+      "react-router",
+      "vite/client"
+    ],
+    "paths": {
+      "~/*": [
+        "app/*"
+      ]
+    },
+    "noEmit": true,
+    "rootDirs": [".", "./.react-router/types"]
+  }
+}
