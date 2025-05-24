@@ -1,0 +1,37 @@
+# Don't change the line below!
+#! oxygen_storefront_id: 1000036147
+
+name: Storefront 1000036147
+on:
+  push:
+    paths:
+      - 'examples/storefront/**'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Oxygen
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+        name: Install PNPM
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+
+      - name: Deploy to Oxygen
+        id: deploy
+        run: |
+          pushd examples/storefront
+          pnpm shopify hydrogen deploy --token "${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036147 }}"
+          popd

@@ -45,6 +45,7 @@ export async function createAppLoadContext(
     client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET,
+      useCdn: false,
     },
   });
 

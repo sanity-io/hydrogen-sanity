@@ -107,6 +107,8 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
 
+  // TODO: check if `useCdn` is set to `false` and warn about it
+
   if (client.config().apiVersion === '1') {
     console.warn(
       'No API version specified, defaulting to `v2022-03-07` which supports perspectives.\nYou can find the latest version in the Sanity changelog: https://www.sanity.io/changelog',
