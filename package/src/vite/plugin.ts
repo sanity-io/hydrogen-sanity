@@ -6,6 +6,7 @@ export function sanity(): Plugin {
 
     config() {
       return {
+        envPrefix: ['SANITY_STUDIO_'],
         ssr: {
           optimizeDeps: {
             include: ['hydrogen-sanity'],
