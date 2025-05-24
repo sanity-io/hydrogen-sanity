@@ -27,25 +27,21 @@
     ".": {
       "source": "./src/index.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
     "./preview/route": {
       "source": "./src/preview/route.ts",
       "import": "./dist/preview/route.js",
-      "require": "./dist/preview/route.cjs",
       "default": "./dist/preview/route.js"
     },
     "./visual-editing": {
       "source": "./src/visual-editing/index.ts",
       "import": "./dist/visual-editing/index.js",
-      "require": "./dist/visual-editing/index.cjs",
       "default": "./dist/visual-editing/index.js"
     },
     "./groq": {
       "source": "./src/groq.ts",
       "import": "./dist/groq.js",
-      "require": "./dist/groq.cjs",
       "default": "./dist/groq.js"
     },
     "./package.json": "./package.json"
