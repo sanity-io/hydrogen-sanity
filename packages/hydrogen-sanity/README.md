@@ -55,14 +55,14 @@ pnpm install hydrogen-sanity
 Add the Vite plugin to your `vite.config.ts`:
 
 ```ts
-import {defineConfig} from 'vite';
-import {hydrogen} from '@shopify/hydrogen/vite';
-import {sanity} from 'hydrogen-sanity/vite';
+import {defineConfig} from 'vite'
+import {hydrogen} from '@shopify/hydrogen/vite'
+import {sanity} from 'hydrogen-sanity/vite'
 
 export default defineConfig({
   plugins: [hydrogen(), sanity() /** ... */],
   // ... other config
-});
+})
 ```
 
 ## Usage
