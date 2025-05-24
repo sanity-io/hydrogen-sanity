@@ -44,6 +44,11 @@
       "import": "./dist/groq.js",
       "default": "./dist/groq.js"
     },
+    "./vite": {
+      "source": "./src/vite/index.ts",
+      "import": "./dist/vite/index.js",
+      "default": "./dist/vite/index.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -59,6 +64,9 @@
       ],
       "groq": [
         "./dist/groq.d.ts"
+      ],
+      "vite": [
+        "./dist/vite/index.d.ts"
       ]
     }
   },
@@ -78,42 +86,45 @@
     "watch": "pkg-utils watch --strict"
   },
   "dependencies": {
-    "@sanity/client": "^6.22.2",
-    "@sanity/preview-url-secret": "^2.0.0",
-    "@sanity/react-loader": "^1.10.14",
-    "@sanity/visual-editing": "^2.4.2",
-    "groq": "^3.62.3"
+    "@sanity/client": "^7.3.0",
+    "@sanity/preview-url-secret": "^2.1.11",
+    "@sanity/react-loader": "^1.11.10",
+    "@sanity/visual-editing": "^2.13.22",
+    "groq": "^3.89.0"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.11.11",
-    "@sanity/plugin-kit": "^4.0.18",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@sanity/pkg-utils": "^6.13.4",
+    "@sanity/plugin-kit": "^4.0.19",
     "@sanity/semantic-release-preset": "^4.1.8",
-    "@shopify/hydrogen": "~2024.10.0",
-    "@shopify/remix-oxygen": "^2.0.9",
-    "@types/react": "^18.3.12",
+    "@shopify/hydrogen": "~2025.5.0",
+    "@shopify/remix-oxygen": "^3.0.0",
+    "@types/react": "^18.3.22",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-sanity": "^7.1.3",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.37.2",
+    "eslint-config-sanity": "^7.1.4",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "semantic-release": "^23.1.1",
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.5",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.4",
+    "vitest": "^2.1.9",
     "vitest-github-actions-reporter": "^0.11.1"
   },
   "peerDependencies": {
-    "@sanity/client": "^6.18.0",
-    "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0 || ~2024.7.0 || ~2024.10.0 || ~2025.1.0",
-    "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
-    "groq": "^3.41.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "@sanity/client": "^7",
+    "@shopify/hydrogen": "~2025.5.0",
+    "@shopify/remix-oxygen": "^3",
+    "groq": "^3",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "vite": "^6"
   },
   "engines": {
     "node": ">=18"

@@ -1,6 +1,6 @@
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
 import type {HydrogenSession} from '@shopify/hydrogen'
-import {type ActionFunction, json, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
+import {type ActionFunction, data, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
 
 import type {SanityContext} from '../context'
 import {assertSession} from '../utils'
@@ -10,7 +10,7 @@ import {assertSession} from '../utils'
  */
 export const action: ActionFunction = async ({context, request}) => {
   if (request.method !== 'POST') {
-    return json({message: 'Method not allowed'}, 405)
+    return data({message: 'Method not allowed'}, 405)
   }
 
   try {
