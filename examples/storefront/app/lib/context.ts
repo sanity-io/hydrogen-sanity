@@ -38,11 +38,19 @@ export async function createAppLoadContext(
   });
 
   const sanity = createSanityContext({
+    request,
+    cache,
+    waitUntil,
 
-  })
+    client: {
+      projectId: env.SANITY_PROJECT_ID,
+      dataset: env.SANITY_DATASET,
+    },
+  });
 
   return {
     ...hydrogenContext,
     // declare additional Remix loader context
+    sanity,
   };
 }

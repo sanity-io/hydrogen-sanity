@@ -104,7 +104,7 @@ jobs:
           cache: pnpm
           node-version: ${{ matrix.node }}
       - run: pnpm install
-      - run: pnpm --filter="hydrogen-sanity" test
+      - run: pnpm run test --project="hydrogen-sanity"
 
   release:
     needs: [build, test]

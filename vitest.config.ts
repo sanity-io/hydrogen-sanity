@@ -1,12 +1,10 @@
-/// <reference types="vitest" />
-import {defineProject} from 'vitest/config'
+import {defineConfig} from 'vitest/config'
 import GithubActionsReporter from 'vitest-github-actions-reporter'
 
-export default defineProject({
+export default defineConfig({
   test: {
-    isolate: false,
-    setupFiles: ['./vitest.setup.ts'],
+    workspace: ['packages/hydrogen-sanity'],
     // Enable rich PR failed test annotation on the CI
     reporters: process.env.GITHUB_ACTIONS ? ['default', new GithubActionsReporter()] : 'default',
   },
-})
+}) 

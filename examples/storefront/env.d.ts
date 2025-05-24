@@ -20,6 +20,8 @@ declare global {
 
   interface Env extends HydrogenEnv {
     // declare additional Env parameter use in the fetch handler and Remix loader context here
+    SANITY_PROJECT_ID: string;
+    SANITY_DATASET: string;
   }
 }
 

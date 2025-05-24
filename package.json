@@ -10,16 +10,17 @@
     "format": "prettier --cache --write --ignore-unknown ."
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "husky": "^9.1.6",
-    "lint-staged": "^15.2.10",
-    "prettier": "^3.3.3",
-    "prettier-plugin-packagejson": "^2.5.3",
-    "turbo": "^2.3.0",
-    "vitest": "^2.1.5"
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-packagejson": "^2.5.14",
+    "turbo": "^2.5.3",
+    "vitest": "^3.1.4",
+    "vitest-github-actions-reporter": "^0.11.1"
   },
-  "packageManager": "pnpm@10.2.0+sha512.0d27364e0139c6aadeed65ada153135e0ca96c8da42123bd50047f961339dc7a758fc2e944b428f52be570d1bd3372455c1c65fa2e7aa0bfbf931190f9552001",
+  "packageManager": "pnpm@10.11.0",
   "pnpm": {
     "overrides": {
       "hydrogen-sanity": "workspace:*"
