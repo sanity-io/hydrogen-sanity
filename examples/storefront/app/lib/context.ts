@@ -1,4 +1,5 @@
 import {createHydrogenContext} from '@shopify/hydrogen';
+import {createSanityContext} from 'hydrogen-sanity';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
 
@@ -35,6 +36,10 @@ export async function createAppLoadContext(
       queryFragment: CART_QUERY_FRAGMENT,
     },
   });
+
+  const sanity = createSanityContext({
+
+  })
 
   return {
     ...hydrogenContext,
