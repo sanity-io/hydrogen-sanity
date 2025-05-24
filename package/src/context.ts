@@ -154,26 +154,21 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
       const queryHash = await hashQuery(query, params)
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
-      const runWithCache = async function runWithCache({
-        addDebugData,
-      }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<QueryResponseInitial<T>> {
-        // eslint-disable-next-line no-process-env
-        if (process.env.NODE_ENV === 'development') {
+      return await withCache.run(
+        {cacheKey: queryHash, cacheStrategy, shouldCacheResult},
+        async ({
+          addDebugData,
+        }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<QueryResponseInitial<T>> => {
           // Name displayed in the subrequest profiler
           const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
 
           addDebugData({
             displayName,
           })
-        }
 
-        return await loadQuery<T>(query, params, loaderOptions)
-      }
-
-      return await ('run' in withCache
-        ? withCache.run({cacheKey: queryHash, cacheStrategy, shouldCacheResult}, runWithCache)
-        : // @ts-expect-error for compatibility, remove in next major
-          withCache(queryHash, cacheStrategy, runWithCache))
+          return await loadQuery<T>(query, params, loaderOptions)
+        },
+      )
     },
     client,
     preview,
