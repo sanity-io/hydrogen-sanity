@@ -9,7 +9,8 @@
     "hydrogen",
     "remix",
     "live",
-    "preview"
+    "preview",
+    "react-router"
   ],
   "homepage": "https://github.com/sanity-io/hydrogen-sanity#readme",
   "bugs": {
@@ -51,7 +52,6 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
@@ -75,12 +75,11 @@
     "src"
   ],
   "scripts": {
-    "build": "pkg build --strict --clean --check",
+    "build": "pkg-utils build --strict --clean --check",
     "release": "semantic-release",
     "release:debug": "semantic-release --dry-run --debug",
     "release:no-ci": "GITHUB_TOKEN=`gh auth token` semantic-release --no-ci --debug --dryRun",
-    "link-watch": "plugin-kit link-watch",
-    "lint": "eslint --cache .",
+    "lint": "eslint --cache --config eslint.config.js .",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc",
     "watch": "pkg-utils watch --strict"
@@ -93,29 +92,29 @@
     "groq": "^3.89.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.27.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@sanity/pkg-utils": "^6.13.4",
-    "@sanity/plugin-kit": "^4.0.19",
-    "@sanity/semantic-release-preset": "^4.1.8",
+    "@sanity/pkg-utils": "^7.2.2",
+    "@sanity/semantic-release-preset": "^5.0.0",
     "@shopify/hydrogen": "~2025.5.0",
     "@shopify/remix-oxygen": "^3.0.0",
     "@types/react": "^18.3.22",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-config-sanity": "^7.1.4",
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "semantic-release": "^23.1.1",
+    "semantic-release": "^24.2.5",
     "typescript": "^5.8.3",
-    "vite": "^6.2.4",
-    "vitest": "^2.1.9",
-    "vitest-github-actions-reporter": "^0.11.1"
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4"
   },
   "peerDependencies": {
     "@sanity/client": "^7",

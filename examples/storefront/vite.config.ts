@@ -6,7 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import {sanity} from 'hydrogen-sanity/vite';
 
 export default defineConfig({
-  plugins: [hydrogen(), oxygen(), reactRouter(), tsconfigPaths(), sanity()],
+  plugins: [hydrogen(), sanity(), oxygen(), reactRouter(), tsconfigPaths()],
   build: {
     // Allow a strict Content-Security-Policy
     // withtout inlining assets as base64:
