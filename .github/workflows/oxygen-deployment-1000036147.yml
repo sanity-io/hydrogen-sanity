@@ -4,22 +4,20 @@
 name: Storefront 1000036147
 on:
   push:
-    paths:
-      - 'examples/storefront/**'
 
 permissions:
   contents: read
 
 jobs:
   deploy:
-    name: Deploy to Oxygen
+    name: Deploy `storefront`
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-        name: Install PNPM
-      - uses: pnpm/action-setup@v4
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
         with:
           run_install: false
 
@@ -29,9 +27,21 @@ jobs:
           node-version: 'lts/*'
           cache: 'pnpm'
 
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build `hydrogen-sanity`
+        run: |
+          pushd packages/hydrogen-sanity
+          pnpm build
+          popd
+
       - name: Deploy to Oxygen
         id: deploy
+        env:
+          SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK: "false"
+          SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: "${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036147 }}"
         run: |
           pushd examples/storefront
-          pnpm shopify hydrogen deploy --token "${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036147 }}"
+          pnpm shopify hydrogen deploy
           popd
