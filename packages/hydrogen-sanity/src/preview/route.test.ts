@@ -56,6 +56,10 @@ describe('the preview route', () => {
 
   it('should disable preview mode', async () => {
     const response = await action({context, request, params: {}})
-    expect(response).toBeInstanceOf(Response)
+    expect(response).toMatchObject({
+      type: 'DataWithResponseInit',
+      data: {message: 'Method not allowed'},
+      init: {status: 405},
+    })
   })
 })
