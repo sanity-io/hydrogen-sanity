@@ -1,6 +1,6 @@
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
 import type {HydrogenSession} from '@shopify/hydrogen'
-import {type ActionFunction, data, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
+import {type ActionFunction, data, type LoaderFunction, redirect} from 'react-router'
 
 import type {SanityContext} from '../context'
 import {assertSession} from '../utils'
