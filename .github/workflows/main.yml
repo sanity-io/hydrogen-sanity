@@ -16,7 +16,7 @@ on:
   pull_request:
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
-    branches: [main, beta]
+    branches: [main, beta, next]
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch:
     inputs:
@@ -55,7 +55,7 @@ jobs:
         with:
           cache: pnpm
           node-version: lts/*
-      - run: pnpm install
+      - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
         # Linting can be skipped
       - run: pnpm --filter="hydrogen-sanity" run lint
         if: github.event.inputs.test != 'false'
@@ -103,8 +103,8 @@ jobs:
         with:
           cache: pnpm
           node-version: ${{ matrix.node }}
-      - run: pnpm install
-      - run: pnpm run test --project="hydrogen-sanity"
+      - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
+      - run: pnpm test --project="hydrogen-sanity"
 
   release:
     needs: [build, test]
@@ -130,7 +130,7 @@ jobs:
         with:
           cache: pnpm
           node-version: lts/*
-      - run: pnpm install
+      - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
         # Branches that will release new versions are defined in .releaserc.json
       - run: pnpm --filter="hydrogen-sanity" run release
         # Don't allow interrupting the release step if the job is cancelled, as it can lead to an inconsistent state
