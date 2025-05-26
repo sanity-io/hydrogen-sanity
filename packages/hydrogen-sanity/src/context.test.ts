@@ -1,6 +1,5 @@
 import type {QueryStore} from '@sanity/react-loader'
 import {CacheShort, type WithCache} from '@shopify/hydrogen'
-import groq from 'groq'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createClient, SanityClient} from './client'
@@ -50,7 +49,7 @@ const runWithCache = vi.spyOn(withCache!, 'run')
 
 const client = createClient({projectId: 'my-project-id', dataset: 'my-dataset'})
 
-const query = groq`true`
+const query = `true`
 const params = {}
 const hashedQuery = await hashQuery(query, params)
 
