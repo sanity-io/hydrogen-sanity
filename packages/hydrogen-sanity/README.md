@@ -1,6 +1,6 @@
 # hydrogen-sanity
 
-[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2023.7.0`.
+[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2025.5.1`.
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -53,7 +53,7 @@ pnpm install hydrogen-sanity
 Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 > [!NOTE]
-> The examples below are up-to-date as of `npm create @shopify/hydrogen@2024.7.9`
+> The examples below are up-to-date as of `npm create @shopify/hydrogen@2025.5.1`
 
 ```ts
 // ./lib/context.ts
@@ -184,7 +184,7 @@ export async function loader({context, params}: LoaderFunctionArgs) {
   const params = {id: 'home'}
   const initial = await context.sanity.loadQuery(query, params)
 
-  return json({initial})
+  return {initial}
 }
 ```
 
@@ -261,10 +261,10 @@ First set up your root route to enable preview mode across the entire applicatio
 import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 
 export async function loader({context}: LoaderArgs) {
-  return json({
+  return {
     // ... other loader data
     isPreviewEnabled: context.sanity.preview?.enabled,
-  })
+  }
 }
 
 export function Layout({children}: {children?: React.ReactNode}) {
@@ -336,7 +336,7 @@ Since Sanity Studio's Presentation tool displays the storefront inside an iframe
 // ./app/entry.server.tsx
 
 // ...all other imports
-import type {AppLoadContext, EntryContext} from '@shopify/remix-oxygen'
+import type {AppLoadContext, EntryContext} from 'react-router'
 
 export default async function handleRequest(
   request: Request,
@@ -354,7 +354,7 @@ export default async function handleRequest(
     // ...allow Sanity assets loaded from the CDN to be loaded in your storefront
     defaultSrc: ['https://cdn.sanity.io'],
     // ...allow Studio to load your storefront in Presentation's iframe
-    frameAncestors: isPreviewEnabled ? [studioHostname] : undefined,
+    frameAncestors: isPreviewEnabled ? [studioHostname] : [],
 
     // If you've embedded your Studio in your storefront...
     // ...allow Sanity assets to be loaded in your storefront and allow user avatars in Studio
@@ -431,7 +431,7 @@ For whatever reason, if you choose not to use `hydrogen-sanity` you could still 
 The following example configures Sanity Client and provides it in the request context.
 
 ```ts
-// ./server.ts
+// ./lib/context.ts
 
 // ...all other imports
 import {createClient} from '@sanity/client'
@@ -448,7 +448,7 @@ export async function createAppLoadContext(
   const sanity = createClient({
     projectId: env.SANITY_PROJECT_ID,
     dataset: env.SANITY_DATASET,
-    apiVersion: env.SANITY_API_VERSION ?? 'v2024-08-08',
+    apiVersion: env.SANITY_API_VERSION ?? 'v2025-02-19',
     useCdn: process.env.NODE_ENV === 'production',
   })
 
@@ -470,7 +470,7 @@ export async function loader({context, params}: LoaderArgs) {
   const {sanity} = context
   const homepage = await sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
 
-  return json({homepage})
+  return {homepage}
 }
 ```
 
@@ -484,13 +484,14 @@ export async function loader({context, params}: LoaderArgs) {
     sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'}),
   )
 
-  return json({homepage})
+  return {homepage}
 }
 ```
 
 ## Migration Guides
 
 - [From `v3` to `v4`](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v3-to-v4.md)
+- [From `v4` to `v5`](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v4-to-v5.md)
 
 ## License
 
