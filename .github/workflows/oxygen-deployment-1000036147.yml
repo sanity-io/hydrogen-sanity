@@ -30,18 +30,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Build `hydrogen-sanity`
-        run: |
-          pushd packages/hydrogen-sanity
-          pnpm build
-          popd
-
       - name: Deploy to Oxygen
         id: deploy
-        env:
-          SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK: "false"
-          SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: "${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036147 }}"
-        run: |
-          pushd examples/storefront
-          pnpm shopify hydrogen deploy
-          popd
+        run: pnpx turbo run deploy --filter storefront -- --token="${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036147 }}"

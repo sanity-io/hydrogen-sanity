@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["@repo/sanity-config#build"],
+      "outputs": [".sanity/**", "dist/**"]
+    },
+    "deploy": {
+      "dependsOn": ["@repo/sanity-config#build"],
+      "outputs": [".sanity/**", "dist/**"]
+    }
+  }
+}

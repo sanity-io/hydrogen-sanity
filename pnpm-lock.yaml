@@ -46,7 +46,7 @@ importers:
         version: 2025.5.0(@react-router/dev@7.6.0(@types/node@22.15.21)(babel-plugin-macros@3.1.0)(jiti@2.4.2)(react-router@7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(terser@5.39.2)(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))(yaml@2.8.0))(@types/react@18.3.22)(react-dom@18.3.1(react@18.3.1))(react-router@7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(three@0.172.0)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))(xstate@5.19.3)
       '@shopify/remix-oxygen':
         specifier: ^3.0.0
-        version: 3.0.0(@shopify/oxygen-workers-types@4.1.9)(react-router@7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        version: 3.0.0(@shopify/oxygen-workers-types@4.1.10)(react-router@7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       graphql:
         specifier: ^16.10.0
         version: 16.11.0
@@ -101,7 +101,7 @@ importers:
         version: 3.2.1(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))
       '@shopify/oxygen-workers-types':
         specifier: ^4.1.6
-        version: 4.1.9
+        version: 4.1.10
       '@shopify/prettier-config':
         specifier: ^1.1.2
         version: 1.1.4
@@ -2964,8 +2964,8 @@ packages:
       vite:
         optional: true
 
-  '@shopify/oxygen-workers-types@4.1.9':
-    resolution: {integrity: sha512-glFNW1i57hu2EYjR3y34k6laXniKh5b8MHdCTmfo+fdw7hznCZLrMWsrvZZSEJnaUkvvs1FIKGTi5W7m0mjxiA==}
+  '@shopify/oxygen-workers-types@4.1.10':
+    resolution: {integrity: sha512-7ZdnP1s8LujTxSu+Z4CCJmz+KuJ1CJp8uCCNDCF7iqhAhjD+AXZpffwX6b6+RseydkIZfSuRpTkoichCro6/Nw==}
 
   '@shopify/prettier-config@1.1.4':
     resolution: {integrity: sha512-BmM8zRVvtu2eKyZ7HmKqG6lI/U6uiZgs/UK4qLnVmdmx8r5hSL9alMRguuV8MXgDUdt17nWoZKvvUVXF2OAoqA==}
@@ -11424,16 +11424,16 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@portabletext/block-tools@1.1.27(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@types/react@18.3.22)':
+  '@portabletext/block-tools@1.1.27(@sanity/types@3.89.0(@types/react@18.3.22))(@types/react@18.3.22)':
     dependencies:
       '@sanity/types': 3.89.0(@types/react@18.3.22)(debug@4.4.1)
       '@types/react': 18.3.22
       get-random-values-esm: 1.0.2
       lodash: 4.17.21
 
-  '@portabletext/editor@1.50.6(@sanity/schema@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@types/react@18.3.22)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)':
+  '@portabletext/editor@1.50.6(@sanity/schema@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@sanity/types@3.89.0(@types/react@18.3.22))(@types/react@18.3.22)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)':
     dependencies:
-      '@portabletext/block-tools': 1.1.27(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@types/react@18.3.22)
+      '@portabletext/block-tools': 1.1.27(@sanity/types@3.89.0(@types/react@18.3.22))(@types/react@18.3.22)
       '@portabletext/patches': 1.1.3
       '@portabletext/to-html': 2.0.14
       '@sanity/schema': 3.89.0(@types/react@18.3.22)(debug@4.4.1)
@@ -11960,7 +11960,21 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@sanity/insert-menu@1.1.11(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@sanity/insert-menu@1.1.11(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.89.0(@types/react@18.3.22))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@sanity/icons': 3.7.0(react@18.3.1)
+      '@sanity/types': 3.89.0(@types/react@18.3.22)(debug@4.4.1)
+      '@sanity/ui': 2.15.18(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      lodash: 4.17.21
+      react: 18.3.1
+      react-compiler-runtime: 19.1.0-rc.1(react@18.3.1)
+      react-dom: 18.3.1(react@18.3.1)
+      react-is: 18.3.1
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - styled-components
+
+  '@sanity/insert-menu@1.1.11(@sanity/types@3.89.0(@types/react@18.3.22))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@sanity/icons': 3.7.0(react@18.3.1)
       '@sanity/types': 3.89.0(@types/react@18.3.22)(debug@4.4.1)
@@ -12331,7 +12345,7 @@ snapshots:
     dependencies:
       '@sanity/comlink': 3.0.4
       '@sanity/icons': 3.7.0(react@18.3.1)
-      '@sanity/insert-menu': 1.1.11(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@sanity/insert-menu': 1.1.11(@sanity/types@3.89.0(@types/react@18.3.22))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/mutate': 0.11.0-canary.4(xstate@5.19.3)
       '@sanity/presentation-comlink': 1.0.20(@sanity/client@7.3.0(debug@4.4.1))(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))
       '@sanity/preview-url-secret': 2.1.11(@sanity/client@7.3.0(debug@4.4.1))
@@ -12588,13 +12602,13 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@shopify/oxygen-workers-types@4.1.9': {}
+  '@shopify/oxygen-workers-types@4.1.10': {}
 
   '@shopify/prettier-config@1.1.4': {}
 
-  '@shopify/remix-oxygen@3.0.0(@shopify/oxygen-workers-types@4.1.9)(react-router@7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@shopify/remix-oxygen@3.0.0(@shopify/oxygen-workers-types@4.1.10)(react-router@7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
-      '@shopify/oxygen-workers-types': 4.1.9
+      '@shopify/oxygen-workers-types': 4.1.10
       react-router: 7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   '@sindresorhus/is@4.6.0': {}
@@ -17543,8 +17557,8 @@ snapshots:
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@dnd-kit/utilities': 3.2.2(react@18.3.1)
       '@juggle/resize-observer': 3.4.0
-      '@portabletext/block-tools': 1.1.27(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@types/react@18.3.22)
-      '@portabletext/editor': 1.50.6(@sanity/schema@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@types/react@18.3.22)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+      '@portabletext/block-tools': 1.1.27(@sanity/types@3.89.0(@types/react@18.3.22))(@types/react@18.3.22)
+      '@portabletext/editor': 1.50.6(@sanity/schema@3.89.0(@types/react@18.3.22)(debug@4.4.1))(@sanity/types@3.89.0(@types/react@18.3.22))(@types/react@18.3.22)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
       '@portabletext/react': 3.2.1(react@18.3.1)
       '@portabletext/toolkit': 2.0.17
       '@rexxars/react-json-inspector': 9.0.1(react@18.3.1)
@@ -17563,7 +17577,7 @@ snapshots:
       '@sanity/id-utils': 1.0.0
       '@sanity/image-url': 1.1.0
       '@sanity/import': 3.38.2(@types/react@18.3.22)
-      '@sanity/insert-menu': 1.1.11(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.89.0(@types/react@18.3.22)(debug@4.4.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@sanity/insert-menu': 1.1.11(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.89.0(@types/react@18.3.22))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/logos': 2.2.0(@sanity/color@3.0.6)(react@18.3.1)
       '@sanity/message-protocol': 0.13.3
       '@sanity/migrate': 3.89.0(@types/react@18.3.22)

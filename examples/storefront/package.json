@@ -10,7 +10,8 @@
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",
     "typecheck": "tsc --noEmit",
-    "codegen": "shopify hydrogen codegen"
+    "codegen": "shopify hydrogen codegen",
+    "deploy": "shopify hydrogen deploy --no-lockfile-check"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {
