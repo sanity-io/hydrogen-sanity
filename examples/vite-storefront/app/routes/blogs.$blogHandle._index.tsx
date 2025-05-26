@@ -1,16 +1,31 @@
-import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Link, useLoaderData, type MetaFunction} from '@remix-run/react';
-import {Image, Pagination, getPaginationVariables} from '@shopify/hydrogen';
+import {Image, getPaginationVariables} from '@shopify/hydrogen';
 import type {ArticleItemFragment} from 'storefrontapi.generated';
+import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Hydrogen | ${data?.blog.title ?? ''} blog`}];
 };
 
-export async function loader({
+export async function loader(args: LoaderFunctionArgs) {
+  // Start fetching non-critical data without blocking time to first byte
+  const deferredData = loadDeferredData(args);
+
+  // Await the critical data required to render initial state of the page
+  const criticalData = await loadCriticalData(args);
+
+  return {...deferredData, ...criticalData};
+}
+
+/**
+ * Load data necessary for rendering content above the fold. This is the critical data
+ * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
+ */
+async function loadCriticalData({
+  context,
   request,
   params,
-  context: {storefront},
 }: LoaderFunctionArgs) {
   const paginationVariables = getPaginationVariables(request, {
     pageBy: 4,
@@ -20,18 +35,30 @@ export async function loader({
     throw new Response(`blog not found`, {status: 404});
   }
 
-  const {blog} = await storefront.query(BLOGS_QUERY, {
-    variables: {
-      blogHandle: params.blogHandle,
-      ...paginationVariables,
-    },
-  });
+  const [{blog}] = await Promise.all([
+    context.storefront.query(BLOGS_QUERY, {
+      variables: {
+        blogHandle: params.blogHandle,
+        ...paginationVariables,
+      },
+    }),
+    // Add other queries here, so that they are loaded in parallel
+  ]);
 
   if (!blog?.articles) {
     throw new Response('Not found', {status: 404});
   }
 
-  return json({blog});
+  return {blog};
+}
+
+/**
+ * Load data for rendering content below the fold. This data is deferred and will be
+ * fetched after the initial page load. If it's unavailable, the page should still 200.
+ * Make sure to not throw any errors here, as it will cause the page to 500.
+ */
+function loadDeferredData({context}: LoaderFunctionArgs) {
+  return {};
 }
 
 export default function Blog() {
@@ -42,29 +69,15 @@ export default function Blog() {
     <div className="blog">
       <h1>{blog.title}</h1>
       <div className="blog-grid">
-        <Pagination connection={articles}>
-          {({nodes, isLoading, PreviousLink, NextLink}) => {
-            return (
-              <>
-                <PreviousLink>
-                  {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
-                </PreviousLink>
-                {nodes.map((article, index) => {
-                  return (
-                    <ArticleItem
-                      article={article}
-                      key={article.id}
-                      loading={index < 2 ? 'eager' : 'lazy'}
-                    />
-                  );
-                })}
-                <NextLink>
-                  {isLoading ? 'Loading...' : <span>Load more ↓</span>}
-                </NextLink>
-              </>
-            );
-          }}
-        </Pagination>
+        <PaginatedResourceSection connection={articles}>
+          {({node: article, index}) => (
+            <ArticleItem
+              article={article}
+              key={article.id}
+              loading={index < 2 ? 'eager' : 'lazy'}
+            />
+          )}
+        </PaginatedResourceSection>
       </div>
     </div>
   );

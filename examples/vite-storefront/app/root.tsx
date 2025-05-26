@@ -1,20 +1,15 @@
-import {useNonce} from '@shopify/hydrogen';
-import {defer, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {getShopAnalytics} from '@shopify/hydrogen';
+import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {
-  Links,
-  Meta,
   Outlet,
-  Scripts,
   useRouteError,
-  useLoaderData,
-  ScrollRestoration,
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
 } from '@remix-run/react';
-import favicon from './assets/favicon.svg';
-import resetStyles from './styles/reset.css?url';
-import appStyles from './styles/app.css?url';
-import {Layout} from '~/components/Layout';
+import favicon from '~/assets/favicon.svg';
+import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
+
+export type RootLoader = typeof loader;
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -25,22 +20,31 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   nextUrl,
 }) => {
   // revalidate when a mutation is performed e.g add to cart, login...
-  if (formMethod && formMethod !== 'GET') {
-    return true;
-  }
+  if (formMethod && formMethod !== 'GET') return true;
 
   // revalidate when manually revalidating via useRevalidator
-  if (currentUrl.toString() === nextUrl.toString()) {
-    return true;
-  }
+  if (currentUrl.toString() === nextUrl.toString()) return true;
 
+  // Defaulting to no revalidation for root loader data to improve performance.
+  // When using this feature, you risk your UI getting out of sync with your server.
+  // Use with caution. If you are uncomfortable with this optimization, update the
+  // line below to `return defaultShouldRevalidate` instead.
+  // For more details see: https://remix.run/docs/en/main/route/should-revalidate
   return false;
 };
 
+/**
+ * The main and reset stylesheets are added in the Layout component
+ * to prevent a bug in development HMR updates.
+ *
+ * This avoids the "failed to execute 'insertBefore' on 'Node'" error
+ * that occurs after editing and navigating to another page.
+ *
+ * It's a temporary fix until the issue is resolved.
+ * https://github.com/remix-run/remix/issues/9242
+ */
 export function links() {
   return [
-    {rel: 'stylesheet', href: resetStyles},
-    {rel: 'stylesheet', href: appStyles},
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
@@ -53,72 +57,88 @@ export function links() {
   ];
 }
 
-export async function loader({context}: LoaderFunctionArgs) {
-  const {storefront, customerAccount, cart} = context;
-  const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
+export async function loader(args: LoaderFunctionArgs) {
+  // Start fetching non-critical data without blocking time to first byte
+  const deferredData = loadDeferredData(args);
 
-  const isLoggedInPromise = customerAccount.isLoggedIn();
-  const cartPromise = cart.get();
+  // Await the critical data required to render initial state of the page
+  const criticalData = await loadCriticalData(args);
+
+  const {storefront, env} = args.context;
+
+  return {
+    ...deferredData,
+    ...criticalData,
+    publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
+    shop: getShopAnalytics({
+      storefront,
+      publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
+    }),
+    consent: {
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
+      storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
+      withPrivacyBanner: false,
+      // localize the privacy banner
+      country: args.context.storefront.i18n.country,
+      language: args.context.storefront.i18n.language,
+    },
+  };
+}
+
+/**
+ * Load data necessary for rendering content above the fold. This is the critical data
+ * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
+ */
+async function loadCriticalData({context}: LoaderFunctionArgs) {
+  const {storefront} = context;
+
+  const [header] = await Promise.all([
+    storefront.query(HEADER_QUERY, {
+      cache: storefront.CacheLong(),
+      variables: {
+        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+      },
+    }),
+    // Add other queries here, so that they are loaded in parallel
+  ]);
+
+  return {header};
+}
+
+/**
+ * Load data for rendering content below the fold. This data is deferred and will be
+ * fetched after the initial page load. If it's unavailable, the page should still 200.
+ * Make sure to not throw any errors here, as it will cause the page to 500.
+ */
+function loadDeferredData({context}: LoaderFunctionArgs) {
+  const {storefront, customerAccount, cart} = context;
 
   // defer the footer query (below the fold)
-  const footerPromise = storefront.query(FOOTER_QUERY, {
-    cache: storefront.CacheLong(),
-    variables: {
-      footerMenuHandle: 'footer', // Adjust to your footer menu handle
-    },
-  });
-
-  // await the header query (above the fold)
-  const headerPromise = storefront.query(HEADER_QUERY, {
-    cache: storefront.CacheLong(),
-    variables: {
-      headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-    },
-  });
-
-  return defer(
-    {
-      cart: cartPromise,
-      footer: footerPromise,
-      header: await headerPromise,
-      isLoggedIn: isLoggedInPromise,
-      publicStoreDomain,
-    },
-    {
-      headers: {
-        'Set-Cookie': await context.session.commit(),
+  const footer = storefront
+    .query(FOOTER_QUERY, {
+      cache: storefront.CacheLong(),
+      variables: {
+        footerMenuHandle: 'footer', // Adjust to your footer menu handle
       },
-    },
-  );
+    })
+    .catch((error) => {
+      // Log query errors, but don't throw them so the page can still render
+      console.error(error);
+      return null;
+    });
+  return {
+    cart: cart.get(),
+    isLoggedIn: customerAccount.isLoggedIn(),
+    footer,
+  };
 }
 
 export default function App() {
-  const nonce = useNonce();
-  const data = useLoaderData<typeof loader>();
-
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Layout {...data}>
-          <Outlet />
-        </Layout>
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-      </body>
-    </html>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  const rootData = useLoaderData<typeof loader>();
-  const nonce = useNonce();
   let errorMessage = 'Unknown error';
   let errorStatus = 500;
 
@@ -130,98 +150,14 @@ export function ErrorBoundary() {
   }
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Layout {...rootData}>
-          <div className="route-error">
-            <h1>Oops</h1>
-            <h2>{errorStatus}</h2>
-            {errorMessage && (
-              <fieldset>
-                <pre>{errorMessage}</pre>
-              </fieldset>
-            )}
-          </div>
-        </Layout>
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-      </body>
-    </html>
+    <div className="route-error">
+      <h1>Oops</h1>
+      <h2>{errorStatus}</h2>
+      {errorMessage && (
+        <fieldset>
+          <pre>{errorMessage}</pre>
+        </fieldset>
+      )}
+    </div>
   );
 }
-
-const MENU_FRAGMENT = `#graphql
-  fragment MenuItem on MenuItem {
-    id
-    resourceId
-    tags
-    title
-    type
-    url
-  }
-  fragment ChildMenuItem on MenuItem {
-    ...MenuItem
-  }
-  fragment ParentMenuItem on MenuItem {
-    ...MenuItem
-    items {
-      ...ChildMenuItem
-    }
-  }
-  fragment Menu on Menu {
-    id
-    items {
-      ...ParentMenuItem
-    }
-  }
-` as const;
-
-const HEADER_QUERY = `#graphql
-  fragment Shop on Shop {
-    id
-    name
-    description
-    primaryDomain {
-      url
-    }
-    brand {
-      logo {
-        image {
-          url
-        }
-      }
-    }
-  }
-  query Header(
-    $country: CountryCode
-    $headerMenuHandle: String!
-    $language: LanguageCode
-  ) @inContext(language: $language, country: $country) {
-    shop {
-      ...Shop
-    }
-    menu(handle: $headerMenuHandle) {
-      ...Menu
-    }
-  }
-  ${MENU_FRAGMENT}
-` as const;
-
-const FOOTER_QUERY = `#graphql
-  query Footer(
-    $country: CountryCode
-    $footerMenuHandle: String!
-    $language: LanguageCode
-  ) @inContext(language: $language, country: $country) {
-    menu(handle: $footerMenuHandle) {
-      ...Menu
-    }
-  }
-  ${MENU_FRAGMENT}
-` as const;
