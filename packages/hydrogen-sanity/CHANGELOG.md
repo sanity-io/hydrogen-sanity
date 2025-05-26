@@ -5,6 +5,34 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-next.1 (2025-05-26)
+
+- chore: add `next` channel ([b6d75fb](https://github.com/sanity-io/hydrogen-sanity/commit/b6d75fb))
+- chore: add studio example and storefront deployment workflow ([b86fd70](https://github.com/sanity-io/hydrogen-sanity/commit/b86fd70))
+- chore: adjust github workflow ([a5ca90c](https://github.com/sanity-io/hydrogen-sanity/commit/a5ca90c))
+- chore: adjust release workflow ([c41448a](https://github.com/sanity-io/hydrogen-sanity/commit/c41448a))
+- chore: adjust turbo ([563757c](https://github.com/sanity-io/hydrogen-sanity/commit/563757c))
+- chore: organize file and examples ([d550809](https://github.com/sanity-io/hydrogen-sanity/commit/d550809))
+- chore: remove old examples and scaffold a new react-router storefront ([6aca4c5](https://github.com/sanity-io/hydrogen-sanity/commit/6aca4c5))
+- docs: update readme and migration guide ([b35d14b](https://github.com/sanity-io/hydrogen-sanity/commit/b35d14b))
+- feat: add environment variable prefix `SANITY_STUDIO_` ([44cd400](https://github.com/sanity-io/hydrogen-sanity/commit/44cd400))
+- feat: adjust dependencies ([3354ee1](https://github.com/sanity-io/hydrogen-sanity/commit/3354ee1))
+- feat: compile with React Compiler ([98cd784](https://github.com/sanity-io/hydrogen-sanity/commit/98cd784))
+- feat!: remove commonjs exports ([2ca4e05](https://github.com/sanity-io/hydrogen-sanity/commit/2ca4e05))
+- feat!: remove deprecated code ([c3d93b9](https://github.com/sanity-io/hydrogen-sanity/commit/c3d93b9))
+- feat!: remove groq export ([b342a42](https://github.com/sanity-io/hydrogen-sanity/commit/b342a42))
+- feat!: update dependencies and add vite plugin ([d0a5564](https://github.com/sanity-io/hydrogen-sanity/commit/d0a5564))
+- test: fix tests ([c92a464](https://github.com/sanity-io/hydrogen-sanity/commit/c92a464))
+
+### BREAKING CHANGE
+
+- `createSanityLoader` has been removed.
+- `hydrogen-sanity` depends on React Router 7. You can
+  find more information in [Shopify's
+  changelog](https://hydrogen.shopify.dev/update/may-2025).
+- `hydrogen-sanity` is now ESM-only. CommonJS (CJS) exports have been removed.
+- `hydrogen-sanity` no longer re-exports `groq`.
+
 ## [4.3.3](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.2...v4.3.3) (2025-02-06)
 
 ### Bug Fixes
