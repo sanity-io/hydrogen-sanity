@@ -3,7 +3,13 @@ import {defineConfig} from '@sanity/pkg-utils'
 export default defineConfig({
   dist: 'dist',
   tsconfig: 'tsconfig.dist.json',
-  minify: true,
+  minify: false,
+
+  external: ['virtual:sanity/studio', 'virtual:sanity/csp', 'virtual:sanity/route-client'],
+
+  reactCompilerOptions: {
+    target: '18',
+  },
 
   // Remove this block to enable strict export validation
   extract: {

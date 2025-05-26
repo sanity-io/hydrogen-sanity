@@ -48,6 +48,32 @@
       "require": "./dist/groq.cjs",
       "default": "./dist/groq.js"
     },
+    "./vite": {
+      "source": "./src/vite/index.ts",
+      "import": "./dist/vite/index.js",
+      "require": "./dist/vite/index.cjs",
+      "default": "./dist/vite/index.js"
+    },
+    "./studio": {
+      "source": "./src/studio/root.tsx",
+      "import": "./dist/studio/root.js",
+      "default": "./dist/studio/root.js"
+    },
+    "./studio/utils": {
+      "source": "./src/studio/utils.ts",
+      "import": "./dist/studio/utils.js",
+      "default": "./dist/studio/utils.js"
+    },
+    "./studio/route": {
+      "source": "./src/studio/entry.server.tsx",
+      "import": "./dist/studio/entry.server.js",
+      "default": "./dist/studio/entry.server.js"
+    },
+    "./studio/route-client": {
+      "source": "./src/studio/entry.client.tsx",
+      "import": "./dist/studio/entry.client.js",
+      "default": "./dist/studio/entry.client.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -63,6 +89,12 @@
       ],
       "groq": [
         "./dist/groq.d.ts"
+      ],
+      "vite": [
+        "./dist/vite/index.d.ts"
+      ],
+      "studio/utils": [
+        "./dist/studio/utils.d.ts"
       ]
     }
   },
@@ -71,7 +103,7 @@
     "src"
   ],
   "scripts": {
-    "build": "pkg build --strict --clean --check",
+    "build": "pkg build --strict --clean",
     "release": "semantic-release",
     "release:debug": "semantic-release --dry-run --debug",
     "release:no-ci": "GITHUB_TOKEN=`gh auth token` semantic-release --no-ci --debug --dryRun",
@@ -89,12 +121,14 @@
     "groq": "^3.62.3"
   },
   "devDependencies": {
+    "@remix-run/route-config": "^2.16.0",
     "@sanity/pkg-utils": "^6.11.11",
     "@sanity/plugin-kit": "^4.0.18",
     "@sanity/semantic-release-preset": "^4.1.8",
     "@shopify/hydrogen": "~2024.10.0",
     "@shopify/remix-oxygen": "^2.0.9",
     "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.1",
@@ -106,18 +140,28 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sanity": "^3.88.3",
     "semantic-release": "^23.1.1",
     "typescript": "^5.6.3",
+    "vite": "^5.4.14",
     "vitest": "^2.1.5",
     "vitest-github-actions-reporter": "^0.11.1"
   },
   "peerDependencies": {
+    "@remix-run/route-config": "^2.16.0",
     "@sanity/client": "^6.18.0",
     "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0 || ~2024.7.0 || ~2024.10.0 || ~2025.1.0",
     "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
     "groq": "^3.41.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "sanity": "^3.52.4",
+    "vite": "^5.4.14"
+  },
+  "peerDependenciesMeta": {
+    "sanity": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18"
