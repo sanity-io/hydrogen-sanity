@@ -40,11 +40,6 @@
       "import": "./dist/visual-editing/index.js",
       "default": "./dist/visual-editing/index.js"
     },
-    "./groq": {
-      "source": "./src/groq.ts",
-      "import": "./dist/groq.js",
-      "default": "./dist/groq.js"
-    },
     "./vite": {
       "source": "./src/vite/index.ts",
       "import": "./dist/vite/index.js",

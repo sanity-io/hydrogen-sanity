@@ -5,10 +5,12 @@
       "outputs": ["dist"]
     },
     "lint": {
+      "cache": false,
       "outputs": [".eslintcache"]
     },
     "typecheck": {
-      "outputs": [".tsbuildinfo"]
+      "cache": false,
+      "outputs": []
     },
     "dev": {
       "cache": false,

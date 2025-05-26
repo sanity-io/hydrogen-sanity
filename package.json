@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "turbo build --concurrency 1",
-    "typecheck": "turbo lint --concurrency 1",
-    "lint": "turbo lint --concurrency 1",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
     "test": "vitest",
     "format": "prettier --cache --write --ignore-unknown ."
   },
