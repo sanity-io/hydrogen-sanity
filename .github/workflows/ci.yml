@@ -1,4 +1,3 @@
----
 name: CI & Release
 
 # Workflow name based on selected inputs. Fallback to default Github naming when expression evaluates to empty string
@@ -14,9 +13,13 @@ run-name: >-
 on:
   # Build on pushes branches that have a PR (including drafts)
   pull_request:
+    paths:
+      - 'packages/hydrogen-sanity/**'
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
     branches: [main, beta, next]
+    paths:
+      - 'packages/hydrogen-sanity/**'
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch:
     inputs:
