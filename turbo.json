@@ -13,6 +13,15 @@
       "outputs": []
     },
     "dev": {
+      "with": ["hydrogen-sanity#watch", "@repo/sanity-config#watch"],
+      "cache": false,
+      "persistent": true
+    },
+    "hydrogen-sanity#watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "@repo/sanity-config#watch": {
       "cache": false,
       "persistent": true
     }
