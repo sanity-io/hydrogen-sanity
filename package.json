@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "turbo --ui tui dev",
+    "watch:apps": "turbo --ui tui dev --filter=\"./examples/**\"",
+    "watch:package": "turbo --ui tui dev --filter=\"hydrogen-sanity\"",
+    "watch:studio-config": "turbo --ui tui dev --filter=\"@repo/studio-config\"",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "lint": "turbo lint",
