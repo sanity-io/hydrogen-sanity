@@ -4,6 +4,13 @@
 name: Storefront 1000036147
 on:
   push:
+    paths:
+      - 'packages/hydrogen-sanity/**'
+      - 'examples/storefront/**'
+  pull_request:
+    paths:
+      - 'packages/hydrogen-sanity/**'
+      - 'examples/storefront/**'
 
 permissions:
   contents: read
