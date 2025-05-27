@@ -1,1 +1,1 @@
-./package/README.md
+packages/hydrogen-sanity/README.md
