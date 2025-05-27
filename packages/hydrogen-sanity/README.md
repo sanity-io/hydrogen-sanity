@@ -3,6 +3,7 @@
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2025.5.1`.
 
 - [Installation](#installation)
+  - [Add Vite plugin](#add-vite-plugin)
 - [Usage](#usage)
   - [Satisfy TypeScript](#satisfy-typescript)
 - [Interacting with Sanity data](#interacting-with-sanity-data)
@@ -48,9 +49,24 @@ yarn add hydrogen-sanity
 pnpm install hydrogen-sanity
 ```
 
+### Add Vite plugin
+
+Add the Vite plugin to your `vite.config.ts`:
+
+```ts
+import {defineConfig} from 'vite';
+import {hydrogen} from '@shopify/hydrogen/vite';
+import {sanity} from 'hydrogen-sanity/vite';
+
+export default defineConfig({
+  plugins: [hydrogen(), sanity() /** ... */],
+  // ... other config
+});
+```
+
 ## Usage
 
-Update the server file to include the Sanity Loader, and optionally, configure the preview mode if you plan to setup Visual Editing
+Create the Sanity context and pass it through to your application, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 > [!NOTE]
 > The examples below are up-to-date as of `npm create @shopify/hydrogen@2025.5.1`
@@ -147,6 +163,9 @@ SANITY_API_TOKEN=""
 ### Satisfy TypeScript
 
 Update the environment variables in `Env` to include the ones you created above:
+
+> [!NOTE]
+> If you plan to reference any environment variables in the client bundle, say for your embedded Studio configuration, you must prefix them with either `PUBLIC_` or `SANITY_STUDIO_`
 
 ```ts
 // ./env.d.ts
