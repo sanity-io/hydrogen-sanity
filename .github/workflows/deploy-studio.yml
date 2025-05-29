@@ -93,22 +93,15 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           run_install: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --filter="@workspace:." --filter="studio" --filter="repo/sanity-config"
+      - run: pnpm install --filter="@workspace:." --filter="studio" --filter="repo/sanity-config"
 
       - name: Cleanup PR preview
         run: |
