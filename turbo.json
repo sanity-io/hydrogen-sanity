@@ -13,6 +13,7 @@
       "outputs": []
     },
     "dev": {
+      "dependsOn": ["hydrogen-sanity#build", "@repo/sanity-config#build"],
       "with": ["hydrogen-sanity#watch", "@repo/sanity-config#watch"],
       "cache": false,
       "persistent": true
