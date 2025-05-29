@@ -27,7 +27,8 @@
   "packageManager": "pnpm@10.11.0",
   "pnpm": {
     "overrides": {
-      "hydrogen-sanity": "workspace:*"
+      "hydrogen-sanity": "workspace:*",
+      "sanity": "latest"
     }
   }
 }
