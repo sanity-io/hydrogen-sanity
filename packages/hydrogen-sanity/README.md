@@ -8,7 +8,7 @@
   - [Satisfy TypeScript](#satisfy-typescript)
 - [Interacting with Sanity data](#interacting-with-sanity-data)
   - [Preferred: Cached queries using `loadQuery`](#preferred-cached-queries-using-loadquery)
-  - [Additional `loadQuery` options](#additional-loadquery-options)
+    - [Additional `loadQuery` options](#additional-loadquery-options)
   - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
   - [Using Sanity TypeGen](#using-sanity-typegen)
 - [Enable Visual Editing](#enable-visual-editing)
@@ -55,14 +55,14 @@ pnpm install hydrogen-sanity
 Add the Vite plugin to your `vite.config.ts`:
 
 ```ts
-import {defineConfig} from 'vite';
-import {hydrogen} from '@shopify/hydrogen/vite';
-import {sanity} from 'hydrogen-sanity/vite';
+import {defineConfig} from 'vite'
+import {hydrogen} from '@shopify/hydrogen/vite'
+import {sanity} from 'hydrogen-sanity/vite'
 
 export default defineConfig({
   plugins: [hydrogen(), sanity() /** ... */],
   // ... other config
-});
+})
 ```
 
 ## Usage
@@ -208,7 +208,7 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 }
 ```
 
-### Additional `loadQuery` options
+#### Additional `loadQuery` options
 
 If you need to pass any additional options to the request provide `queryOptions` like so:
 

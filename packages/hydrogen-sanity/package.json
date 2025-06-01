@@ -45,6 +45,11 @@
       "import": "./dist/vite/index.js",
       "default": "./dist/vite/index.js"
     },
+    "./client": {
+      "source": "./src/client.ts",
+      "import": "./dist/client.js",
+      "default": "./dist/client.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -60,6 +65,9 @@
       ],
       "vite": [
         "./dist/vite/index.d.ts"
+      ],
+      "client": [
+        "./dist/client.d.ts"
       ]
     }
   },
