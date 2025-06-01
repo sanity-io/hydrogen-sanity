@@ -9,6 +9,7 @@
   - [Preferred: Cached queries using `loadQuery`](#preferred-cached-queries-using-loadquery)
   - [Additional `loadQuery` options](#additional-loadquery-options)
   - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
+  - [Using Sanity TypeGen](#using-sanity-typegen)
 - [Enable Visual Editing](#enable-visual-editing)
   - [Enabling preview mode](#enabling-preview-mode)
   - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
@@ -241,6 +242,22 @@ export async function action({context, request}: ActionFunctionArgs) {
       _type: 'comment',
       text: request.body.get('text'),
     })
+}
+```
+
+### Using Sanity TypeGen
+
+If you are using TypeGen with `overloadClientMethods: true`, which is the default behavior, you _must_ install `@sanity/client` as a direct dependency in your project. This is required because TypeGen uses [TypeScript declaration merging](https://www.typescriptlang.org/docs/handbook/declaration-merging.html) to add type definitions for your GROQ queries:
+
+```ts
+// sanity.types.ts
+
+// Query TypeMap
+import '@sanity/client'
+declare module '@sanity/client' {
+  interface SanityQueries {
+    // Each of your GROQ query strings will appear here as keys to their respective response types
+  }
 }
 ```
 
