@@ -7,6 +7,7 @@ import type {
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
 import {ProductItem} from '~/components/ProductItem';
+import {defineQuery} from 'groq';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -27,10 +28,16 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({context}: LoaderFunctionArgs) {
-  const [{collections}] = await Promise.all([
+  const [{collections}, homepage] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
     // Add other queries here, so that they are loaded in parallel
+    context.sanity.loadQuery(HOMEPAGE_QUERY, undefined, {
+      tag: 'homepage',
+      hydrogen: {debug: {displayName: 'query Homepage'}},
+    }),
   ]);
+
+  console.log(homepage);
 
   return {
     featuredCollection: collections.nodes[0],
@@ -165,3 +172,5 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     }
   }
 ` as const;
+
+const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]`);
