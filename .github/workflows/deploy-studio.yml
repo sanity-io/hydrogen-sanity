@@ -21,6 +21,7 @@ permissions:
 
 env:
   SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+  SANITY_STUDIO_PROJECT_ID: ${{ vars.PROJECT_ID }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -45,14 +46,14 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
-      - run: pnpm i --filter="@workspace:." --filter="studio" --filter="repo/sanity-config"
+      - run: pnpm i --filter="@workspace:." --filter="studio" --filter="@repo/sanity-config"
 
       - name: Set Studio hostname
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "SANITY_STUDIO_HOSTNAME=${STUDIO_HOSTNAME}-pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+            echo "SANITY_STUDIO_HOSTNAME=${{ vars.STUDIO_HOSTNAME }}-pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           else
-            echo "SANITY_STUDIO_HOSTNAME=${STUDIO_HOSTNAME}" >> $GITHUB_ENV
+            echo "SANITY_STUDIO_HOSTNAME=${{ vars.STUDIO_HOSTNAME }}" >> $GITHUB_ENV
           fi
 
       - name: Build and deploy Sanity Studio
