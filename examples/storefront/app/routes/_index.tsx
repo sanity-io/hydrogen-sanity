@@ -37,8 +37,6 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
     }),
   ]);
 
-  console.log(homepage);
-
   return {
     featuredCollection: collections.nodes[0],
   };
