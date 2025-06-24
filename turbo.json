@@ -13,7 +13,16 @@
       "outputs": []
     },
     "dev": {
-      "with": ["hydrogen-sanity#watch", "@repo/sanity-config#watch"],
+      "dependsOn": [
+        "hydrogen-sanity#build",
+        "@repo/sanity-config#build",
+        "@repo/sanity-config#extract"
+      ],
+      "with": [
+        "hydrogen-sanity#watch",
+        "@repo/sanity-config#watch",
+        "@repo/sanity-config#extract:watch"
+      ],
       "cache": false,
       "persistent": true
     },
@@ -22,6 +31,14 @@
       "persistent": true
     },
     "@repo/sanity-config#watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "@repo/sanity-config#extract": {
+      "inputs": ["src/**"],
+      "outputs": ["schema.json"]
+    },
+    "@repo/sanity-config#extract:watch": {
       "cache": false,
       "persistent": true
     }

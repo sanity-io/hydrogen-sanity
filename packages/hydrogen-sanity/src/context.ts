@@ -1,3 +1,13 @@
+import {
+  type Any,
+  type ClientConfig,
+  type ClientReturn,
+  createClient,
+  type QueryParams,
+  type QueryWithoutParams,
+  type ResponseQueryOptions,
+  SanityClient,
+} from '@sanity/client'
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
 import {
   CacheLong,
@@ -7,14 +17,6 @@ import {
   type WithCache,
 } from '@shopify/hydrogen'
 
-import {
-  type ClientConfig,
-  createClient,
-  type QueryParams,
-  type QueryWithoutParams,
-  type ResponseQueryOptions,
-  SanityClient,
-} from './client'
 import {hashQuery} from './utils'
 
 const DEFAULT_CACHE_STRATEGY = CacheLong()
@@ -86,12 +88,12 @@ export type SanityContext = {
    * Query Sanity using the loader.
    * @see https://www.sanity.io/docs/loaders
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  loadQuery<T = any>(
-    query: string,
-    params?: QueryParams,
-    options?: LoadQueryOptions<T>,
-  ): Promise<QueryResponseInitial<T>>
+
+  loadQuery<Result = Any, Query extends string = string>(
+    query: Query,
+    params?: QueryParams | QueryWithoutParams,
+    options?: LoadQueryOptions<ClientReturn<Query, Result>>,
+  ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>>
 
   client: SanityClient
 
@@ -138,13 +140,13 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   }
 
   const sanity = {
-    async loadQuery<T>(
-      query: string,
+    async loadQuery<Result = Any, Query extends string = string>(
+      query: Query,
       params: QueryParams | QueryWithoutParams,
-      loaderOptions?: LoadQueryOptions<T>,
-    ): Promise<QueryResponseInitial<T>> {
+      loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
+    ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
       if (!withCache) {
-        return await loadQuery<T>(query, params, loaderOptions)
+        return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
       }
 
       // Don't store response if preview is enabled
@@ -160,7 +162,9 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
         {cacheKey: queryHash, cacheStrategy, shouldCacheResult},
         async ({
           addDebugData,
-        }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<QueryResponseInitial<T>> => {
+        }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<
+          QueryResponseInitial<ClientReturn<Query, Result>>
+        > => {
           // Name displayed in the subrequest profiler
           const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
 
@@ -168,7 +172,7 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
             displayName,
           })
 
-          return await loadQuery<T>(query, params, loaderOptions)
+          return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
         },
       )
     },
