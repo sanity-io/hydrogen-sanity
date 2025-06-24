@@ -280,6 +280,22 @@ declare module '@sanity/client' {
 }
 ```
 
+Now your queries will have automatic type inference:
+
+```ts
+import {defineQuery} from 'hydrogen-sanity/groq'
+
+const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]`)
+
+export async function loader({context, params}: LoaderFunctionArgs) {
+  const params = {id: 'home'}
+  const initial = await context.sanity.loadQuery(HOMEPAGE_QUERY, params)
+
+
+  return {initial}
+}
+```
+
 ## Enable Visual Editing
 
 Enable real-time, interactive live preview inside the Presentation tool of your Sanity Studio. `hydrogen-sanity` comes with a ready-to-use version of the `VisualEditing` component that's compatible with Hydrogen and Oxygen.

@@ -7,7 +7,7 @@ import type {
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
 import {ProductItem} from '~/components/ProductItem';
-import {defineQuery} from 'groq';
+import {defineQuery} from 'hydrogen-sanity/groq';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];

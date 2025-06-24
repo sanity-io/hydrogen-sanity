@@ -3,6 +3,6 @@
 [ ] - Add `SanityLive`
 [ ] - Update `VisualEditing`
 [x] - Remove deprecated code
-[ ] - Test TypeGen
+[x] - Test TypeGen
 [ ] - Add migration documentation
 [ ] - Update README

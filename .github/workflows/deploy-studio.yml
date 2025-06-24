@@ -36,7 +36,7 @@ jobs:
     environment:
       name: ${{ github.event_name == 'workflow_dispatch' && 'Production' || github.ref == 'refs/heads/main' && 'Production' || github.ref == 'refs/heads/development' && 'Development' || 'Preview' }}
       url: ${{ steps.deploy.outputs.STUDIO_URL }}
-    
+
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
