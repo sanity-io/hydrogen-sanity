@@ -14,8 +14,6 @@
     },
     "dev": {
       "dependsOn": [
-        "hydrogen-sanity#build",
-        "@repo/sanity-config#build",
         "@repo/sanity-config#extract"
       ],
       "with": [
