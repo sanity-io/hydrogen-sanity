@@ -30,10 +30,10 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./preview/route": {
-      "source": "./src/preview/route.ts",
-      "import": "./dist/preview/route.js",
-      "default": "./dist/preview/route.js"
+    "./preview": {
+      "source": "./src/preview/index.ts",
+      "import": "./dist/preview/index.js",
+      "default": "./dist/preview/index.js"
     },
     "./visual-editing": {
       "source": "./src/visual-editing/index.ts",
@@ -62,8 +62,8 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "preview/route": [
-        "./dist/preview/route.d.ts"
+      "preview": [
+        "./dist/preview/index.d.ts"
       ],
       "visual-editing": [
         "./dist/visual-editing/index.d.ts"

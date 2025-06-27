@@ -1,13 +1,13 @@
 import {defineConfig, isDev} from 'sanity'
-
+import {presentationTool, type PresentationPluginOptions} from 'sanity/presentation'
 import {structureTool} from 'sanity/structure'
-import {schemaTypes} from './schemaTypes'
-import {structure} from './structure'
-
 import {visionTool} from '@sanity/vision'
 import {colorInput} from '@sanity/color-input'
 import {imageHotspotArrayPlugin} from 'sanity-plugin-hotspot-array'
 import {media, mediaAssetSource} from 'sanity-plugin-media'
+
+import {schemaTypes} from './schemaTypes'
+import {structure} from './structure'
 import {customDocumentActions} from './plugins/customDocumentActions'
 import Navbar from './components/studio/Navbar'
 
@@ -16,6 +16,7 @@ const devOnlyPlugins = [visionTool()]
 type Config = {
   projectId: string
   basePath?: string
+  presentation?: PresentationPluginOptions
 }
 
 export function defineStudioConfig(config: Config) {
@@ -27,6 +28,7 @@ export function defineStudioConfig(config: Config) {
     title: 'Hydrogen Sanity',
 
     plugins: [
+      ...(config.presentation ? [presentationTool(config.presentation)] : []),
       structureTool({structure}),
       colorInput(),
       imageHotspotArrayPlugin(),

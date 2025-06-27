@@ -1,9 +1,8 @@
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
-import type {HydrogenSession} from '@shopify/hydrogen'
 import {type ActionFunction, data, type LoaderFunction, redirect} from 'react-router'
 
 import type {SanityContext} from '../context'
-import {assertSession} from '../utils'
+import {SanityPreviewSession} from './session'
 
 /**
  * A `POST` request to this route will exit preview mode
@@ -14,16 +13,18 @@ export const action: ActionFunction = async ({context, request}) => {
   }
 
   try {
-    const {session} = context
-    if (!assertSession(session)) {
-      throw new Error('Session is not an instance of HydrogenSession')
+    const {sanity}: {sanity: SanityContext} = context
+    const session = sanity.preview?.session
+    if (!(session && session instanceof SanityPreviewSession)) {
+      throw new Error('Session is not an instance of `SanityPreviewSession`')
     }
 
-    // TODO: make this a callback? `onExitPreview`?
-    await session.unset('projectId')
-
-    // TODO: confirm that the redirect and setting cookie has to happen here?
-    return redirect('/')
+    return new Response('Preview disabled successfully', {
+      headers: {
+        'Set-Cookie': await session.destroy(),
+      },
+      status: 200,
+    })
   } catch (error) {
     console.error(error)
     throw new Response('Unable to disable preview mode. Please check your preview configuration', {
@@ -37,8 +38,7 @@ export const action: ActionFunction = async ({context, request}) => {
  */
 export const loader: LoaderFunction = async ({context, request}) => {
   try {
-    // TODO: to remove
-    const {sanity, session} = context as {sanity: SanityContext; session: HydrogenSession}
+    const {sanity}: {sanity: SanityContext} = context
     const projectId = sanity.client.config().projectId
 
     if (!sanity.preview) {
@@ -53,8 +53,10 @@ export const loader: LoaderFunction = async ({context, request}) => {
       throw new Error('No `projectId` found in the client config.')
     }
 
-    if (!assertSession(session)) {
-      throw new Error('Session is not an instance of HydrogenSession')
+    const {session} = sanity.preview
+
+    if (!(session instanceof SanityPreviewSession)) {
+      throw new Error('Session is not an instance of `SanityPreviewSession`')
     }
 
     const clientWithToken = sanity.client.withConfig({
@@ -62,17 +64,30 @@ export const loader: LoaderFunction = async ({context, request}) => {
       token: sanity.preview.token,
     })
 
-    const {isValid, redirectTo = '/'} = await validatePreviewUrl(clientWithToken, request.url)
+    const {
+      isValid,
+      redirectTo = '/',
+      studioPreviewPerspective,
+    } = await validatePreviewUrl(clientWithToken, request.url)
 
     if (!isValid) {
-      return new Response('Invalid secret', {status: 401})
+      throw new Response('Invalid secret', {status: 401})
     }
 
-    // TODO: make this a callback? `onEnterPreview`?
-    await session.set('projectId', projectId)
+    if (studioPreviewPerspective) {
+      session.set('perspective', studioPreviewPerspective)
+    }
 
-    // TODO: confirm that the redirect and setting cookie has to happen here?
-    return redirect(redirectTo)
+    const url = new URL(request.url)
+    url.searchParams.delete('sanity-preview-secret')
+    url.searchParams.delete('sanity-preview-pathname')
+
+    return redirect(`${redirectTo}?${url.searchParams}`, {
+      headers: {
+        'Set-Cookie': await session.commit(),
+      },
+      status: 307,
+    })
   } catch (error) {
     console.error(error)
     throw new Response('Unable to enable preview mode. Please check your preview configuration', {
