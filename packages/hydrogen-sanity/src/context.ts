@@ -9,19 +9,14 @@ import {
   SanityClient,
 } from '@sanity/client'
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
-import {
-  CacheLong,
-  CacheNone,
-  type CachingStrategy,
-  createWithCache,
-  type WithCache,
-} from '@shopify/hydrogen'
+import {CacheNone, type CachingStrategy, createWithCache} from '@shopify/hydrogen'
 
-import {hashQuery} from './utils'
+import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
+import {SanityPreviewSession} from './preview/session'
+import type {CacheActionFunctionParam, WaitUntil} from './types'
+import {getPerspective, hashQuery} from './utils'
 
-const DEFAULT_CACHE_STRATEGY = CacheLong()
-
-type WaitUntil = (promise: Promise<unknown>) => void
+export {SanityPreviewSession}
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -45,7 +40,11 @@ export type CreateSanityContextOptions = {
   /**
    * Configuration for enabling preview mode.
    */
-  preview?: {enabled: boolean; token: string; studioUrl: string}
+  preview?: {
+    token: string
+    studioUrl: string
+    session: SanityPreviewSession
+  }
 }
 
 interface RequestInit {
@@ -83,7 +82,7 @@ type LoadQueryOptions<T> = Pick<
   }
 }
 
-export type SanityContext = {
+export interface SanityContext {
   /**
    * Query Sanity using the loader.
    * @see https://www.sanity.io/docs/loaders
@@ -97,7 +96,7 @@ export type SanityContext = {
 
   client: SanityClient
 
-  preview?: CreateSanityContextOptions['preview']
+  preview: CreateSanityContextOptions['preview'] | null
 }
 
 /**
@@ -108,36 +107,45 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   const withCache = cache ? createWithCache({cache, waitUntil, request}) : null
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
-
-  // TODO: check if `useCdn` is set to `false` and warn about it
+  let enabled = false
 
   if (client.config().apiVersion === '1') {
     console.warn(
-      'No API version specified, defaulting to `v2022-03-07` which supports perspectives.\nYou can find the latest version in the Sanity changelog: https://www.sanity.io/changelog',
+      `
+No API version specified, defaulting to \`${DEFAULT_API_VERSION}\` which supports perspectives and Content Releases.
+You can find the latest version in the Sanity changelog: https://www.sanity.io/changelog.
+    `.trim(),
     )
-    client = client.withConfig({apiVersion: 'v2022-03-07'})
+    client = client.withConfig({apiVersion: DEFAULT_API_VERSION})
   }
 
-  if (preview && preview.enabled) {
-    if (!preview.token) {
-      throw new Error('Enabling preview mode requires a token.')
+  if (preview) {
+    if (preview.token && preview.session instanceof SanityPreviewSession) {
+      const perspective = getPerspective(preview.session)
+      client = client.withConfig({
+        useCdn: false,
+        token: preview.token,
+        perspective,
+        stega: {
+          ...client.config().stega,
+          enabled: true,
+          studioUrl: preview.studioUrl,
+        },
+      })
+
+      enabled = true
+    } else {
+      if (!preview.token) {
+        console.error('Enabling preview mode requires a token.')
+      }
+
+      if (!(preview.session instanceof SanityPreviewSession)) {
+        console.error('Enabling preview mode requires a session.')
+      }
     }
-
-    const previewClient = client.withConfig({
-      useCdn: false,
-      token: preview.token,
-      perspective: 'previewDrafts' as const,
-      stega: {
-        ...client.config().stega,
-        enabled: true,
-        studioUrl: preview.studioUrl,
-      },
-    })
-
-    setServerClient(previewClient)
-  } else {
-    setServerClient(client)
   }
+
+  setServerClient(client)
 
   const sanity = {
     async loadQuery<Result = Any, Query extends string = string>(
@@ -150,10 +158,9 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
       }
 
       // Don't store response if preview is enabled
-      const cacheStrategy =
-        preview && preview.enabled
-          ? CacheNone()
-          : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
+      const cacheStrategy = enabled
+        ? CacheNone()
+        : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
 
       const queryHash = await hashQuery(query, params)
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
@@ -162,7 +169,7 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
         {cacheKey: queryHash, cacheStrategy, shouldCacheResult},
         async ({
           addDebugData,
-        }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<
+        }: CacheActionFunctionParam): Promise<
           QueryResponseInitial<ClientReturn<Query, Result>>
         > => {
           // Name displayed in the subrequest profiler
@@ -177,7 +184,7 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
       )
     },
     client,
-    preview,
+    preview: enabled ? preview : null,
   }
 
   return sanity

@@ -1,2 +1,1 @@
-export {createSanityContext, type SanityContext} from './context'
-// TODO: add default session?
+export {createSanityContext, type SanityContext, SanityPreviewSession} from './context'
