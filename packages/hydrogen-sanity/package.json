@@ -35,6 +35,11 @@
       "import": "./dist/preview/route.js",
       "default": "./dist/preview/route.js"
     },
+    "./preview/session": {
+      "source": "./src/preview/session.ts",
+      "import": "./dist/preview/session.js",
+      "default": "./dist/preview/session.js"
+    },
     "./visual-editing": {
       "source": "./src/visual-editing/index.ts",
       "import": "./dist/visual-editing/index.js",

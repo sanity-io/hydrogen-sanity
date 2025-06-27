@@ -3,7 +3,9 @@ import {CacheShort, type WithCache} from '@shopify/hydrogen'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createClient, SanityClient} from './client'
+import {DEFAULT_API_VERSION} from './constants'
 import {createSanityContext} from './context'
+import {SanityPreviewSession} from './preview/session'
 import {hashQuery} from './utils'
 
 // Mock the global caches object
@@ -27,7 +29,7 @@ vi.mock('@shopify/hydrogen', async (importOriginal) => {
   withCache = module.createWithCache({
     cache,
     waitUntil: () => Promise.resolve(),
-    request: new Request('https://example.com'),
+    request: new Request('http://localhost'),
   })
 
   return {
@@ -47,6 +49,8 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
 
 const runWithCache = vi.spyOn(withCache!, 'run')
 
+const warn = vi.spyOn(console, 'warn')
+
 const client = createClient({projectId: 'my-project-id', dataset: 'my-dataset'})
 
 const query = `true`
@@ -58,7 +62,7 @@ beforeEach(() => {
 })
 
 describe('the Sanity request context', () => {
-  const request = new Request('https://example.com')
+  const request = new Request('http://localhost')
   const sanityContext = createSanityContext({request, cache, client})
 
   it('should return a client', () => {
@@ -96,10 +100,29 @@ describe('the Sanity request context', () => {
     )
     expect(cache.put).toHaveBeenCalledOnce()
   })
+
+  it('should use the API CDN', () => {
+    expect(sanityContext.client.config().useCdn).toBe(true)
+  })
+
+  it('should set a default API version', () => {
+    expect(sanityContext.client.config().apiVersion).toBe(DEFAULT_API_VERSION.slice(1))
+  })
+
+  it('should warn if no API version is specified', () => {
+    createSanityContext({request, cache, client})
+    expect(warn).toHaveBeenCalledOnce()
+    expect(warn.mock.lastCall?.at(0)).toMatchInlineSnapshot(`
+      "No API version specified, defaulting to \`v2025-02-19\` which supports perspectives and Content Releases.
+
+      You can find the latest version in the Sanity changelog: https://www.sanity.io/changelog'"
+    `)
+  })
 })
 
-describe('when configured for preview', () => {
-  const request = new Request('https://example.com')
+describe('when configured for preview', async () => {
+  const request = new Request('http://localhost')
+  const session = await SanityPreviewSession.init(request, ['secret'])
   const previewContext = createSanityContext({
     request,
     cache,
@@ -107,18 +130,12 @@ describe('when configured for preview', () => {
     preview: {
       enabled: true,
       token: 'my-token',
-      studioUrl: 'https://example.com',
+      studioUrl: '/',
+      session,
     },
   })
 
-  it('should throw if a token is not provided', () => {
-    expect(() =>
-      // @ts-expect-error meant to test invalid configuration
-      createSanityContext({client, preview: {enabled: true}}),
-    ).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
-  })
-
-  it.todo(`shouldn't use API CDN`, () => {
+  it(`shouldn't use API CDN`, () => {
     expect(previewContext.client.config().useCdn).toBe(false)
   })
 

@@ -1,6 +1,11 @@
+import {
+  type ClientPerspective,
+  type QueryParams,
+  type QueryWithoutParams,
+  validateApiPerspective,
+} from '@sanity/client'
 import type {HydrogenSession} from '@shopify/hydrogen'
-
-import type {QueryParams, QueryWithoutParams} from './client'
+import type {SanityPreviewSession} from './preview/session'
 
 /**
  * Create an SHA-256 hash as a hex string
@@ -47,4 +52,14 @@ export function assertSession(session: unknown): session is HydrogenSession {
     'commit' in session &&
     typeof session.commit === 'function'
   )
+}
+
+export function getPerspective(session: SanityPreviewSession): ClientPerspective {
+  if (!session.has('perspective')) {
+    return 'published'
+  }
+
+  const perspective = session.get('perspective').split(',')
+  validateApiPerspective(perspective)
+  return perspective
 }
