@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.4](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.3...v4.3.4) (2025-07-11)
+
+### Bug Fixes
+
+- **deps:** allow studio v4 in peer dep ranges + main.yml update ([#128](https://github.com/sanity-io/hydrogen-sanity/issues/128)) ([956e72f](https://github.com/sanity-io/hydrogen-sanity/commit/956e72f0d96c9350050d0ac61eb66e9d5c85c6b3))
+
 ## [4.3.3](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.2...v4.3.3) (2025-02-06)
 
 ### Bug Fixes
