@@ -112,10 +112,10 @@
     "vitest-github-actions-reporter": "^0.11.1"
   },
   "peerDependencies": {
-    "@sanity/client": "^6.18.0",
+    "@sanity/client": "^6.18.0 || ^7.0.0",
     "@shopify/hydrogen": "^2023.7.0 || ~2024.1.0 || ~2024.4.0 || ~2024.7.0 || ~2024.10.0 || ~2025.1.0",
     "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
-    "groq": "^3.41.0",
+    "groq": "^3.41.0 || ^4.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
