@@ -57,6 +57,8 @@ interface RequestInit {
     /**
      * Optional debugging information to be displayed in the subrequest profiler.
      * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
+     *
+     * NOTE: Only available in recent version of Hydrogen.
      */
     debug?: {
       displayName: string
@@ -154,15 +156,15 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
       const queryHash = await hashQuery(query, params)
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
-      const runWithCache = async function runWithCache({
-        addDebugData,
-      }: Parameters<Parameters<WithCache['run']>[1]>[0]): Promise<QueryResponseInitial<T>> {
+      const runWithCache = async function runWithCache(
+        args?: Parameters<Parameters<WithCache['run']>[1]>[0],
+      ): Promise<QueryResponseInitial<T>> {
         // eslint-disable-next-line no-process-env
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development' && args?.addDebugData) {
           // Name displayed in the subrequest profiler
           const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
 
-          addDebugData({
+          args.addDebugData({
             displayName,
           })
         }
