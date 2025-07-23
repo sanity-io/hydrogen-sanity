@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.5](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.4...v4.3.5) (2025-07-23)
+
+### Bug Fixes
+
+- fix backwards compatibility for `addDebugData` ([#129](https://github.com/sanity-io/hydrogen-sanity/issues/129)) ([09bcebb](https://github.com/sanity-io/hydrogen-sanity/commit/09bcebbec966ac704a3d117717419f1e8eb19f09))
+
 ## [4.3.4](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.3...v4.3.4) (2025-07-11)
 
 ### Bug Fixes
