@@ -1,4 +1,4 @@
-import {VisualEditing} from '@sanity/visual-editing/remix'
+import {VisualEditing} from '@sanity/visual-editing/react-router'
 
 /**
  * Prevent a consumer from importing into a worker/server bundle.

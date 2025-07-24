@@ -1,4 +1,4 @@
-import type {VisualEditingProps} from '@sanity/visual-editing/remix'
+import type {VisualEditingProps} from '@sanity/visual-editing/react-router'
 import {lazy, type ReactElement, Suspense} from 'react'
 
 /**
