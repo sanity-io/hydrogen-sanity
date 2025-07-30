@@ -20,9 +20,6 @@ if (typeof document === 'undefined') {
 export default function LiveVisualEditing(
   props: ComponentProps<typeof VisualEditing>,
 ): JSX.Element {
-  // eslint-disable-next-line no-console
-  console.log('LiveVisualEditing', props)
-
   const maybePresentation = useSyncExternalStore(
     noop,
     () => isMaybePresentation(),
