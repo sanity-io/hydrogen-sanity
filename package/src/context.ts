@@ -1,3 +1,4 @@
+import {validateApiPerspective, type ClientPerspective} from '@sanity/client'
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
 import {
   CacheLong,
@@ -43,7 +44,7 @@ export type CreateSanityContextOptions = {
   /**
    * Configuration for enabling preview mode.
    */
-  preview?: {enabled: boolean; token: string; studioUrl: string}
+  preview?: {enabled: boolean; token: string; studioUrl: string; perspective?: string}
 }
 
 interface RequestInit {
@@ -124,7 +125,9 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
     const previewClient = client.withConfig({
       useCdn: false,
       token: preview.token,
-      perspective: 'previewDrafts' as const,
+      perspective: preview.perspective
+        ? sanitizePerspective(preview.perspective)
+        : ('previewDrafts' as const),
       stega: {
         ...client.config().stega,
         enabled: true,
@@ -182,4 +185,19 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   }
 
   return sanity
+}
+
+function sanitizePerspective(_perspective: unknown): Exclude<ClientPerspective, 'raw'> {
+  const perspective =
+    typeof _perspective === 'string' && _perspective.includes(',')
+      ? _perspective.split(',')
+      : _perspective
+  try {
+    validateApiPerspective(perspective)
+    return perspective === 'raw' ? 'drafts' : perspective
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid perspective:`, _perspective, perspective, err)
+    return 'drafts'
+  }
 }

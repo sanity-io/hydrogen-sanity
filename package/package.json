@@ -1,6 +1,6 @@
 {
   "name": "hydrogen-sanity",
-  "version": "4.3.5",
+  "version": "4.4.0-canary.1",
   "description": "Sanity.io toolkit for Hydrogen",
   "keywords": [
     "sanity",
@@ -83,10 +83,13 @@
   },
   "dependencies": {
     "@sanity/client": "^7.8.1",
+    "@sanity/comlink": "^3.0.8",
+    "@sanity/presentation-comlink": "^1.0.26",
     "@sanity/preview-url-secret": "^2.1.14",
-    "@sanity/react-loader": "^1.11.15",
+    "@sanity/react-loader": "^1.11.16",
     "@sanity/visual-editing": "^2.15.4",
-    "groq": "^4.1.1"
+    "groq": "^4.1.1",
+    "use-effect-event": "^2.0.3"
   },
   "devDependencies": {
     "@sanity/pkg-utils": "^6.11.11",

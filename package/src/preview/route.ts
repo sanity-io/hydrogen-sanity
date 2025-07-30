@@ -62,11 +62,17 @@ export const loader: LoaderFunction = async ({context, request}) => {
       token: sanity.preview.token,
     })
 
-    const {isValid, redirectTo = '/'} = await validatePreviewUrl(clientWithToken, request.url)
+    const {
+      isValid,
+      redirectTo = '/',
+      studioPreviewPerspective = 'drafts',
+    } = await validatePreviewUrl(clientWithToken, request.url)
 
     if (!isValid) {
       return new Response('Invalid secret', {status: 401})
     }
+
+    await session.set('perspective', studioPreviewPerspective)
 
     // TODO: make this a callback? `onEnterPreview`?
     await session.set('projectId', projectId)
