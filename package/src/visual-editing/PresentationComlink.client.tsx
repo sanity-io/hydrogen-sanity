@@ -12,38 +12,28 @@ import {useEffectEvent} from 'use-effect-event'
 export default function PresentationComlink(): JSX.Element | null {
   const submit = useSubmit()
 
-  const handlePerspectiveChange = useEffectEvent(
-    (perspective: ClientPerspective, signal: AbortSignal) => {
-      // eslint-disable-next-line no-console
-      console.log('handlePerspectiveChange', perspective, signal)
-      const formData = new FormData()
-      formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
-      submit(formData, {
-        method: 'put',
-        action: '/resource/preview',
-        navigate: false,
-        preventScrollReset: true,
-      })
-    },
-  )
+  const handlePerspectiveChange = useEffectEvent((perspective: ClientPerspective) => {
+    const formData = new FormData()
+    formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
+    submit(formData, {
+      method: 'put',
+      action: '/resource/preview',
+      navigate: false,
+      preventScrollReset: true,
+    })
+  })
 
   useEffect(
     () => {
       const comlink = createNode<LoaderNodeMsg, LoaderControllerMsg>(
-        {
-          name: 'loaders',
-          connectTo: 'presentation',
-        },
+        {name: 'loaders', connectTo: 'presentation'},
         createNodeMachine<LoaderNodeMsg, LoaderControllerMsg>().provide({
           actors: createCompatibilityActors<LoaderNodeMsg>(),
         }),
       )
 
-      let controller: AbortController | undefined
       comlink.on('loader/perspective', (data) => {
-        controller?.abort()
-        controller = new AbortController()
-        handlePerspectiveChange(data.perspective, controller.signal)
+        handlePerspectiveChange(data.perspective)
       })
 
       const stop = comlink.start()
