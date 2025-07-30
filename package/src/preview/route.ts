@@ -3,12 +3,64 @@ import type {HydrogenSession} from '@shopify/hydrogen'
 import {type ActionFunction, json, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
 
 import type {SanityContext} from '../context'
+import {sanitizePerspective} from '../sanitizePerspective'
 import {assertSession} from '../utils'
 
 /**
- * A `POST` request to this route will exit preview mode
+ * A `POST` request to this route will exit preview mode, a `PUT` request will change the preview perspective
+ * TODO use `DELETE` instead of `POST` for exiting
  */
 export const action: ActionFunction = async ({context, request}) => {
+  if (request.method === 'PUT') {
+    try {
+      const {sanity, session} = context as {sanity: SanityContext; session: HydrogenSession}
+      const projectId = sanity.client.config().projectId
+
+      if (!sanity.preview) {
+        return new Response('Preview mode is not enabled in this environment.', {status: 403})
+      }
+
+      if (!sanity.preview.token) {
+        throw new Error('Enabling preview mode requires a token.')
+      }
+
+      if (!projectId) {
+        throw new Error('No `projectId` found in the client config.')
+      }
+
+      if (!assertSession(session)) {
+        throw new Error('Session is not an instance of HydrogenSession')
+      }
+
+      const sessionProjectId = await session.get('projectId')
+      if (sessionProjectId && sessionProjectId !== projectId) {
+        return new Response('Invalid projectId', {status: 400})
+      }
+
+      const formData = await request.formData()
+      const formPerspective = formData.get('perspective')
+
+      if (!formPerspective || typeof formPerspective !== 'string') {
+        return new Response('Invalid perspective', {status: 400})
+      }
+      const perspective = sanitizePerspective(formPerspective)
+      await session.set(
+        'perspective',
+        Array.isArray(perspective) ? perspective.join(',') : perspective,
+      )
+
+      return new Response('OK', {status: 204})
+    } catch (error) {
+      console.error(error)
+      throw new Response(
+        'Unable to change preview mode perspective. Please check your preview configuration',
+        {
+          status: 500,
+        },
+      )
+    }
+  }
+
   if (request.method !== 'POST') {
     return json({message: 'Method not allowed'}, 405)
   }

@@ -1,3 +1,4 @@
+import {useSubmit} from '@remix-run/react'
 import type {ClientPerspective} from '@sanity/client'
 import {createNode, createNodeMachine} from '@sanity/comlink'
 import {
@@ -9,10 +10,15 @@ import {type JSX, useEffect} from 'react'
 import {useEffectEvent} from 'use-effect-event'
 
 export default function PresentationComlink(): JSX.Element | null {
+  const submit = useSubmit()
+
   const handlePerspectiveChange = useEffectEvent(
     (perspective: ClientPerspective, signal: AbortSignal) => {
       // eslint-disable-next-line no-console
       console.log('handlePerspectiveChange', perspective, signal)
+      const formData = new FormData()
+      formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
+      submit(formData, {method: 'put', action: '/resource/preview', navigate: false})
     },
   )
 

@@ -1,4 +1,3 @@
-import {validateApiPerspective, type ClientPerspective} from '@sanity/client'
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
 import {
   CacheLong,
@@ -17,6 +16,7 @@ import {
   SanityClient,
 } from './client'
 import {hashQuery} from './utils'
+import {sanitizePerspective} from './sanitizePerspective'
 
 const DEFAULT_CACHE_STRATEGY = CacheLong()
 
@@ -185,19 +185,4 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   }
 
   return sanity
-}
-
-function sanitizePerspective(_perspective: unknown): Exclude<ClientPerspective, 'raw'> {
-  const perspective =
-    typeof _perspective === 'string' && _perspective.includes(',')
-      ? _perspective.split(',')
-      : _perspective
-  try {
-    validateApiPerspective(perspective)
-    return perspective === 'raw' ? 'drafts' : perspective
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn(`Invalid perspective:`, _perspective, perspective, err)
-    return 'drafts'
-  }
 }
