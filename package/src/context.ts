@@ -16,6 +16,7 @@ import {
   SanityClient,
 } from './client'
 import {hashQuery} from './utils'
+import {sanitizePerspective} from './sanitizePerspective'
 
 const DEFAULT_CACHE_STRATEGY = CacheLong()
 
@@ -43,7 +44,7 @@ export type CreateSanityContextOptions = {
   /**
    * Configuration for enabling preview mode.
    */
-  preview?: {enabled: boolean; token: string; studioUrl: string}
+  preview?: {enabled: boolean; token: string; studioUrl: string; perspective?: string}
 }
 
 interface RequestInit {
@@ -124,7 +125,9 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
     const previewClient = client.withConfig({
       useCdn: false,
       token: preview.token,
-      perspective: 'previewDrafts' as const,
+      perspective: preview.perspective
+        ? sanitizePerspective(preview.perspective)
+        : ('previewDrafts' as const),
       stega: {
         ...client.config().stega,
         enabled: true,
