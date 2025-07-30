@@ -18,7 +18,12 @@ export default function PresentationComlink(): JSX.Element | null {
       console.log('handlePerspectiveChange', perspective, signal)
       const formData = new FormData()
       formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
-      submit(formData, {method: 'put', action: '/resource/preview', navigate: false})
+      submit(formData, {
+        method: 'put',
+        action: '/resource/preview',
+        navigate: false,
+        preventScrollReset: true,
+      })
     },
   )
 

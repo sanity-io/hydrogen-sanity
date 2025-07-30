@@ -49,7 +49,7 @@ export const action: ActionFunction = async ({context, request}) => {
         Array.isArray(perspective) ? perspective.join(',') : perspective,
       )
 
-      return new Response('OK', {status: 204})
+      return new Response('OK', {status: 200})
     } catch (error) {
       console.error(error)
       throw new Response(
