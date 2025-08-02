@@ -311,6 +311,12 @@ importers:
       '@sanity/client':
         specifier: ^7.8.1
         version: 7.8.1
+      '@sanity/comlink':
+        specifier: ^3.0.8
+        version: 3.0.8
+      '@sanity/presentation-comlink':
+        specifier: ^1.0.27
+        version: 1.0.27(@sanity/client@7.8.1)(@sanity/types@3.52.4)
       '@sanity/preview-url-secret':
         specifier: ^2.1.14
         version: 2.1.14(@sanity/client@7.8.1)
@@ -323,7 +329,13 @@ importers:
       groq:
         specifier: ^4.2.0
         version: 4.2.0
+      use-effect-event:
+        specifier: ^2.0.3
+        version: 2.0.3(react@18.3.1)
     devDependencies:
+      '@remix-run/react':
+        specifier: ^2.8.0
+        version: 2.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       '@sanity/pkg-utils':
         specifier: ^6.11.11
         version: 6.11.11(@types/babel__core@7.20.5)(@types/node@22.9.0)(typescript@5.6.3)
@@ -2516,34 +2528,42 @@ packages:
   '@miniflare/cache@2.14.2':
     resolution: {integrity: sha512-XH218Y2jxSOfxG8EyuprBKhI/Fn6xLrb9A39niJBlzpiKXqr8skl/sy/sUL5tfvqEbEnqDagGne8zEcjM+1fBg==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/core@2.14.2':
     resolution: {integrity: sha512-n/smm5ZTg7ilGM4fxO7Gxhbe573oc8Za06M3b2fO+lPWqF6NJcEKdCC+sJntVFbn3Cbbd2G1ChISmugPfmlCkQ==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/queues@2.14.2':
     resolution: {integrity: sha512-OylkRs4lOWKvGnX+Azab3nx+1qwC87M36/hkgAU1RRvVDCOxOrYLvNLUczFfgmgMBwpYsmmW8YOIASlI3p4Qgw==}
     engines: {node: '>=16.7'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/runner-vm@2.14.2':
     resolution: {integrity: sha512-WlyxAQ+bv/9Pm/xnbpgAg7RNX4pz/q3flytUoo4z4OrRmNEuXrbMUsJZnH8dziqzrZ2gCLkYIEzeaTmSQKp5Jg==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/shared@2.14.2':
     resolution: {integrity: sha512-dDnYIztz10zDQjaFJ8Gy9UaaBWZkw3NyhFdpX6tAeyPA/2lGvkftc42MYmNi8s5ljqkZAtKgWAJnSf2K75NCJw==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/storage-memory@2.14.2':
     resolution: {integrity: sha512-9Wtz9mayHIY0LDsfpMGx+/sfKCq3eAQJzYY+ju1tTEaKR0sVAuO51wu0wbyldsjj9OcBcd2X32iPbIa7KcSZQQ==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/watcher@2.14.2':
     resolution: {integrity: sha512-/TL0np4uYDl+6MdseDApZmDdlJ6Y7AY5iDY0TvUQJG9nyBoCjX6w0Zn4SiKDwO6660rPtSqZ5c7HzbPhGb5vsA==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@miniflare/web-sockets@2.14.2':
     resolution: {integrity: sha512-kpbVlznPuxNQahssQvZiNPQo/iPme7qV3WMQeg6TYNCkYD7n6vEqeFZ5E/eQgB59xCanpvw4Ci8y/+SdMK6BUg==}
     engines: {node: '>=16.13'}
+    deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
   '@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1':
     resolution: {integrity: sha512-54/JRvkLIzzDWshCWfuhadfrfZVPiElY8Fcgmg1HroEly/EDSszzhBAsarCux+D/kOslTRquNzuyGSmUSTTHGg==}
@@ -3277,8 +3297,8 @@ packages:
     peerDependencies:
       eslint: '>=8.0.0'
 
-  '@sanity/presentation-comlink@1.0.26':
-    resolution: {integrity: sha512-3HZv1Vt4SatGkLgAo3Nwm1flWe/DCvw1JfBf9+o5xHUfFhFGEGc1WmoszxaXLXmCY7LhfIszoMFNn44sWhCrYw==}
+  '@sanity/presentation-comlink@1.0.27':
+    resolution: {integrity: sha512-MJJ6h6yatx0KrkIl38IRSFEk0CgBVEcC0azOxI2yJY3tH9Vda8DynEGtqVsNI1snbEUZYHk3tNjk0pe9PjEBlw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@sanity/client': ^7.8.1
@@ -3366,6 +3386,16 @@ packages:
 
   '@sanity/visual-editing-types@1.1.4':
     resolution: {integrity: sha512-ARy2IsHWQm/rj+8q/NqcPR3IFILztI3Nfdw0INOSSXCA56pVMYXNApYY9DzZr5Do6KgQCsUa2QpammwtoIu/ug==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@sanity/client': ^7.8.1
+      '@sanity/types': '*'
+    peerDependenciesMeta:
+      '@sanity/types':
+        optional: true
+
+  '@sanity/visual-editing-types@1.1.5':
+    resolution: {integrity: sha512-jDQyO59R9TG7QC6XQ5n8PVWCVRdebez1ws9d8j1HVmPzjIhWRkyQbA/xrfrtYDPo/vuVD8wUbkXOh1TScITVXQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@sanity/client': ^7.8.1
@@ -5542,6 +5572,7 @@ packages:
 
   eslint-plugin-hydrogen@0.12.2:
     resolution: {integrity: sha512-lOSvBbyUsJ7f2ljcdK/PHDqO5Woe1E1C4S56an9vCh0LMWa25FCTzu6YGzA9O5yu/gipn3nRZuuUvTPYPNtOPw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       eslint: '>=8.0.0'
 
@@ -7856,6 +7887,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-emoji@2.1.3:
     resolution: {integrity: sha512-E2WEOVsgs7O16zsURJ/eH8BqhF029wGpEOnv7Urwdo2wmQanOACwJQh0devF9D9RhoZru0+9JXIS0dBXIAz+lA==}
@@ -13787,7 +13819,7 @@ snapshots:
   '@sanity/bifur-client@0.4.1':
     dependencies:
       nanoid: 3.3.8
-      rxjs: 7.8.1
+      rxjs: 7.8.2
 
   '@sanity/block-tools@3.52.4(debug@4.4.0)':
     dependencies:
@@ -13828,7 +13860,7 @@ snapshots:
     dependencies:
       '@sanity/eventsource': 5.0.2
       get-it: 8.6.5(debug@4.4.0)
-      rxjs: 7.8.1
+      rxjs: 7.8.2
     transitivePeerDependencies:
       - debug
 
@@ -13873,7 +13905,7 @@ snapshots:
     dependencies:
       '@sanity/client': 7.8.1
       '@sanity/comlink': 3.0.8
-      '@sanity/presentation-comlink': 1.0.26(@sanity/client@7.8.1)(@sanity/types@3.52.4)
+      '@sanity/presentation-comlink': 1.0.27(@sanity/client@7.8.1)(@sanity/types@3.52.4)
       '@sanity/visual-editing-csm': 2.0.22(@sanity/client@7.8.1)(@sanity/types@3.52.4)(typescript@5.6.3)
     transitivePeerDependencies:
       - '@sanity/types'
@@ -14163,11 +14195,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@sanity/presentation-comlink@1.0.26(@sanity/client@7.8.1)(@sanity/types@3.52.4)':
+  '@sanity/presentation-comlink@1.0.27(@sanity/client@7.8.1)(@sanity/types@3.52.4)':
     dependencies:
       '@sanity/client': 7.8.1
       '@sanity/comlink': 3.0.8
-      '@sanity/visual-editing-types': 1.1.4(@sanity/client@7.8.1)(@sanity/types@3.52.4)
+      '@sanity/visual-editing-types': 1.1.5(@sanity/client@7.8.1)(@sanity/types@3.52.4)
     transitivePeerDependencies:
       - '@sanity/types'
 
@@ -14186,7 +14218,7 @@ snapshots:
       mendoza: 3.0.7
       mnemonist: 0.39.8
       path-to-regexp: 6.2.2
-      rxjs: 7.8.1
+      rxjs: 7.8.2
       suspend-react: 0.1.3(react@18.3.1)
     transitivePeerDependencies:
       - react
@@ -14244,7 +14276,7 @@ snapshots:
     dependencies:
       lodash: 4.17.21
       react: 18.3.1
-      rxjs: 7.8.1
+      rxjs: 7.8.2
       typeid-js: 0.3.0
 
   '@sanity/types@3.37.2(debug@4.4.0)':
@@ -14299,7 +14331,7 @@ snapshots:
       '@sanity/types': 3.37.2(debug@4.4.0)
       get-random-values-esm: 1.0.2
       moment: 2.30.1
-      rxjs: 7.8.1
+      rxjs: 7.8.2
     transitivePeerDependencies:
       - debug
 
@@ -14309,7 +14341,7 @@ snapshots:
       '@sanity/types': 3.52.4(debug@4.4.0)
       get-random-values-esm: 1.0.2
       moment: 2.30.1
-      rxjs: 7.8.1
+      rxjs: 7.8.2
     transitivePeerDependencies:
       - debug
 
@@ -14333,13 +14365,19 @@ snapshots:
     optionalDependencies:
       '@sanity/types': 3.52.4(debug@4.4.0)
 
+  '@sanity/visual-editing-types@1.1.5(@sanity/client@7.8.1)(@sanity/types@3.52.4)':
+    dependencies:
+      '@sanity/client': 7.8.1
+    optionalDependencies:
+      '@sanity/types': 3.52.4(debug@4.4.0)
+
   '@sanity/visual-editing@3.0.0(@emotion/is-prop-valid@1.2.2)(@remix-run/react@2.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(@sanity/client@7.8.1)(@sanity/types@3.52.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react-router@6.26.0(react@18.3.1))(react@18.3.1)(styled-components@6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.6.3)':
     dependencies:
       '@sanity/comlink': 3.0.8
       '@sanity/icons': 3.7.4(react@18.3.1)
       '@sanity/insert-menu': 2.0.0(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.52.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/mutate': 0.11.0-canary.4(xstate@5.20.1)
-      '@sanity/presentation-comlink': 1.0.26(@sanity/client@7.8.1)(@sanity/types@3.52.4)
+      '@sanity/presentation-comlink': 1.0.27(@sanity/client@7.8.1)(@sanity/types@3.52.4)
       '@sanity/preview-url-secret': 2.1.14(@sanity/client@7.8.1)
       '@sanity/ui': 3.0.5(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/visual-editing-csm': 2.0.22(@sanity/client@7.8.1)(@sanity/types@3.52.4)(typescript@5.6.3)

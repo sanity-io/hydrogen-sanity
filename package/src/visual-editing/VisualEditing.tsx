@@ -1,6 +1,8 @@
 import type {VisualEditingProps} from '@sanity/visual-editing/remix'
 import {lazy, type ReactElement, Suspense} from 'react'
 
+import type {PresentationComlinkProps} from './PresentationComlink.client'
+
 /**
  * Provide a consistent fallback to prevent hydration mismatch errors.
  */
@@ -24,7 +26,7 @@ const VisualEditingComponent =
           import('./VisualEditing.client'),
       )
 
-export function VisualEditing(props: VisualEditingProps): ReactElement {
+export function VisualEditing(props: VisualEditingProps & PresentationComlinkProps): ReactElement {
   return (
     <Suspense>
       <VisualEditingComponent {...props} />
