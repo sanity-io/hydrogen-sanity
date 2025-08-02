@@ -132,7 +132,7 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   if (client.config().apiVersion === '1') {
     console.warn(
       `
-No API version specified, defaulting to \`${DEFAULT_API_VERSION}\` which supports perspectives.
+No API version specified, defaulting to \`${DEFAULT_API_VERSION}\` which supports perspectives and Content Releases.
 You can find the latest version in the Sanity changelog: https://www.sanity.io/changelog.
     `.trim(),
     )
