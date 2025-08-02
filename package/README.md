@@ -59,7 +59,7 @@ Update the server file to include the Sanity Loader, and optionally, configure t
 // ./lib/context.ts
 
 // ...all other imports
-import {createSanityContext} from 'hydrogen-sanity';
+import {createSanityContext} from 'hydrogen-sanity'
 
 export async function createAppLoadContext(
   request: Request,
@@ -67,11 +67,11 @@ export async function createAppLoadContext(
   executionContext: ExecutionContext,
 ) {
   // ... Leave all other functions like the Hydrogen context as-is
-  const waitUntil = executionContext.waitUntil.bind(executionContext);
+  const waitUntil = executionContext.waitUntil.bind(executionContext)
   const [cache, session] = await Promise.all([
     caches.open('hydrogen'),
     AppSession.init(request, [env.SESSION_SECRET]),
-  ]);
+  ])
 
   // 1. Configure the Sanity Loader and preview mode
   const sanity = createSanityContext({
@@ -85,7 +85,7 @@ export async function createAppLoadContext(
     client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET || 'production',
-      apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
+      apiVersion: env.SANITY_API_VERSION || 'v2025-02-19',
       useCdn: process.env.NODE_ENV === 'production',
 
       // In preview mode, `stega` will be enabled automatically
@@ -94,7 +94,7 @@ export async function createAppLoadContext(
       // stega: {
       //   logger: console
       // }
-    }),
+    },
 
     // You can also initialize a client and pass it instead
     // client: createClient({
@@ -109,20 +109,13 @@ export async function createAppLoadContext(
 
     // Optionally, enable Visual Editing
     // See "Visual Editing" section below to setup the preview route
-    // preview: env.SANITY_API_TOKEN
-    //   ? {
-    //       enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
-    //       token: env.SANITY_API_TOKEN,
-    //       studioUrl: 'http://localhost:3333',
-    //     }
-    //   : undefined,
   })
 
   // 2. Make Sanity available to loaders and actions in the request context
   return {
     ...hydrogenContext,
     sanity,
-  };
+  }
 }
 ```
 
@@ -252,7 +245,48 @@ Enable real-time, interactive live preview inside the Presentation tool of your 
 >
 > These instructions assume some familiarity with Sanity's Visual Editing concepts, like loaders and overlays. To learn more, please visit the [Visual Editing documentation](https://www.sanity.io/docs/introduction-to-visual-editing).
 
-First set up your root route to enable preview mode across the entire application, if the preview session is active:
+First import and instantiate the preview session, which `hydrogen-sanity` will use to manage entering, exiting, and updating the perspective of preview mode.
+
+```ts
+// ./lib/context.ts
+
+// ...all other imports
+import {createSanityContext} from 'hydrogen-sanity'
+import {PreviewSession} from 'hydrogen-snaity/preview/session'
+
+export async function createAppLoadContext(
+  request: Request,
+  env: Env,
+  executionContext: ExecutionContext,
+) {
+  // ...
+
+  const [cache, session, previewSession] = await Promise.all([
+    caches.open('hydrogen'),
+    AppSession.init(request, [env.SESSION_SECRET]),
+    PreviewSession.init(request, [env.SESSION_SECRET]),
+  ])
+
+  const sanity = createSanityContext({
+    // ...
+
+    preview: env.SANITY_API_TOKEN
+      ? {
+          token: env.SANITY_API_TOKEN,
+          studioUrl: 'http://localhost:3333',
+          session: previewSession,
+        }
+      : undefined,
+  })
+
+  return {
+    ...hydrogenContext,
+    sanity,
+  }
+}
+```
+
+Then, set up your root route to enable preview mode across the entire application, if the preview session is active:
 
 ```tsx
 // ./app/root.tsx
@@ -283,7 +317,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ...rest of the root layout */}
 
         {/* Conditionally render `VisualEditing` component only when in preview mode */}
-        {data?.isPreviewEnabled ? <VisualEditing /> : null}
+        {data?.isPreviewEnabled ? <VisualEditing action="/api/preview" /> : null}
 
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
@@ -312,10 +346,7 @@ Add this route to your project like below, or view the source to copy and modify
 ```tsx
 // ./app/routes/api.preview.ts
 
-export {loader} from 'hydrogen-sanity/preview/route'
-
-// Optionally, export the supplied action which will disable preview mode when POSTed to
-// export {action, loader} from 'hydrogen-sanity/preview/route'
+export {action, loader} from 'hydrogen-sanity/preview/route'
 ```
 
 ### Setup CORS for front-end domains
