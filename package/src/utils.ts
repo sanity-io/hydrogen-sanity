@@ -1,6 +1,11 @@
 import type {HydrogenSession} from '@shopify/hydrogen'
 
-import type {QueryParams, QueryWithoutParams} from './client'
+import {
+  type ClientPerspective,
+  type QueryParams,
+  type QueryWithoutParams,
+  validateApiPerspective,
+} from './client'
 
 /**
  * Create an SHA-256 hash as a hex string
@@ -47,4 +52,42 @@ export function assertSession(session: unknown): session is HydrogenSession {
     'commit' in session &&
     typeof session.commit === 'function'
   )
+}
+
+export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspective, 'raw'> {
+  let sanitizedPerspective: unknown = 'drafts'
+  try {
+    sanitizedPerspective =
+      typeof perspective === 'string' && perspective.includes(',')
+        ? perspective.split(',')
+        : perspective
+
+    validateApiPerspective(sanitizedPerspective)
+
+    return sanitizedPerspective === 'raw' ? 'drafts' : sanitizedPerspective
+  } catch (err) {
+    console.warn(`Invalid perspective:`, sanitizedPerspective, err)
+    return 'drafts'
+  }
+}
+
+/**
+ * Check if API version supports perspective stack (v2025-02-19 or later)
+ * Special versions: '1' doesn't support perspectives, 'X' does support perspectives
+ */
+export function supportsPerspectiveStack(apiVersion: string): boolean {
+  // Special cases
+  if (apiVersion === '1') return false
+  if (apiVersion === 'X') return true
+
+  // Normalize version by removing 'v' prefix if present
+  const normalizedVersion = `${apiVersion}`.replace(/^v/, '')
+
+  // Parse date format: 2025-02-19
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedVersion)) return false
+
+  const versionDate = new Date(normalizedVersion)
+  const cutoffDate = new Date('2025-02-19')
+
+  return versionDate >= cutoffDate
 }
