@@ -137,3 +137,74 @@ describe('when configured for preview', () => {
     expect(cache.put).not.toHaveBeenCalledOnce()
   })
 })
+
+describe('session-based preview detection', () => {
+  const request = new Request('https://example.com')
+
+  const mockSession = {
+    get: vi.fn(),
+    set: vi.fn(),
+    unset: vi.fn(),
+    commit: vi.fn(),
+    has: vi.fn(),
+    destroy: vi.fn(),
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should enable preview when provided session contains matching project ID', () => {
+    mockSession.get.mockReturnValue('my-project-id')
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        studioUrl: 'https://example.com',
+        session: mockSession,
+      },
+    })
+
+    expect(context.preview?.enabled).toBe(true)
+    expect(mockSession.get).toHaveBeenCalledWith('projectId')
+  })
+
+  it('should disable preview when provided session contains different project ID', () => {
+    mockSession.get.mockReturnValue('different-project-id')
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        studioUrl: 'https://example.com',
+        session: mockSession,
+      },
+    })
+
+    expect(context.preview?.enabled).toBe(false)
+    expect(mockSession.get).toHaveBeenCalledWith('projectId')
+  })
+
+  it('should disable preview when provided session contains no project ID', () => {
+    mockSession.get.mockReturnValue(undefined)
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        studioUrl: 'https://example.com',
+        session: mockSession,
+      },
+    })
+
+    expect(context.preview?.enabled).toBe(false)
+    expect(mockSession.get).toHaveBeenCalledWith('projectId')
+  })
+})
