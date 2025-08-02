@@ -6,6 +6,7 @@ import {
   type QueryWithoutParams,
   validateApiPerspective,
 } from './client'
+import type {SanityPreviewSession} from './preview/session'
 
 /**
  * Create an SHA-256 hash as a hex string
@@ -37,21 +38,6 @@ export function hashQuery(
   }
 
   return sha256(hash)
-}
-
-export function assertSession(session: unknown): session is HydrogenSession {
-  return (
-    !!session &&
-    typeof session === 'object' &&
-    'get' in session &&
-    typeof session.get === 'function' &&
-    'set' in session &&
-    typeof session.set === 'function' &&
-    'unset' in session &&
-    typeof session.unset === 'function' &&
-    'commit' in session &&
-    typeof session.commit === 'function'
-  )
 }
 
 export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspective, 'raw'> {
@@ -90,4 +76,35 @@ export function supportsPerspectiveStack(apiVersion: string): boolean {
   const cutoffDate = new Date('2025-02-19')
 
   return versionDate >= cutoffDate
+}
+
+export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
+  const perspective = session.get('perspective')!.split(',')
+  validateApiPerspective(perspective)
+  return perspective
+}
+
+export function isSanityPreviewSession(session: unknown): session is SanityPreviewSession {
+  return (
+    isHydrogenSession(session) &&
+    'has' in session &&
+    typeof session.has === 'function' &&
+    'destroy' in session &&
+    typeof session.destroy === 'function'
+  )
+}
+
+export function isHydrogenSession(session: unknown): session is HydrogenSession {
+  return (
+    !!session &&
+    typeof session === 'object' &&
+    'get' in session &&
+    typeof session.get === 'function' &&
+    'set' in session &&
+    typeof session.set === 'function' &&
+    'unset' in session &&
+    typeof session.unset === 'function' &&
+    'commit' in session &&
+    typeof session.commit === 'function'
+  )
 }
