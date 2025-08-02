@@ -92,12 +92,16 @@
   },
   "dependencies": {
     "@sanity/client": "^7.8.1",
+    "@sanity/comlink": "^3.0.8",
+    "@sanity/presentation-comlink": "^1.0.27",
     "@sanity/preview-url-secret": "^2.1.14",
     "@sanity/react-loader": "^1.11.16",
     "@sanity/visual-editing": "^3.0.0",
-    "groq": "^4.2.0"
+    "groq": "^4.2.0",
+    "use-effect-event": "^2.0.3"
   },
   "devDependencies": {
+    "@remix-run/react": "^2.8.0",
     "@sanity/pkg-utils": "^6.11.11",
     "@sanity/plugin-kit": "^4.0.18",
     "@sanity/semantic-release-preset": "^4.1.8",
@@ -121,6 +125,7 @@
     "vitest-github-actions-reporter": "^0.11.1"
   },
   "peerDependencies": {
+    "@remix-run/react": "^2.0.0",
     "@sanity/client": "^6.18.0 || ^7.0.0",
     "@shopify/hydrogen": "^2023.7.0 || ^2024.1.0 || ~2025.1.0",
     "@shopify/remix-oxygen": "^1.0.0 || ^2.0.0",
