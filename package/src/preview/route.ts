@@ -1,34 +1,108 @@
 import {validatePreviewUrl} from '@sanity/preview-url-secret'
-import type {HydrogenSession} from '@shopify/hydrogen'
-import {type ActionFunction, json, type LoaderFunction, redirect} from '@shopify/remix-oxygen'
+import {
+  type ActionFunction,
+  AppLoadContext,
+  type LoaderFunction,
+  redirect,
+} from '@shopify/remix-oxygen'
 
 import type {SanityContext} from '../context'
-import {assertSession} from '../utils'
+import {sanitizePerspective} from '../utils'
+import {isHydrogenSession, isSanityPreviewSession} from '../utils'
+
+function getSession(context: AppLoadContext) {
+  const preview = (context.sanity as SanityContext)?.preview
+  const session =
+    preview && 'session' in preview && preview.session ? preview.session : context.session
+  return session
+}
 
 /**
- * A `POST` request to this route will exit preview mode
+ * A `POST` or `DELETE` request to this route will disable preview mode
+ * A `PUT` request will change the preview perspective
  */
 export const action: ActionFunction = async ({context, request}) => {
-  if (request.method !== 'POST') {
-    return json({message: 'Method not allowed'}, 405)
-  }
+  switch (request.method) {
+    case 'POST':
+    case 'DELETE': {
+      try {
+        const session = getSession(context)
 
-  try {
-    const {session} = context
-    if (!assertSession(session)) {
-      throw new Error('Session is not an instance of HydrogenSession')
+        const headers = new Headers()
+        if (isSanityPreviewSession(session)) {
+          headers.set('Set-Cookie', await session.destroy())
+        } else if (isHydrogenSession(session)) {
+          session.unset('projectId')
+          headers.set('Set-Cookie', await session.commit())
+        }
+
+        return redirect('/', {
+          headers,
+        })
+      } catch (error) {
+        console.error(error)
+        throw new Response(
+          'Unable to disable preview mode. Please check your preview configuration',
+          {
+            status: 500,
+          },
+        )
+      }
     }
 
-    // TODO: make this a callback? `onExitPreview`?
-    await session.unset('projectId')
+    case 'PUT': {
+      try {
+        const sanity = context.sanity as SanityContext
 
-    // TODO: confirm that the redirect and setting cookie has to happen here?
-    return redirect('/')
-  } catch (error) {
-    console.error(error)
-    throw new Response('Unable to disable preview mode. Please check your preview configuration', {
-      status: 500,
-    })
+        if (!sanity.preview) {
+          return new Response('Preview mode is not enabled in this environment.', {status: 403})
+        }
+
+        if (!sanity.preview.token) {
+          throw new Error('Enabling preview mode requires a token.')
+        }
+
+        if (!sanity.preview) {
+          return new Response('Preview mode is not enabled in this environment.', {status: 403})
+        }
+
+        if (!sanity.preview.token) {
+          throw new Error('Enabling preview mode requires a token.')
+        }
+
+        const session = getSession(context)
+        if (!isHydrogenSession(session)) {
+          throw new Error('Session is not an instance of HydrogenSession')
+        }
+
+        const projectId = sanity.client.config().projectId
+        if (!projectId) {
+          throw new Error('No `projectId` found in the client config.')
+        }
+
+        const sessionProjectId = session.get('projectId')
+        if (sessionProjectId && sessionProjectId !== projectId) {
+          return new Response('Invalid projectId', {status: 400})
+        }
+
+        const formData = await request.formData()
+        const perspective = sanitizePerspective(formData.get('perspective'))
+        session.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
+
+        return new Response('OK', {status: 200})
+      } catch (error) {
+        console.error(error)
+        throw new Response(
+          'Unable to enable preview mode. Please check your preview configuration',
+          {
+            status: 500,
+          },
+        )
+      }
+    }
+
+    default:
+      return new Response('Method not allowed', {status: 405})
   }
 }
 
@@ -37,9 +111,8 @@ export const action: ActionFunction = async ({context, request}) => {
  */
 export const loader: LoaderFunction = async ({context, request}) => {
   try {
-    // TODO: to remove
-    const {sanity, session} = context as {sanity: SanityContext; session: HydrogenSession}
-    const projectId = sanity.client.config().projectId
+    const session = getSession(context)
+    const sanity = context.sanity as SanityContext
 
     if (!sanity.preview) {
       return new Response('Preview mode is not enabled in this environment.', {status: 403})
@@ -49,11 +122,12 @@ export const loader: LoaderFunction = async ({context, request}) => {
       throw new Error('Enabling preview mode requires a token.')
     }
 
+    const projectId = sanity.client.config().projectId
     if (!projectId) {
       throw new Error('No `projectId` found in the client config.')
     }
 
-    if (!assertSession(session)) {
+    if (!isHydrogenSession(session)) {
       throw new Error('Session is not an instance of HydrogenSession')
     }
 
@@ -62,17 +136,24 @@ export const loader: LoaderFunction = async ({context, request}) => {
       token: sanity.preview.token,
     })
 
-    const {isValid, redirectTo = '/'} = await validatePreviewUrl(clientWithToken, request.url)
+    const {
+      isValid,
+      redirectTo = '/',
+      studioPreviewPerspective = 'drafts',
+    } = await validatePreviewUrl(clientWithToken, request.url)
 
     if (!isValid) {
       return new Response('Invalid secret', {status: 401})
     }
 
-    // TODO: make this a callback? `onEnterPreview`?
     await session.set('projectId', projectId)
+    await session.set('perspective', studioPreviewPerspective)
 
-    // TODO: confirm that the redirect and setting cookie has to happen here?
-    return redirect(redirectTo)
+    return redirect(redirectTo, {
+      headers: {
+        'Set-Cookie': await session.commit(),
+      },
+    })
   } catch (error) {
     console.error(error)
     throw new Response('Unable to enable preview mode. Please check your preview configuration', {

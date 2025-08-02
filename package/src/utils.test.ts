@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
-import {getPerspective} from './preview/session'
+import {getPerspective} from './utils'
 import {sanitizePerspective, supportsPerspectiveStack} from './utils'
 
 describe('sanitizePerspective', () => {

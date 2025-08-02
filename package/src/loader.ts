@@ -17,7 +17,7 @@ import {
 } from './client'
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
-import {getPerspective} from './preview/session'
+import {getPerspective} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
 export type CreateSanityLoaderOptions = {
