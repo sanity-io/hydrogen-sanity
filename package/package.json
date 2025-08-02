@@ -36,6 +36,12 @@
       "require": "./dist/preview/route.cjs",
       "default": "./dist/preview/route.js"
     },
+    "./preview/session": {
+      "source": "./src/preview/session.ts",
+      "import": "./dist/preview/session.js",
+      "require": "./dist/preview/session.cjs",
+      "default": "./dist/preview/session.js"
+    },
     "./visual-editing": {
       "source": "./src/visual-editing/index.ts",
       "import": "./dist/visual-editing/index.js",
@@ -57,6 +63,9 @@
     "*": {
       "preview/route": [
         "./dist/preview/route.d.ts"
+      ],
+      "preview/session": [
+        "./dist/preview/session.d.ts"
       ],
       "visual-editing": [
         "./dist/visual-editing/index.d.ts"
