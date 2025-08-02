@@ -1,4 +1,5 @@
 import {perspectiveCookieName} from '@sanity/preview-url-secret/constants'
+import type {HydrogenSession} from '@shopify/hydrogen'
 import {createCookieSessionStorage, type Session, type SessionStorage} from '@shopify/remix-oxygen'
 
 import {type ClientPerspective, validateApiPerspective} from '../client'
@@ -69,11 +70,7 @@ export class PreviewSession implements SanityPreviewSession {
   }
 }
 
-export function getPerspective(session: SanityPreviewSession): ClientPerspective {
-  if (!session.has('perspective')) {
-    return 'published'
-  }
-
+export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
   const perspective = session.get('perspective')!.split(',')
   validateApiPerspective(perspective)
   return perspective
