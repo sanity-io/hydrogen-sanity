@@ -6,3 +6,6 @@
 [x] - Test TypeGen
 [ ] - Add migration documentation
 [ ] - Update README
+[ ] - Adjust preview session handling
+    [ ] - Retrieve initial Studio perspective
+    [ ] - 
