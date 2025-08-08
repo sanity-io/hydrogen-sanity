@@ -146,8 +146,8 @@ export const loader: LoaderFunction = async ({context, request}) => {
       return new Response('Invalid secret', {status: 401})
     }
 
-    await session.set('projectId', projectId)
-    await session.set('perspective', studioPreviewPerspective)
+    session.set('projectId', projectId)
+    session.set('perspective', studioPreviewPerspective)
 
     return redirect(redirectTo, {
       headers: {
