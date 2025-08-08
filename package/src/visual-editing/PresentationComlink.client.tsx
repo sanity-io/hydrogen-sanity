@@ -24,7 +24,7 @@ export default function PresentationComlink({action}: PresentationComlinkProps):
     const formData = new FormData()
     formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
     submit(formData, {
-      method: 'put',
+      method: 'PUT',
       action,
       navigate: false,
       preventScrollReset: true,
