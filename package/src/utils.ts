@@ -41,20 +41,14 @@ export function hashQuery(
 }
 
 export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspective, 'raw'> {
-  let sanitizedPerspective: unknown = 'drafts'
-  try {
-    sanitizedPerspective =
-      typeof perspective === 'string' && perspective.includes(',')
-        ? perspective.split(',')
-        : perspective
+  const sanitizedPerspective =
+    typeof perspective === 'string' && perspective.includes(',')
+      ? perspective.split(',')
+      : perspective
 
-    validateApiPerspective(sanitizedPerspective)
+  validateApiPerspective(sanitizedPerspective)
 
-    return sanitizedPerspective === 'raw' ? 'drafts' : sanitizedPerspective
-  } catch (err) {
-    console.warn(`Invalid perspective:`, sanitizedPerspective, err)
-    return 'drafts'
-  }
+  return sanitizedPerspective === 'raw' ? 'drafts' : sanitizedPerspective
 }
 
 /**

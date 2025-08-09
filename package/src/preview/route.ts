@@ -33,6 +33,7 @@ export const action: ActionFunction = async ({context, request}) => {
           headers.set('Set-Cookie', await session.destroy())
         } else if (isHydrogenSession(session)) {
           session.unset('projectId')
+          session.unset('perspective')
           headers.set('Set-Cookie', await session.commit())
         }
 
@@ -89,7 +90,12 @@ export const action: ActionFunction = async ({context, request}) => {
         const perspective = sanitizePerspective(formData.get('perspective'))
         session.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
 
-        return new Response('OK', {status: 200})
+        return new Response('OK', {
+          status: 200,
+          headers: {
+            'Set-Cookie': await session.commit(),
+          },
+        })
       } catch (error) {
         console.error(error)
         throw new Response(
