@@ -27,9 +27,11 @@ export default function VisualEditing(
   let {action, ...visualEditingProps} = props
 
   if (!action) {
-    console.warn(
-      'No action URL provided for the visual editing component to set a new perspective. Defaulting to "/api/preview".',
-    )
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        'No action URL provided for the visual editing component to set a new perspective. Defaulting to "/api/preview".',
+      )
+    }
     action = '/api/preview'
   }
 

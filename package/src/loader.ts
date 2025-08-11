@@ -127,12 +127,14 @@ export function createSanityLoader(options: CreateSanityLoaderOptions): SanityLo
     options.client instanceof SanityClient ? options.client : createClient(options.client)
 
   if (client.config().apiVersion === '1') {
-    console.warn(
-      `
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        `
 No API version specified, defaulting to \`${DEFAULT_API_VERSION}\` which supports perspectives and Content Releases.
 You can find the latest version in the Sanity changelog: https://www.sanity.io/changelog.
     `.trim(),
-    )
+      )
+    }
     client = client.withConfig({apiVersion: DEFAULT_API_VERSION})
   }
 
@@ -159,9 +161,11 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
           perspective = 'drafts'
         }
       } else {
-        console.warn(
-          `API version \`${apiVersion}\` does not support perspective stacks. Using \`previewDrafts\` perspective. Consider upgrading to \`v2025-02-19\` or later for full perspective support.`,
-        )
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(
+            `API version \`${apiVersion}\` does not support perspective stacks. Using \`previewDrafts\` perspective. Consider upgrading to \`v2025-02-19\` or later for full perspective support.`,
+          )
+        }
         perspective = 'previewDrafts'
       }
 
