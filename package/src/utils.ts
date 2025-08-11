@@ -73,7 +73,7 @@ export function supportsPerspectiveStack(apiVersion: string): boolean {
 }
 
 export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
-  const perspective = session.get('perspective')!.split(',')
+  const perspective = session.get('perspective')?.split(',')
   validateApiPerspective(perspective)
   return perspective
 }
