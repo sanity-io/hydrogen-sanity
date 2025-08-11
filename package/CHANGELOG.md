@@ -5,6 +5,24 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.4.0](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.5...v4.4.0) (2025-08-11)
+
+### Features
+
+- add action to preview route to update perspective ([5fc9e0a](https://github.com/sanity-io/hydrogen-sanity/commit/5fc9e0a7e0583c125e39eb532a8009cddd69ffb6))
+- add session-based preview mode and perspective switching ([0e2f4c4](https://github.com/sanity-io/hydrogen-sanity/commit/0e2f4c40b4962fb06baddc2b021705ee82fe1ce1))
+- export preconfigured session ([f0b060d](https://github.com/sanity-io/hydrogen-sanity/commit/f0b060d8554d6174c01c69804cdce71760347fcb))
+- listen for and submit perspective changes ([5028c46](https://github.com/sanity-io/hydrogen-sanity/commit/5028c4660e1be33c86175a4b130b6da7c46208c8))
+- only log console warnings in development ([583cab8](https://github.com/sanity-io/hydrogen-sanity/commit/583cab8f9042665903fc1671c6302b8a8dde64ea))
+- update package dependencies ([3f1ea27](https://github.com/sanity-io/hydrogen-sanity/commit/3f1ea27af5483d9f780830bce4ef5243beda5eff))
+- use `v2025-02-19` as default API version ([69046ed](https://github.com/sanity-io/hydrogen-sanity/commit/69046eddb3e84ca30a4ff604452d3f3cdd2b70a0))
+
+### Bug Fixes
+
+- gracefully handle missing perspective ([96faa10](https://github.com/sanity-io/hydrogen-sanity/commit/96faa10463eb18afdd74e3bf250caebe989d465c))
+- gracefully handle missing perspective ([3ccba83](https://github.com/sanity-io/hydrogen-sanity/commit/3ccba832751a8a216345853cdf8128919a34f6a3))
+- setting perspective on change in session ([a157a6e](https://github.com/sanity-io/hydrogen-sanity/commit/a157a6e9fa29c4e86b3b2e4efe7d46ebc368c7f3))
+
 ## [4.3.5](https://github.com/sanity-io/hydrogen-sanity/compare/v4.3.4...v4.3.5) (2025-07-23)
 
 ### Bug Fixes
