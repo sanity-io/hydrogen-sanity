@@ -1,6 +1,8 @@
 import type {VisualEditingProps} from '@sanity/visual-editing/react-router'
 import {lazy, type ReactElement, Suspense} from 'react'
 
+import type {PresentationComlinkProps} from './PresentationComlink.client'
+
 /**
  * Provide a consistent fallback to prevent hydration mismatch errors.
  */
@@ -10,7 +12,6 @@ function VisualEditingFallback(): ReactElement {
 
 /**
  * If server-side rendering, then return the fallback instead of the heavy dependency.
- * @see https://remix.run/docs/en/1.14.3/guides/constraints#browser-only-code-on-the-server
  */
 const VisualEditingComponent =
   typeof document === 'undefined'
@@ -24,7 +25,7 @@ const VisualEditingComponent =
           import('./VisualEditing.client'),
       )
 
-export function VisualEditing(props: VisualEditingProps): ReactElement {
+export function VisualEditing(props: VisualEditingProps & PresentationComlinkProps): ReactElement {
   return (
     <Suspense>
       <VisualEditingComponent {...props} />
