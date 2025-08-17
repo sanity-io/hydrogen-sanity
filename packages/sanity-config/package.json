@@ -37,32 +37,32 @@
     "extract:watch": "turbo watch --filter=\"@repo/sanity-config\" extract"
   },
   "dependencies": {
-    "@sanity/asset-utils": "^1.3.2",
-    "@sanity/color-input": "^3.1.2",
-    "@sanity/icons": "^2.11.8",
-    "@sanity/ui": "^2.16.2",
-    "@sanity/vision": "^3.97.1",
+    "@sanity/asset-utils": "^2.2.1",
+    "@sanity/color-input": "^4.0.6",
+    "@sanity/icons": "^3.7.4",
+    "@sanity/ui": "^3.0.7",
+    "@sanity/vision": "^4.4.1",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
     "react-compiler-runtime": "19.1.0-rc.2",
-    "sanity-plugin-hotspot-array": "^1.0.1",
-    "sanity-plugin-media": "^2.4.2",
-    "slug": "^8.2.3"
+    "sanity-plugin-hotspot-array": "^3.0.1",
+    "sanity-plugin-media": "^4.0.0",
+    "slug": "^11.0.0"
   },
   "devDependencies": {
     "@portabletext/types": "^2.0.13",
     "@sanity/eslint-config-studio": "^5.0.2",
-    "@sanity/pkg-utils": "^7.9.0",
+    "@sanity/pkg-utils": "^7.11.9",
     "@types/lodash.get": "^4.4.9",
-    "@types/react": "^18.3.23",
+    "@types/react": "^19.1.10",
     "@types/slug": "^5.0.9",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
-    "eslint": "^9.30.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "eslint": "^9.33.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "sanity": "latest",
     "styled-components": "^6.1.19",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "peerDependencies": {
     "react": "^18.3",
