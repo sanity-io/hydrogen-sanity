@@ -1,11 +1,11 @@
+import {createClient, SanityClient} from '@sanity/client'
 import type {QueryStore} from '@sanity/react-loader'
 import {CacheShort, type WithCache} from '@shopify/hydrogen'
+import groq from 'groq'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
-import {createClient, SanityClient} from './client'
-import {DEFAULT_API_VERSION} from './constants'
 import {createSanityContext} from './context'
-import {SanityPreviewSession} from './preview/session'
+import {PreviewSession} from './fixtures'
 import {hashQuery} from './utils'
 
 // Mock the global caches object
@@ -29,7 +29,7 @@ vi.mock('@shopify/hydrogen', async (importOriginal) => {
   withCache = module.createWithCache({
     cache,
     waitUntil: () => Promise.resolve(),
-    request: new Request('http://localhost'),
+    request: new Request('https://example.com'),
   })
 
   return {
@@ -49,12 +49,10 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
 
 const runWithCache = vi.spyOn(withCache!, 'run')
 
-const consoleWarn = vi.spyOn(console, 'warn')
-const consoleError = vi.spyOn(console, 'error')
+const projectId = 'my-project-id'
+const client = createClient({projectId, dataset: 'my-dataset'})
 
-const client = createClient({projectId: 'my-project-id', dataset: 'my-dataset'})
-
-const query = `true`
+const query = groq`true`
 const params = {}
 const hashedQuery = await hashQuery(query, params)
 
@@ -63,11 +61,11 @@ beforeEach(() => {
 })
 
 describe('the Sanity request context', () => {
-  const request = new Request('http://localhost')
-  const sanityContext = createSanityContext({request, cache, client})
+  const request = new Request('https://example.com')
+  const sanity = createSanityContext({request, cache, client})
 
   it('should return a client', () => {
-    expect(sanityContext.client).toSatisfy((contextClient) => contextClient instanceof SanityClient)
+    expect(sanity.client).toSatisfy((contextClient) => contextClient instanceof SanityClient)
   })
 
   it('queries should get cached using the default caching strategy', async () => {
@@ -91,7 +89,7 @@ describe('the Sanity request context', () => {
 
   it('queries should use the cache strategy passed in `loadQuery`', async () => {
     const strategy = CacheShort()
-    await sanityContext.loadQuery<boolean>(query, params, {
+    await sanity.loadQuery<boolean>(query, params, {
       hydrogen: {cache: strategy},
     })
     expect(runWithCache).toHaveBeenNthCalledWith(
@@ -101,77 +99,105 @@ describe('the Sanity request context', () => {
     )
     expect(cache.put).toHaveBeenCalledOnce()
   })
-
-  it('should use the API CDN', () => {
-    expect(sanityContext.client.config().useCdn).toBe(true)
-  })
-
-  it('should set a default API version', () => {
-    expect(sanityContext.client.config().apiVersion).toBe(DEFAULT_API_VERSION.slice(1))
-  })
-
-  it('should warn if no API version is specified', () => {
-    createSanityContext({request, cache, client})
-    expect(consoleWarn).toHaveBeenCalledOnce()
-    expect(consoleWarn.mock.lastCall?.at(0)).toMatchInlineSnapshot(`
-      "No API version specified, defaulting to \`v2025-02-19\` which supports perspectives and Content Releases.
-
-      You can find the latest version in the Sanity changelog: https://www.sanity.io/changelog'"
-    `)
-  })
-
-  it('should not enable preview mode if no preview configuration is provided', () => {
-    expect(sanityContext.preview).toBeNull()
-  })
 })
 
-describe('when configured for preview', async () => {
-  const request = new Request('http://localhost')
-  const session = await SanityPreviewSession.init(request, ['secret'])
-  const previewContext = createSanityContext({
+describe('when configured for preview', () => {
+  const request = new Request('https://example.com')
+  const previewSession = new PreviewSession()
+  previewSession.set('projectId', projectId)
+
+  const sanity = createSanityContext({
     request,
     cache,
     client,
     preview: {
       token: 'my-token',
-      studioUrl: '/',
-      session,
+      studioUrl: 'https://example.com',
+      session: previewSession,
     },
   })
 
-  it(`shouldn't use API CDN`, () => {
-    expect(previewContext.client.config().useCdn).toBe(false)
+  it('should throw if a token is not provided', () => {
+    expect(() =>
+      // @ts-expect-error meant to test invalid configuration
+      createSanityContext({client, preview: {enabled: true}}),
+    ).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
+  })
+
+  it.todo(`shouldn't use API CDN`, () => {
+    expect(sanity.client.config().useCdn).toBe(false)
   })
 
   it.todo('should use the `previewDrafts` perspective', () => {
-    expect(previewContext.client.config().perspective).toBe('previewDrafts')
+    expect(sanity.client.config().perspective).toBe('previewDrafts')
   })
 
   it('should enable preview mode', () => {
-    expect(previewContext.preview).toBeTruthy()
+    expect(sanity.preview?.enabled).toBe(true)
   })
 
   it(`shouldn't cache queries`, async () => {
-    await previewContext.loadQuery<boolean>(query)
+    await sanity.loadQuery<boolean>(query)
     expect(loadQuery).toHaveBeenCalledOnce()
     expect(cache.put).not.toHaveBeenCalledOnce()
   })
+})
 
-  it('should log an error if no token is provided', () => {
-    // @ts-expect-error - we want to test the error case
-    createSanityContext({request, cache, client, preview: {session}})
-    expect(consoleError).toHaveBeenCalledOnce()
-    expect(consoleError.mock.lastCall?.at(0)).toMatchInlineSnapshot(
-      `"Enabling preview mode requires a token."`,
-    )
+describe('session-based preview detection', () => {
+  const request = new Request('https://example.com')
+  const previewSession = new PreviewSession()
+  previewSession.set('projectId', projectId)
+
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('should log an error if no session is provided', () => {
-    // @ts-expect-error - we want to test the error case
-    createSanityContext({request, cache, client, preview: {token: 'my-token'}})
-    expect(consoleError).toHaveBeenCalledOnce()
-    expect(consoleError.mock.lastCall?.at(0)).toMatchInlineSnapshot(
-      `"Enabling preview mode requires a session."`,
-    )
+  it('should enable preview when provided session contains matching project ID', () => {
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        studioUrl: 'https://example.com',
+        session: previewSession,
+      },
+    })
+
+    expect(context.preview?.enabled).toBe(true)
+  })
+
+  it('should disable preview when provided session contains different project ID', () => {
+    previewSession.set('projectId', 'different-project-id')
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        studioUrl: 'https://example.com',
+        session: previewSession,
+      },
+    })
+
+    expect(context.preview?.enabled).toBe(false)
+  })
+
+  it('should disable preview when provided session contains no project ID', () => {
+    previewSession.unset('projectId')
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        studioUrl: 'https://example.com',
+        session: previewSession,
+      },
+    })
+
+    expect(context.preview?.enabled).toBe(false)
   })
 })

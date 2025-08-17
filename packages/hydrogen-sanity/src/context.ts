@@ -8,15 +8,23 @@ import {
   type QueryWithoutParams,
   type ResponseQueryOptions,
   SanityClient,
-  validateApiPerspective,
 } from '@sanity/client'
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
-import {CacheNone, type CachingStrategy, createWithCache} from '@shopify/hydrogen'
+import {
+  CacheNone,
+  type CachingStrategy,
+  createWithCache,
+  type HydrogenSession,
+} from '@shopify/hydrogen'
 
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
-import type {SanitySession} from './preview'
+import type {SanityPreviewSession} from './preview/session'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
-import {hashQuery} from './utils'
+import {getPerspective} from './utils'
+import {hashQuery, supportsPerspectiveStack} from './utils'
+
+let didWarnAboutNoApiVersion = false
+let didWarnAboutNoPerspectiveSupport = false
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -43,7 +51,7 @@ export type CreateSanityContextOptions = {
   preview?: {
     token: string
     studioUrl: string
-    session: SanitySession
+    session: SanityPreviewSession | HydrogenSession
   }
 }
 
@@ -96,17 +104,17 @@ export interface SanityContext {
 
   client: SanityClient
 
-  preview: CreateSanityContextOptions['preview'] | null
-}
+  preview?: CreateSanityContextOptions['preview'] & {
+    /**
+     * Whether preview mode is currently enabled based on session detection
+     */
+    enabled: boolean
 
-function getPerspective(session: SanitySession): ClientPerspective {
-  if (!session.has('perspective')) {
-    return 'published'
+    /**
+     * The client used for preview requests.
+     */
+    previewClient: SanityClient
   }
-
-  const perspective = session.get('perspective')!.split(',')
-  validateApiPerspective(perspective)
-  return perspective
 }
 
 /**
@@ -117,22 +125,49 @@ export function createSanityContext(options: CreateSanityContextOptions): Sanity
   const withCache = cache ? createWithCache({cache, waitUntil, request}) : null
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
-  let enabled = false
 
   if (client.config().apiVersion === '1') {
-    console.warn(
-      `
+    if (process.env.NODE_ENV === 'development' && !didWarnAboutNoApiVersion) {
+      console.warn(
+        `
 No API version specified, defaulting to \`${DEFAULT_API_VERSION}\` which supports perspectives and Content Releases.
 You can find the latest version in the Sanity changelog: https://www.sanity.io/changelog.
     `.trim(),
-    )
+      )
+
+      didWarnAboutNoApiVersion = false
+    }
     client = client.withConfig({apiVersion: DEFAULT_API_VERSION})
   }
 
+  // Determine if preview is enabled using session-based detection or legacy enabled flag
+  let isPreviewEnabled = false
+  let previewClient: SanityClient | undefined
   if (preview) {
-    if (preview.token && preview.session) {
-      const perspective = getPerspective(preview.session)
-      client = client.withConfig({
+    if (!preview.token) {
+      throw new Error('Enabling preview mode requires a token.')
+    }
+
+    const sessionProjectId = preview.session?.get('projectId')
+    isPreviewEnabled = Boolean(sessionProjectId && sessionProjectId === client.config().projectId)
+
+    if (isPreviewEnabled) {
+      const apiVersion = client.config().apiVersion
+      let perspective: ClientPerspective
+      if (supportsPerspectiveStack(apiVersion)) {
+        perspective = getPerspective(preview.session)
+      } else {
+        if (process.env.NODE_ENV === 'development' && !didWarnAboutNoPerspectiveSupport) {
+          console.warn(
+            `API version \`${apiVersion}\` does not support perspective stacks. Using \`previewDrafts\` perspective. Consider upgrading to \`v2025-02-19\` or later for full perspective support.`,
+          )
+
+          didWarnAboutNoPerspectiveSupport = true
+        }
+        perspective = 'previewDrafts'
+      }
+
+      previewClient = client.withConfig({
         useCdn: false,
         token: preview.token,
         perspective,
@@ -142,20 +177,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
           studioUrl: preview.studioUrl,
         },
       })
-
-      enabled = true
-    } else {
-      if (!preview.token) {
-        console.error('Enabling preview mode requires a token.')
-      }
-
-      if (!preview.session) {
-        console.error('Enabling preview mode requires a session.')
-      }
     }
   }
 
-  setServerClient(client)
+  setServerClient(previewClient ?? client)
 
   const sanity = {
     async loadQuery<Result = Any, Query extends string = string>(
@@ -168,7 +193,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       }
 
       // Don't store response if preview is enabled
-      const cacheStrategy = enabled
+      const cacheStrategy = isPreviewEnabled
         ? CacheNone()
         : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
 
@@ -193,8 +218,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         },
       )
     },
+
     client,
-    preview: enabled ? preview : null,
+
+    preview: preview ? {...preview, previewClient: client, enabled: isPreviewEnabled} : undefined,
   }
 
   return sanity

@@ -1,18 +1,20 @@
 import {perspectiveCookieName} from '@sanity/preview-url-secret/constants'
 import {createCookieSessionStorage, type Session, type SessionStorage} from 'react-router'
 
-type SanitySessionData = {perspective: string}
-
-export interface SanitySession {
-  has: Session<SanitySessionData, never>['has']
-  get: Session<SanitySessionData, never>['get']
-  set: Session<SanitySessionData, never>['set']
-  unset: Session<SanitySessionData, never>['unset']
-  commit: () => ReturnType<SessionStorage<SanitySessionData, never>['commitSession']>
-  destroy: () => ReturnType<SessionStorage<SanitySessionData, never>['destroySession']>
+interface PreviewSessionData {
+  perspective: string
 }
 
-export class SanityPreviewSession implements SanitySession {
+export interface SanityPreviewSession {
+  has: Session<PreviewSessionData, never>['has']
+  get: Session<PreviewSessionData, never>['get']
+  set: Session<PreviewSessionData, never>['set']
+  unset: Session<PreviewSessionData, never>['unset']
+  commit: () => ReturnType<SessionStorage<PreviewSessionData, never>['commitSession']>
+  destroy: () => ReturnType<SessionStorage<PreviewSessionData, never>['destroySession']>
+}
+
+export class PreviewSession implements SanityPreviewSession {
   #sessionStorage
   #session
 
@@ -21,7 +23,7 @@ export class SanityPreviewSession implements SanitySession {
     this.#session = session
   }
 
-  static async init(request: Request, secrets: string[]): Promise<SanityPreviewSession> {
+  static async init(request: Request, secrets: string[]): Promise<PreviewSession> {
     const storage = createCookieSessionStorage({
       cookie: {
         name: perspectiveCookieName,
@@ -40,27 +42,27 @@ export class SanityPreviewSession implements SanitySession {
     return new this(storage, session)
   }
 
-  get has(): SanitySession['has'] {
+  get has(): SanityPreviewSession['has'] {
     return this.#session.has
   }
 
-  get get(): SanitySession['get'] {
+  get get(): SanityPreviewSession['get'] {
     return this.#session.get
   }
 
-  get unset(): SanitySession['unset'] {
+  get unset(): SanityPreviewSession['unset'] {
     return this.#session.unset
   }
 
-  get set(): SanitySession['set'] {
+  get set(): SanityPreviewSession['set'] {
     return this.#session.set
   }
 
-  destroy(): ReturnType<SanitySession['destroy']> {
+  destroy(): ReturnType<SanityPreviewSession['destroy']> {
     return this.#sessionStorage.destroySession(this.#session)
   }
 
-  commit(): ReturnType<SanitySession['commit']> {
+  commit(): ReturnType<SanityPreviewSession['commit']> {
     return this.#sessionStorage.commitSession(this.#session)
   }
 }
