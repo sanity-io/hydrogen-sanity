@@ -39,15 +39,15 @@
 ## Installation
 
 ```sh
-npm install hydrogen-sanity
+npm install hydrogen-sanity @sanity/client
 ```
 
 ```sh
-yarn add hydrogen-sanity
+yarn add hydrogen-sanity @sanity/client
 ```
 
 ```sh
-pnpm install hydrogen-sanity
+pnpm install hydrogen-sanity @sanity/client
 ```
 
 ### Add Vite plugin
@@ -111,28 +111,18 @@ export async function createAppLoadContext(
       // stega: {
       //   logger: console
       // }
-    }),
+    },
 
     // You can also initialize a client and pass it instead
     // client: createClient({
     //   projectId: env.SANITY_PROJECT_ID,
     //   dataset: env.SANITY_DATASET,
-    //   apiVersion: env.SANITY_API_VERSION || '2023-03-30',
+    //   apiVersion: env.SANITY_API_VERSION,
     //   useCdn: process.env.NODE_ENV === 'production',
     // }),
 
     // Optionally, set a default cache strategy, defaults to `CacheLong`
     // strategy: CacheShort() | null,
-
-    // Optionally, enable Visual Editing
-    // See "Visual Editing" section below to setup the preview route
-    // preview: env.SANITY_API_TOKEN
-    //   ? {
-    //       enabled: session.get('projectId') === env.SANITY_PROJECT_ID,
-    //       token: env.SANITY_API_TOKEN,
-    //       studioUrl: 'http://localhost:3333',
-    //     }
-    //   : undefined,
   })
 
   // 2. Make Sanity available to loaders and actions in the request context
@@ -345,7 +335,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
 }
 ```
 
-This Visual Editing component will trigger incremental updates to draft documents from the server for users with a valid preview session. [Duplicate its source](https://github.com/sanity-io/visual-editing/blob/main/packages/visual-editing/src/remix/VisualEditing.tsx) into your own project if you wish to customize its behavior.
+This Visual Editing component will trigger incremental updates to draft documents from the server for users with a valid preview session. [Duplicate its source](https://github.com/sanity-io/visual-editing/blob/main/packages/visual-editing/src/react-router/VisualEditing.tsx) into your own project if you wish to customize its behavior.
 
 ### Enabling preview mode
 
@@ -364,10 +354,7 @@ Add this route to your project like below, or view the source to copy and modify
 ```tsx
 // ./app/routes/api.preview.ts
 
-export {loader} from 'hydrogen-sanity/preview/route'
-
-// Optionally, export the supplied action which will disable preview mode when POSTed to
-// export {action, loader} from 'hydrogen-sanity/preview/route'
+export {action, loader} from 'hydrogen-sanity/preview/route'
 ```
 
 ### Setup CORS for front-end domains
@@ -394,7 +381,7 @@ export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext,
+  reactRouterContext: EntryContext,
   context: AppLoadContext,
 ) {
   const projectId = context.env.SANITY_PROJECT_ID
