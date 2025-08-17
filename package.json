@@ -17,18 +17,18 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.0.0",
-    "prettier": "^3.5.3",
-    "prettier-plugin-packagejson": "^2.5.14",
-    "turbo": "^2.5.3",
-    "vitest": "^3.1.4",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
+    "prettier-plugin-packagejson": "^2.5.19",
+    "turbo": "^2.5.6",
+    "vitest": "^3.2.4",
     "vitest-github-actions-reporter": "^0.11.1"
   },
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.14.0",
   "pnpm": {
     "overrides": {
       "hydrogen-sanity": "workspace:*",
-      "sanity": "latest"
+      "sanity": "^4"
     }
   }
 }
