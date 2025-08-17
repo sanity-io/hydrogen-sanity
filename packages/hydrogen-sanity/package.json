@@ -7,7 +7,6 @@
     "sanity.io",
     "shopify",
     "hydrogen",
-    "remix",
     "live",
     "preview",
     "react-router"
@@ -50,16 +49,6 @@
       "import": "./dist/vite/index.js",
       "default": "./dist/vite/index.js"
     },
-    "./client": {
-      "source": "./src/client.ts",
-      "import": "./dist/client.js",
-      "default": "./dist/client.js"
-    },
-    "./groq": {
-      "source": "./src/groq.ts",
-      "import": "./dist/groq.js",
-      "default": "./dist/groq.js"
-    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -78,12 +67,6 @@
       ],
       "vite": [
         "./dist/vite/index.d.ts"
-      ],
-      "client": [
-        "./dist/client.d.ts"
-      ],
-      "groq": [
-        "./dist/groq.d.ts"
       ]
     }
   },
@@ -102,38 +85,41 @@
     "watch": "pkg-utils watch --strict"
   },
   "dependencies": {
-    "@sanity/client": "^7.3.0",
-    "@sanity/preview-url-secret": "^2.1.11",
-    "@sanity/react-loader": "^1.11.10",
-    "@sanity/visual-editing": "^2.13.22",
-    "groq": "^3.90.0",
-    "react-compiler-runtime": "19.1.0-rc.2"
+    "@sanity/comlink": "^3.0.9",
+    "@sanity/presentation-comlink": "^1.0.28",
+    "@sanity/preview-url-secret": "^2.1.14",
+    "@sanity/react-loader": "^1.11.18",
+    "@sanity/visual-editing": "^3.0.3",
+    "react-compiler-runtime": "19.1.0-rc.2",
+    "use-effect-event": "^2.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.27.0",
+    "@eslint/js": "^9.33.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@sanity/pkg-utils": "^7.2.2",
+    "@sanity/client": "^7.8.2",
+    "@sanity/pkg-utils": "^7.11.9",
     "@sanity/semantic-release-preset": "^5.0.0",
     "@shopify/hydrogen": "~2025.5.0",
-    "@types/react": "^18.3.22",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
-    "@typescript-eslint/parser": "^8.32.1",
+    "@types/react": "^18.3.23",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
-    "eslint": "^9.27.0",
-    "eslint-config-prettier": "^10.1.5",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-config-sanity": "^7.1.4",
-    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "groq": "^4.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "7.6.0",
-    "semantic-release": "^24.2.5",
-    "typescript": "^5.8.3",
+    "semantic-release": "^24.2.7",
+    "typescript": "^5.9.2",
     "vite": "^6.3.5",
-    "vitest": "^3.1.4"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "@sanity/client": "^7",
