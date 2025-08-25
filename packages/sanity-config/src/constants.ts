@@ -1,5 +1,6 @@
 // Currency code (ISO 4217) to use when displaying prices in the studio
 
+import type {FieldGroupDefinition} from 'sanity'
 import ShopifyIcon from './components/icons/Shopify'
 import {ColorWheelIcon, ComposeIcon, SearchIcon} from '@sanity/icons'
 
@@ -36,7 +37,7 @@ export const SANITY_API_VERSION = '2022-10-25'
 export const SHOPIFY_STORE_ID = ''
 
 // Field groups used through schema types
-export const GROUPS = [
+export const GROUPS: FieldGroupDefinition[] = [
   {
     name: 'theme',
     title: 'Theme',

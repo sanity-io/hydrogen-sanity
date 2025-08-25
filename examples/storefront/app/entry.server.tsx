@@ -12,11 +12,20 @@ export default async function handleRequest(
   reactRouterContext: EntryContext,
   context: AppLoadContext,
 ) {
+  const isPreviewEnabled =
+    context.sanity?.preview && context.sanity.preview.enabled;
+
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
+
+    ...(isPreviewEnabled
+      ? {
+          frameAncestors: context.sanity.preview?.studioUrl,
+        }
+      : {}),
   });
 
   const body = await renderToReadableStream(

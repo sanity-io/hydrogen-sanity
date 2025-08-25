@@ -30,9 +30,6 @@ export default defineConfig({
 
   // external: ['rxjs'],
 
-  babel: {reactCompiler: true},
-  reactCompilerOptions: {target: '18'},
-
   // Remove this block to enable strict export validation
   extract: {
     rules: {

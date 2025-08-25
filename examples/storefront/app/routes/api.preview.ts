@@ -1,1 +1,1 @@
-export {action, loader} from 'hydrogen-sanity/preview';
+export {action, loader} from 'hydrogen-sanity/preview/route';

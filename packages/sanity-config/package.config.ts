@@ -5,9 +5,6 @@ export default defineConfig({
   tsconfig: 'tsconfig.dist.json',
   minify: false,
 
-  babel: {reactCompiler: true},
-  reactCompilerOptions: {target: '18'},
-
   // Remove this block to enable strict export validation
   extract: {
     rules: {

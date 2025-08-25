@@ -6,7 +6,7 @@
     "dev": "turbo --ui tui dev",
     "watch:apps": "turbo --ui tui dev --filter=\"./examples/**\"",
     "watch:package": "turbo --ui tui dev --filter=\"hydrogen-sanity\"",
-    "watch:studio-config": "turbo --ui tui dev --filter=\"@repo/studio-config\"",
+    "watch:sanity-config": "turbo --ui tui dev --filter=\"@repo/sanity-config\"",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "lint": "turbo lint",
@@ -24,11 +24,15 @@
     "vitest": "^3.2.4",
     "vitest-github-actions-reporter": "^0.11.1"
   },
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.15.0",
   "pnpm": {
     "overrides": {
       "hydrogen-sanity": "workspace:*",
-      "sanity": "^4"
+      "sanity": "^4.4.1",
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "@types/react": "^18.2.0",
+      "@types/react-dom": "^18.2.0"
     }
   }
 }

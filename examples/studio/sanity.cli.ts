@@ -8,10 +8,6 @@ export default defineCliConfig({
     dataset: 'production',
   },
 
-  reactCompiler: {
-    target: '18',
-  },
-
   reactStrictMode: true,
 
   /**
