@@ -7,6 +7,8 @@ import {type ReactNode, useSyncExternalStore} from 'react'
 
 import PresentationComlink, {type PresentationComlinkProps} from './PresentationComlink.client'
 
+let didWarnAboutNoAction = false
+
 /**
  * Prevent a consumer from importing into a worker/server bundle.
  */
@@ -27,10 +29,12 @@ export default function VisualEditing(
   let {action, ...visualEditingProps} = props
 
   if (!action) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && !didWarnAboutNoAction) {
       console.warn(
         'No action URL provided for the visual editing component to set a new perspective. Defaulting to "/api/preview".',
       )
+
+      didWarnAboutNoAction = true
     }
     action = '/api/preview'
   }
