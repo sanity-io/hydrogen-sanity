@@ -273,7 +273,7 @@ declare module '@sanity/client' {
 Now your queries will have automatic type inference:
 
 ```ts
-import {defineQuery} from 'hydrogen-sanity/groq'
+import {defineQuery} from 'groq'
 
 const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]`)
 
