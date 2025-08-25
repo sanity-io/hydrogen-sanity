@@ -16,6 +16,7 @@ import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import {PageLayout} from './components/PageLayout';
+import {VisualEditing} from 'hydrogen-sanity/visual-editing';
 
 export type RootLoader = typeof loader;
 
@@ -72,7 +73,9 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  const {storefront, env} = args.context;
+  const {storefront, env, sanity} = args.context;
+
+  const isPreviewEnabled = sanity.preview?.enabled ?? false;
 
   return {
     ...deferredData,
@@ -90,6 +93,7 @@ export async function loader(args: LoaderFunctionArgs) {
       country: args.context.storefront.i18n.country,
       language: args.context.storefront.i18n.language,
     },
+    isPreviewEnabled,
   };
 }
 
@@ -167,6 +171,9 @@ export function Layout({children}: {children?: React.ReactNode}) {
         ) : (
           children
         )}
+        {data?.isPreviewEnabled ? (
+          <VisualEditing action="/api/preview" />
+        ) : null}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>

@@ -14,17 +14,15 @@
   },
   "dependencies": {
     "@repo/sanity-config": "workspace:*",
-    "react": "^18.3.1",
-    "react-compiler-runtime": "19.1.0-rc.2",
-    "react-dom": "^18.3.1",
-    "sanity": "latest",
+    "react": "^18.3",
+    "react-dom": "^18.3",
+    "sanity": "^4.5.0",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
-    "@types/react": "^18.3.23",
-    "babel-plugin-react-compiler": "19.1.0-rc.2",
-    "eslint": "^9.33.0",
+    "@types/react": "^18.3",
+    "eslint": "^9.34.0",
     "typescript": "^5.9.2"
   }
 }

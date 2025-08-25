@@ -6,12 +6,12 @@ export default defineStudioConfig({
   projectId,
   presentation: {
     previewUrl: {
-      initial: process.env.SANITY_STUDIO_PREVIEW_URL!,
+      initial: process.env.SANITY_STUDIO_PREVIEW_ORIGIN!,
       previewMode: {
         enable: 'api/preview',
         disable: 'api/preview',
       },
     },
-    allowOrigins: [process.env.SANITY_STUDIO_PREVIEW_URL!],
+    allowOrigins: [process.env.SANITY_STUDIO_PREVIEW_ORIGIN!],
   },
 })

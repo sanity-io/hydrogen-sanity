@@ -1,6 +1,6 @@
 import {createHydrogenContext} from '@shopify/hydrogen';
 import {createSanityContext} from 'hydrogen-sanity';
-import {SanityPreviewSession} from 'hydrogen-sanity/preview';
+import {PreviewSession} from 'hydrogen-sanity/preview/session';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
 
@@ -24,7 +24,7 @@ export async function createAppLoadContext(
   const [cache, session, previewSession] = await Promise.all([
     caches.open('hydrogen'),
     AppSession.init(request, [env.SESSION_SECRET]),
-    SanityPreviewSession.init(request, [env.SESSION_SECRET]),
+    PreviewSession.init(request, [env.SESSION_SECRET]),
   ]);
 
   const hydrogenContext = createHydrogenContext({
