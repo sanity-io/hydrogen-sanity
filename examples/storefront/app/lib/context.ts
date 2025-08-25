@@ -51,7 +51,7 @@ export async function createAppLoadContext(
     },
 
     preview: {
-      studioUrl: env.SANITY_STUDIO_URL,
+      studioUrl: env.SANITY_STUDIO_ORIGIN,
       token: env.SANITY_PREVIEW_TOKEN,
       session: previewSession,
     },

@@ -74,7 +74,7 @@ const sanity = createSanityContext({
   },
 
   preview: {
-    studioUrl: env.SANITY_STUDIO_URL,
+    studioUrl: env.SANITY_STUDIO_ORIGIN,
     token: env.SANITY_PREVIEW_TOKEN,
     // pass your preview session
     session: previewSession,
