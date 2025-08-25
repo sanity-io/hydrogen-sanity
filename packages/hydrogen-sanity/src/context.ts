@@ -135,7 +135,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     `.trim(),
       )
 
-      didWarnAboutNoApiVersion = false
+      didWarnAboutNoApiVersion = true
     }
     client = client.withConfig({apiVersion: DEFAULT_API_VERSION})
   }
