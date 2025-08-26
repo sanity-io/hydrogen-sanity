@@ -102,3 +102,7 @@ export function isHydrogenSession(session: unknown): session is HydrogenSession 
     typeof session.commit === 'function'
   )
 }
+
+export function isServer(): boolean {
+  return typeof document === 'undefined'
+}

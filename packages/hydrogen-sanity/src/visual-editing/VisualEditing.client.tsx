@@ -5,6 +5,7 @@ import {
 } from '@sanity/visual-editing/react-router'
 import {type ReactNode, useSyncExternalStore} from 'react'
 
+import {isServer} from '../utils'
 import PresentationComlink, {type PresentationComlinkProps} from './PresentationComlink.client'
 
 let didWarnAboutNoAction = false
@@ -12,7 +13,7 @@ let didWarnAboutNoAction = false
 /**
  * Prevent a consumer from importing into a worker/server bundle.
  */
-if (typeof document === 'undefined') {
+if (isServer()) {
   throw new Error(
     'Visual editing should only run client-side. Please check that this file is not being imported into a worker or server bundle.',
   )
