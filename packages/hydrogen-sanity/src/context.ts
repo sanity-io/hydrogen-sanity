@@ -113,7 +113,7 @@ export interface SanityContext {
     /**
      * The client used for preview requests.
      */
-    previewClient: SanityClient
+    client: SanityClient
   }
 }
 
@@ -221,7 +221,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
     client,
 
-    preview: preview ? {...preview, previewClient: client, enabled: isPreviewEnabled} : undefined,
+    preview: preview ? {...preview, client: previewClient!, enabled: isPreviewEnabled} : undefined,
   }
 
   return sanity
