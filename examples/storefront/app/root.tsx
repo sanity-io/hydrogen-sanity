@@ -17,6 +17,7 @@ import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import {PageLayout} from './components/PageLayout';
 import {VisualEditing} from 'hydrogen-sanity/visual-editing';
+import {Sanity} from 'hydrogen-sanity';
 
 export type RootLoader = typeof loader;
 
@@ -174,6 +175,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {data?.isPreviewEnabled ? (
           <VisualEditing action="/api/preview" />
         ) : null}
+        <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>

@@ -16,9 +16,11 @@ import {
   createWithCache,
   type HydrogenSession,
 } from '@shopify/hydrogen'
+import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
+import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
 import {getPerspective} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
@@ -115,6 +117,8 @@ export interface SanityContext {
      */
     client: SanityClient
   }
+
+  SanityProvider: (props: PropsWithChildren<object>) => ReactNode
 }
 
 /**
@@ -182,6 +186,15 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
   setServerClient(previewClient ?? client)
 
+  const {apiHost = 'https://api.sanity.io', projectId, dataset} = client.config()
+  const baseUrl = apiHost.replace(/^https:\/\/api\./, 'https://cdn.')
+  const providerValue: SanityProviderValue = {
+    projectId: projectId!,
+    dataset: dataset!,
+    baseUrl,
+    preview: isPreviewEnabled,
+  }
+
   const sanity = {
     async loadQuery<Result = Any, Query extends string = string>(
       query: Query,
@@ -222,6 +235,13 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     client,
 
     preview: preview ? {...preview, client: previewClient!, enabled: isPreviewEnabled} : undefined,
+
+    SanityProvider(props: PropsWithChildren<object>) {
+      return createElement(SanityProvider, {
+        ...props,
+        value: Object.freeze(providerValue),
+      })
+    },
   }
 
   return sanity
