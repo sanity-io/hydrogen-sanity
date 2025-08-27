@@ -12,15 +12,21 @@ export default async function handleRequest(
   reactRouterContext: EntryContext,
   context: AppLoadContext,
 ) {
-  const isPreviewEnabled =
-    context.sanity?.preview && context.sanity.preview.enabled;
+  const {preview, SanityProvider, client} = context.sanity;
+  const {projectId, dataset} = client.config();
+  const isPreviewEnabled = preview?.enabled;
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    defaultSrc: [
+      // TODO: add CSP helpers
+      `https://cdn.sanity.io/images/${projectId}/${dataset}`,
+    ],
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
 
+    // When preview is enabled for the current session, allow the Studio to embed the storefront in the Presentation tool
     ...(isPreviewEnabled
       ? {
           frameAncestors: context.sanity.preview?.studioUrl,
@@ -30,11 +36,13 @@ export default async function handleRequest(
 
   const body = await renderToReadableStream(
     <NonceProvider>
-      <ServerRouter
-        context={reactRouterContext}
-        url={request.url}
-        nonce={nonce}
-      />
+      <SanityProvider>
+        <ServerRouter
+          context={reactRouterContext}
+          url={request.url}
+          nonce={nonce}
+        />
+      </SanityProvider>
     </NonceProvider>,
     {
       nonce,
