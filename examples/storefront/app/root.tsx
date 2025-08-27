@@ -18,6 +18,7 @@ import appStyles from '~/styles/app.css?url';
 import {PageLayout} from './components/PageLayout';
 import {VisualEditing} from 'hydrogen-sanity/visual-editing';
 import {Sanity} from 'hydrogen-sanity';
+import {usePreviewMode} from 'hydrogen-sanity/preview';
 
 export type RootLoader = typeof loader;
 
@@ -74,9 +75,7 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  const {storefront, env, sanity} = args.context;
-
-  const isPreviewEnabled = sanity.preview?.enabled ?? false;
+  const {storefront, env} = args.context;
 
   return {
     ...deferredData,
@@ -94,7 +93,6 @@ export async function loader(args: LoaderFunctionArgs) {
       country: args.context.storefront.i18n.country,
       language: args.context.storefront.i18n.language,
     },
-    isPreviewEnabled,
   };
 }
 
@@ -149,6 +147,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
+  const previewMode = usePreviewMode();
 
   return (
     <html lang="en">
@@ -172,9 +171,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         ) : (
           children
         )}
-        {data?.isPreviewEnabled ? (
-          <VisualEditing action="/api/preview" />
-        ) : null}
+        {previewMode ? <VisualEditing action="/api/preview" /> : null}
         <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
