@@ -49,6 +49,11 @@
       "import": "./dist/vite/index.js",
       "default": "./dist/vite/index.js"
     },
+    "./image": {
+      "source": "./src/image.ts",
+      "import": "./dist/image.js",
+      "default": "./dist/image.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -67,6 +72,9 @@
       ],
       "vite": [
         "./dist/vite/index.d.ts"
+      ],
+      "image": [
+        "./dist/image.d.ts"
       ]
     }
   },
@@ -86,6 +94,7 @@
   },
   "dependencies": {
     "@sanity/comlink": "^3.0.9",
+    "@sanity/image-url": "^1.1.0",
     "@sanity/presentation-comlink": "^1.0.28",
     "@sanity/preview-url-secret": "^2.1.14",
     "@sanity/react-loader": "^1.11.18",

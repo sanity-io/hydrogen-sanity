@@ -186,12 +186,11 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
   setServerClient(previewClient ?? client)
 
-  const {apiHost = 'https://api.sanity.io', projectId, dataset} = client.config()
-  const baseUrl = apiHost.replace(/^https:\/\/api\./, 'https://cdn.')
+  const {apiHost, projectId, dataset} = client.config()
   const providerValue: SanityProviderValue = {
     projectId: projectId!,
     dataset: dataset!,
-    baseUrl,
+    apiHost,
     preview: isPreviewEnabled,
   }
 

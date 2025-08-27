@@ -1,12 +1,11 @@
+import type {InitializedClientConfig} from '@sanity/client'
 import {createContext, type HTMLProps, type ReactNode, useContext, useMemo} from 'react'
 
 import type {SanityContext} from './context'
 import {isServer} from './utils'
 
-export interface SanityProviderValue {
-  projectId: string
-  dataset: string
-  baseUrl: string
+export interface SanityProviderValue
+  extends Required<Pick<InitializedClientConfig, 'projectId' | 'dataset' | 'apiHost'>> {
   preview: boolean
 }
 
