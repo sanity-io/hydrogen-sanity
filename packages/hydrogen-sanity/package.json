@@ -29,11 +29,6 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./preview": {
-      "source": "./src/preview/index.ts",
-      "import": "./dist/preview/index.js",
-      "default": "./dist/preview/index.js"
-    },
     "./preview/route": {
       "source": "./src/preview/route.ts",
       "import": "./dist/preview/route.js",
@@ -54,11 +49,6 @@
       "import": "./dist/vite/index.js",
       "default": "./dist/vite/index.js"
     },
-    "./image": {
-      "source": "./src/image.ts",
-      "import": "./dist/image.js",
-      "default": "./dist/image.js"
-    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -66,9 +56,6 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "preview": [
-        "./dist/preview/index.d.ts"
-      ],
       "preview/route": [
         "./dist/preview/route.d.ts"
       ],
@@ -80,9 +67,6 @@
       ],
       "vite": [
         "./dist/vite/index.d.ts"
-      ],
-      "image": [
-        "./dist/image.d.ts"
       ]
     }
   },
