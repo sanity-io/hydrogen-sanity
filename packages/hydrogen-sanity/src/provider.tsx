@@ -1,8 +1,5 @@
 import type {InitializedClientConfig} from '@sanity/client'
-import {createContext, type HTMLProps, type ReactNode, useContext, useMemo} from 'react'
-
-import type {SanityContext} from './context'
-import {isServer} from './utils'
+import type {HTMLProps, PropsWithChildren, ReactNode} from 'react'
 
 export interface SanityProviderValue
   extends Required<Pick<InitializedClientConfig, 'projectId' | 'dataset' | 'apiHost'>> {
@@ -19,21 +16,23 @@ export function assertSanityProviderValue(value: unknown): value is SanityProvid
   return true
 }
 
-const SanityContext = createContext<SanityProviderValue | null>(null)
-export const SanityProvider = SanityContext.Provider
+export function useSanityProviderValue(): SanityProviderValue {
+  // @ts-expect-error: globalThis may not have the 'Sanity Provider' symbol in its type
+  const providerValue = globalThis[Symbol.for('Sanity Provider')] as SanityProviderValue | null
 
-export const useSanityProviderValue = (): SanityProviderValue => {
-  const serverContext = useContext(SanityContext)
-  return useMemo<SanityProviderValue>(() => {
-    const providerValue = isServer()
-      ? serverContext
-      : // @ts-expect-error: globalThis may not have the 'Sanity Provider' symbol in its type
-        globalThis[Symbol.for('Sanity Provider')]
+  assertSanityProviderValue(providerValue)
 
-    assertSanityProviderValue(providerValue)
+  return providerValue!
+}
 
-    return providerValue
-  }, [serverContext])
+export function SanityProvider({
+  value,
+  children,
+}: PropsWithChildren<{value: SanityProviderValue}>): ReactNode {
+  // Set global symbol for both server and client
+  // @ts-expect-error: globalThis may not have the 'Sanity Provider' symbol in its type
+  globalThis[Symbol.for('Sanity Provider')] = Object.freeze(value)
+  return <>{children}</>
 }
 
 export function Sanity(props: SanityProps): ReactNode {

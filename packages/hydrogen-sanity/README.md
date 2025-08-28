@@ -76,7 +76,7 @@ Create the Sanity context and pass it through to your application, and optionall
 // ./lib/context.ts
 
 // ...all other imports
-import {createSanityContext} from 'hydrogen-sanity';
+import {createSanityContext} from 'hydrogen-sanity'
 
 export async function createAppLoadContext(
   request: Request,
@@ -84,11 +84,11 @@ export async function createAppLoadContext(
   executionContext: ExecutionContext,
 ) {
   // ... Leave all other functions like the Hydrogen context as-is
-  const waitUntil = executionContext.waitUntil.bind(executionContext);
+  const waitUntil = executionContext.waitUntil.bind(executionContext)
   const [cache, session] = await Promise.all([
     caches.open('hydrogen'),
     AppSession.init(request, [env.SESSION_SECRET]),
-  ]);
+  ])
 
   // 1. Configure the Sanity Loader and preview mode
   const sanity = createSanityContext({
@@ -129,7 +129,7 @@ export async function createAppLoadContext(
   return {
     ...hydrogenContext,
     sanity,
-  };
+  }
 }
 ```
 
@@ -281,7 +281,6 @@ export async function loader({context, params}: LoaderFunctionArgs) {
   const params = {id: 'home'}
   const initial = await context.sanity.loadQuery(HOMEPAGE_QUERY, params)
 
-
   return {initial}
 }
 ```
@@ -300,18 +299,13 @@ First set up your root route to enable preview mode across the entire applicatio
 // ./app/root.tsx
 
 // ...other imports
+import {usePreviewMode} from 'hydrogen-sanity'
 import {VisualEditing} from 'hydrogen-sanity/visual-editing'
-
-export async function loader({context}: LoaderArgs) {
-  return {
-    // ... other loader data
-    isPreviewEnabled: context.sanity.preview?.enabled,
-  }
-}
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce()
   const data = useRouteLoaderData<RootLoader>('root')
+  const previewMode = usePreviewMode()
 
   return (
     <html lang="en">
@@ -325,8 +319,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ...rest of the root layout */}
 
         {/* Conditionally render `VisualEditing` component only when in preview mode */}
-        {data?.isPreviewEnabled ? <VisualEditing /> : null}
-
+        {previewMode ? <VisualEditing action="/api/preview" /> : null}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>

@@ -235,11 +235,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
     preview: preview ? {...preview, client: previewClient!, enabled: isPreviewEnabled} : undefined,
 
-    SanityProvider(props: PropsWithChildren<object>) {
-      return createElement(SanityProvider, {
-        ...props,
-        value: Object.freeze(providerValue),
-      })
+    SanityProvider({children}: PropsWithChildren<object>) {
+      return createElement(
+        SanityProvider,
+        {
+          value: Object.freeze(providerValue),
+        },
+        children,
+      )
     },
   }
 
