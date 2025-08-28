@@ -17,7 +17,8 @@ import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import {PageLayout} from './components/PageLayout';
 import {VisualEditing} from 'hydrogen-sanity/visual-editing';
-import {Sanity, usePreviewMode} from 'hydrogen-sanity';
+import {Sanity} from 'hydrogen-sanity';
+import {usePreviewMode} from 'hydrogen-sanity/preview';
 
 export type RootLoader = typeof loader;
 

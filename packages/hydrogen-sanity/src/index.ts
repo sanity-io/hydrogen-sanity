@@ -1,5 +1,4 @@
 export {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 export {createSanityContext, type SanityContext} from './context'
-export {usePreviewMode} from './hooks'
 export {useImageUrl, useImageUrlBuilder} from './image'
 export {Sanity, useSanityProviderValue} from './provider'
