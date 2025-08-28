@@ -1,14 +1,21 @@
 import type {VisualEditingProps} from '@sanity/visual-editing/react-router'
-import {Fragment, lazy, type ReactElement, Suspense} from 'react'
+import {lazy, type ReactElement, Suspense} from 'react'
 
 import {isServer} from '../utils'
 import type {PresentationComlinkProps} from './PresentationComlink.client'
 
 /**
+ * Provide a consistent fallback to prevent hydration mismatch errors.
+ */
+function VisualEditingFallback(): ReactElement {
+  return <></>
+}
+
+/**
  * If server-side rendering, then return the fallback instead of the heavy dependency.
  */
 const VisualEditingComponent = isServer()
-  ? Fragment
+  ? VisualEditingFallback
   : lazy(
       () =>
         /**
@@ -20,7 +27,7 @@ const VisualEditingComponent = isServer()
 
 export function VisualEditing(props: VisualEditingProps & PresentationComlinkProps): ReactElement {
   return (
-    <Suspense fallback={<Fragment />}>
+    <Suspense fallback={<VisualEditingFallback />}>
       <VisualEditingComponent {...props} />
     </Suspense>
   )
