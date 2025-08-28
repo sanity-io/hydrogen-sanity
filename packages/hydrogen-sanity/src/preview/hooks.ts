@@ -1,4 +1,4 @@
-import {useSanityProviderValue} from './provider'
+import {useSanityProviderValue} from '../provider'
 
 export function usePreviewMode(): boolean {
   const providerValue = useSanityProviderValue()
