@@ -11,6 +11,7 @@
     - [Additional `loadQuery` options](#additional-loadquery-options)
   - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
   - [Using Sanity TypeGen](#using-sanity-typegen)
+- [Working with Images](#working-with-images)
 - [Enable Visual Editing](#enable-visual-editing)
   - [Enabling preview mode](#enabling-preview-mode)
   - [Setup CORS for front-end domains](#setup-cors-for-front-end-domains)
@@ -148,7 +149,7 @@ SANITY_API_VERSION=""
 # Sanity token to authenticate requests in "preview" mode
 # must have `viewer` role or higher access
 # Create in sanity.io/manage
-SANITY_API_TOKEN=""
+SANITY_PREVIEW_TOKEN=""
 ```
 
 ### Satisfy TypeScript
@@ -170,7 +171,7 @@ declare global {
     SANITY_PROJECT_ID: string
     SANITY_DATASET?: string
     SANITY_API_VERSION?: string
-    SANITY_API_TOKEN: string
+    SANITY_PREVIEW_TOKEN: string
   }
 }
 ```
@@ -282,6 +283,29 @@ export async function loader({context, params}: LoaderFunctionArgs) {
   const initial = await context.sanity.loadQuery(HOMEPAGE_QUERY, params)
 
   return {initial}
+}
+```
+
+## Working with Images
+
+The `useImageUrl` hook provides a convenient way to generate optimized image URLs from Sanity image assets with the image URL builder.
+
+```tsx
+import {useImageUrl} from 'hydrogen-sanity'
+
+function HeroBanner({hero}: {hero: {image: SanityImageSource}}) {
+  const imageUrl = useImageUrl(hero.image)
+
+  return (
+    <div className="hero-banner">
+      <img
+        src={imageUrl.width(1200).height(600).format('auto').url()}
+        alt="Hero banner"
+        width={1200}
+        height={600}
+      />
+    </div>
+  )
 }
 ```
 
