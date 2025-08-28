@@ -81,3 +81,76 @@ const sanity = createSanityContext({
   },
 })
 ```
+
+## Set up the Sanity provider
+
+You now need to wrap your app with the Sanity provider to make Sanity context available to client-side hooks like `useImageUrl` and `usePreviewMode`.
+
+### Update entry.server.tsx
+
+Wrap your app with the Sanity provider in your server entry point:
+
+```tsx
+// app/entry.server.tsx
+
+export default async function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  context: AppLoadContext,
+) {
+  const {SanityProvider} = context.sanity;
+
+  // ... CSP setup etc ...
+
+  const body = await renderToReadableStream(
+    <NonceProvider>
+      <SanityProvider>
+        <ServerRouter
+          context={reactRouterContext}
+          url={request.url}
+          nonce={nonce}
+        />
+      </SanityProvider>
+    </NonceProvider>,
+    // ... render options
+  );
+
+  // ... rest of function
+}
+```
+
+### Update root.tsx
+
+Add the client-side Sanity script to your root layout:
+
+```tsx
+// app/root.tsx
+
+import {Sanity} from 'hydrogen-sanity'
+import {usePreviewMode} from 'hydrogen-sanity/preview'
+
+export function Layout({children}: {children?: React.ReactNode}) {
+  const nonce = useNonce()
+  const previewMode = usePreviewMode()
+  
+  return (
+    <html lang="en">
+      {/* ... head content ... */}
+      <body>
+        {/* ... your existing content ... */}
+        {children}
+        
+        {/* Add Visual Editing support */}
+        {previewMode ? <VisualEditing action="/api/preview" /> : null}
+        
+        {/* Add Sanity client-side script */}
+        <Sanity nonce={nonce} />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
+      </body>
+    </html>
+  )
+}
+```
