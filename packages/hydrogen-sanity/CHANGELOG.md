@@ -5,6 +5,46 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-next.2 (2025-08-29)
+
+- docs: add image hook to README ([d204a1e](https://github.com/sanity-io/hydrogen-sanity/commit/d204a1e))
+- docs: add instructions for installing vite plugin ([8f04e77](https://github.com/sanity-io/hydrogen-sanity/commit/8f04e77))
+- docs: update migration documentation ([4a58090](https://github.com/sanity-io/hydrogen-sanity/commit/4a58090))
+- docs: update migration guide ([119a0d9](https://github.com/sanity-io/hydrogen-sanity/commit/119a0d9))
+- feat: add `groq` export ([95a3537](https://github.com/sanity-io/hydrogen-sanity/commit/95a3537))
+- feat: add image URL hooks ([d7033ae](https://github.com/sanity-io/hydrogen-sanity/commit/d7033ae))
+- feat: add preview mode hook ([bda8479](https://github.com/sanity-io/hydrogen-sanity/commit/bda8479))
+- feat: add Sanity provider ([742b9e0](https://github.com/sanity-io/hydrogen-sanity/commit/742b9e0))
+- feat: Add TypeGen compatibility for `loadQuery` ([2ffbb39](https://github.com/sanity-io/hydrogen-sanity/commit/2ffbb39))
+- feat: move `usePreviewMode` to `/preview` ([290b70d](https://github.com/sanity-io/hydrogen-sanity/commit/290b70d))
+- feat: use session handling for preview mode ([4abb244](https://github.com/sanity-io/hydrogen-sanity/commit/4abb244))
+- fix: add fallback back ([52d8d55](https://github.com/sanity-io/hydrogen-sanity/commit/52d8d55))
+- fix: adjust warning ([3c1ed71](https://github.com/sanity-io/hydrogen-sanity/commit/3c1ed71))
+- fix: only warn about missing action once ([8155ca3](https://github.com/sanity-io/hydrogen-sanity/commit/8155ca3))
+- fix: use `@sanity/visual-editing`'s React Router build ([9b8b40a](https://github.com/sanity-io/hydrogen-sanity/commit/9b8b40a))
+- refactor: add `isServer` utility ([a9a702b](https://github.com/sanity-io/hydrogen-sanity/commit/a9a702b))
+- refactor: adjust hook exports ([464ff6b](https://github.com/sanity-io/hydrogen-sanity/commit/464ff6b))
+- feat!: drop `groq` and `client` exports ([1117647](https://github.com/sanity-io/hydrogen-sanity/commit/1117647))
+- feat!: refactor session handling ([8f71fb5](https://github.com/sanity-io/hydrogen-sanity/commit/8f71fb5))
+- fix!: normlize preview client naming ([eba2a60](https://github.com/sanity-io/hydrogen-sanity/commit/eba2a60))
+- chore: add preview origin ([5805076](https://github.com/sanity-io/hydrogen-sanity/commit/5805076))
+- chore: add studio deployment ([f0b39fd](https://github.com/sanity-io/hydrogen-sanity/commit/f0b39fd))
+- chore: adjust example environment variables ([a1f2f51](https://github.com/sanity-io/hydrogen-sanity/commit/a1f2f51))
+- chore: adjust root workspace scripts ([f8fac68](https://github.com/sanity-io/hydrogen-sanity/commit/f8fac68))
+- chore: adjust turbo configuration ([29649fa](https://github.com/sanity-io/hydrogen-sanity/commit/29649fa))
+- chore: adjust workflows ([3483c6a](https://github.com/sanity-io/hydrogen-sanity/commit/3483c6a))
+- chore: update examples ([022588c](https://github.com/sanity-io/hydrogen-sanity/commit/022588c))
+- chore: update todos ([83499af](https://github.com/sanity-io/hydrogen-sanity/commit/83499af))
+- chore: upgrade dependencies ([85cbab6](https://github.com/sanity-io/hydrogen-sanity/commit/85cbab6))
+- chore: use JS `semantic-release` configuration ([82cd6dc](https://github.com/sanity-io/hydrogen-sanity/commit/82cd6dc))
+- chore(deps): use latest sanity version ([d50e33e](https://github.com/sanity-io/hydrogen-sanity/commit/d50e33e))
+- chore(studio): disable auto updates ([92e948b](https://github.com/sanity-io/hydrogen-sanity/commit/92e948b))
+
+### BREAKING CHANGE
+
+- `hydrogen-sanity` no longer re-exports `@sanity/client` and `groq`. Both are now true peer dependencies and you are expected to install them as direct dependencies of your storefront.
+- rename `preview.previewClient` to `preview.client`
+
 ## 5.0.0-next.1 (2025-05-26)
 
 - chore: add `next` channel ([b6d75fb](https://github.com/sanity-io/hydrogen-sanity/commit/b6d75fb))
