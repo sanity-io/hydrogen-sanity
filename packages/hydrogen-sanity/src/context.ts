@@ -21,6 +21,7 @@ import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
 import {SanityProvider, type SanityProviderValue} from './provider'
+import {createSanityCSPHelpers, type SanityCSPDirectives} from './csp'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
 import {getPerspective} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
@@ -117,6 +118,11 @@ export interface SanityContext {
      */
     client: SanityClient
   }
+
+  /**
+   * CSP directive values for Sanity integration
+   */
+  csp: SanityCSPDirectives
 
   SanityProvider: (props: PropsWithChildren<object>) => ReactNode
 }
@@ -234,6 +240,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     client,
 
     preview: preview ? {...preview, client: previewClient!, enabled: isPreviewEnabled} : undefined,
+
+    get csp() {
+      return createSanityCSPHelpers(client)
+    },
 
     SanityProvider({children}: PropsWithChildren<object>) {
       return createElement(
