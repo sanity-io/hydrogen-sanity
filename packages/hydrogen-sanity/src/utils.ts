@@ -6,6 +6,7 @@ import {
 } from '@sanity/client'
 import type {HydrogenSession} from '@shopify/hydrogen'
 
+import type {Any} from './types'
 import type {SanityPreviewSession} from './preview/session'
 
 /**
@@ -105,4 +106,17 @@ export function isHydrogenSession(session: unknown): session is HydrogenSession 
 
 export function isServer(): boolean {
   return typeof document === 'undefined'
+}
+
+export function once(fn: Any) {
+  let didCall = false
+  let returnValue: Any
+  return (...args: Any[]) => {
+    if (didCall) {
+      return returnValue
+    }
+    returnValue = fn(...args)
+    didCall = true
+    return returnValue
+  }
 }

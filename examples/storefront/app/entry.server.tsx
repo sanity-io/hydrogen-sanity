@@ -12,26 +12,23 @@ export default async function handleRequest(
   reactRouterContext: EntryContext,
   context: AppLoadContext,
 ) {
-  const {preview, SanityProvider, client} = context.sanity;
-  const {projectId, dataset} = client.config();
-  const isPreviewEnabled = preview?.enabled;
+  const {SanityProvider, csp} = context.sanity;
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    // Include Sanity domains in the CSP
     defaultSrc: [
-      // TODO: add CSP helpers
-      `https://cdn.sanity.io/images/${projectId}/${dataset}`,
+      csp.asset,
+      csp.apiCdn,
+    ],
+    connectSrc: [
+      csp.api,
     ],
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
-
-    // When preview is enabled for the current session, allow the Studio to embed the storefront in the Presentation tool
-    ...(isPreviewEnabled
-      ? {
-          frameAncestors: context.sanity.preview?.studioUrl,
-        }
-      : {}),
+    // Allow embedded Studio to load storefront
+    frameAncestors: [`'self'`],
   });
 
   const body = await renderToReadableStream(
