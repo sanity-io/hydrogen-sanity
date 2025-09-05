@@ -13,9 +13,7 @@
       "outputs": []
     },
     "dev": {
-      "dependsOn": [
-        "@repo/sanity-config#extract"
-      ],
+      "dependsOn": ["@repo/sanity-config#extract"],
       "with": [
         "hydrogen-sanity#watch",
         "@repo/sanity-config#watch",

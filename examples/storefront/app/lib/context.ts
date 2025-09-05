@@ -1,8 +1,10 @@
 import {createHydrogenContext} from '@shopify/hydrogen';
 import {createSanityContext} from 'hydrogen-sanity';
 import {PreviewSession} from 'hydrogen-sanity/preview/session';
+import {isPreviewEnabled} from 'hydrogen-sanity/preview';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
+import {filter} from './sanity/stega';
 
 /**
  * The context implementation is separate from server.ts
@@ -48,10 +50,14 @@ export async function createAppLoadContext(
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET,
       useCdn: false,
+      stega: {
+        enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
+        filter,
+        studioUrl: env.SANITY_STUDIO_ORIGIN,
+      },
     },
 
     preview: {
-      studioUrl: env.SANITY_STUDIO_ORIGIN,
       token: env.SANITY_PREVIEW_TOKEN,
       session: previewSession,
     },

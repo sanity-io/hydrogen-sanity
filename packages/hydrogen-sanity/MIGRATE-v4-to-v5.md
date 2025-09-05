@@ -82,6 +82,29 @@ const sanity = createSanityContext({
 })
 ```
 
+## Stega Configuration
+
+`hydrogen-sanity` no longer automatically enables stega encoding in preview mode. You must explicitly configure stega in your client configuration if you want visual editing overlays.
+
+```ts
+import {isPreviewEnabled} from 'hydrogen-sanity/preview'
+
+const sanity = createSanityContext({
+  client: {
+    projectId: env.SANITY_PROJECT_ID,
+    dataset: env.SANITY_DATASET,
+    // You must explicitly configure stega for visual editing
+    stega: {
+      enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
+    },
+  },
+  preview: {
+    token: env.SANITY_PREVIEW_TOKEN,
+    session: previewSession,
+  },
+})
+```
+
 ## Set up the Sanity provider
 
 You now need to wrap your app with the Sanity provider to make Sanity context available to client-side hooks like `useImageUrl` and `usePreviewMode`.
@@ -100,22 +123,18 @@ export default async function handleRequest(
   reactRouterContext: EntryContext,
   context: AppLoadContext,
 ) {
-  const {SanityProvider} = context.sanity;
+  const {SanityProvider} = context.sanity
 
   // ... CSP setup etc ...
 
   const body = await renderToReadableStream(
     <NonceProvider>
       <SanityProvider>
-        <ServerRouter
-          context={reactRouterContext}
-          url={request.url}
-          nonce={nonce}
-        />
+        <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
       </SanityProvider>
     </NonceProvider>,
     // ... render options
-  );
+  )
 
   // ... rest of function
 }
@@ -134,17 +153,17 @@ import {usePreviewMode} from 'hydrogen-sanity/preview'
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce()
   const previewMode = usePreviewMode()
-  
+
   return (
     <html lang="en">
       {/* ... head content ... */}
       <body>
         {/* ... your existing content ... */}
         {children}
-        
+
         {/* Add Visual Editing support */}
         {previewMode ? <VisualEditing action="/api/preview" /> : null}
-        
+
         {/* Add Sanity client-side script */}
         <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
@@ -154,3 +173,64 @@ export function Layout({children}: {children?: React.ReactNode}) {
   )
 }
 ```
+
+## Composable Visual Editing components
+
+v5 introduces enhanced Visual Editing components with improved context detection. The Visual Editing functionality is now split into composable components:
+
+```tsx
+import {VisualEditing, Overlays, LiveMode} from 'hydrogen-sanity/visual-editing'
+
+// Existing drop-in component (recommended)
+<VisualEditing action="/api/preview" />
+
+// Individual components for advanced use cases
+<Overlays action="/api/preview" />
+<LiveMode />
+```
+
+### Opt-In Live Mode
+
+- **Server-Only (default)**: Always uses server revalidation for all content changes
+- **Live Mode (opt-in)**: Only enable when you have active `useQuery` client loaders
+
+```tsx
+// Server-only mode (default)
+<VisualEditing />
+
+// Live mode (only when useQuery hooks are active)
+<VisualEditing liveMode />
+```
+
+### Custom server-side revalidation
+
+For more control, you can now customize refresh logic:
+
+```tsx
+function MyVisualEditing() {
+  return (
+    <VisualEditing
+      action="/api/preview"
+      refresh={(payload, refreshDefault, revalidator) => {
+        // Handle cross-platform dependencies
+        if (payload.source === 'mutation' && payload.document.shopifyProductId) {
+          // Force server revalidation even when client loaders are active
+          return new Promise<void>((resolve) => {
+            revalidator.revalidate()
+            const checkComplete = () => {
+              if (revalidator.state === 'idle') resolve()
+              else setTimeout(checkComplete, 100)
+            }
+            checkComplete()
+          })
+        }
+        return refreshDefault() // Default behavior
+      }}
+    />
+  )
+}
+```
+
+## Consolidated client configuration
+
+The `preview.client` has been removed in favor of a single, automatically configured client. The main `client` is now reconfigured with preview settings when preview mode is enabled.

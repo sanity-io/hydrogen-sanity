@@ -14,6 +14,172 @@ img {
 
 /*
 * --------------------------------------------------
+* Homepage Visual Editing Examples
+* --------------------------------------------------
+*/
+
+/* Hero Section */
+.hero {
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-button {
+  display: inline-block;
+  background: white;
+  color: #333;
+  padding: 0.75rem 2rem;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: transform 0.2s;
+  margin-bottom: 2rem;
+}
+
+.hero-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hero-content {
+  margin-top: 2rem;
+}
+
+.hero-product {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.hero-image img {
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Modules Section */
+.modules {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.module {
+  margin-bottom: 4rem;
+}
+
+/* Callout Module */
+.callout {
+  background: #f8f9fa;
+  border-left: 4px solid #667eea;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.callout-text {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+.callout-button {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.callout-button:hover {
+  background: #5a67d8;
+}
+
+/* Products Module */
+.products-module h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.products-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.layout-pill .products-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  text-align: center;
+  padding: 1rem;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.product-card h3 {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.product-card a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.product-card a:hover {
+  text-decoration: underline;
+}
+
+.layout-pill .product-card {
+  padding: 0.75rem;
+}
+
+.layout-pill .product-card h3 {
+  font-size: 1rem;
+}
+
+/*
+* --------------------------------------------------
 * Non anchor links
 * --------------------------------------------------
 */

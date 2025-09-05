@@ -107,13 +107,6 @@ export async function createAppLoadContext(
       dataset: env.SANITY_DATASET || 'production',
       apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
       useCdn: process.env.NODE_ENV === 'production',
-
-      // In preview mode, `stega` will be enabled automatically
-      // If you need to configure the client's steganography settings,
-      // you can do so here
-      // stega: {
-      //   logger: console
-      // }
     },
 
     // You can also initialize a client and pass it instead
@@ -321,13 +314,72 @@ Enable real-time, interactive live preview inside the [Presentation tool](https:
 >
 > These instructions assume some familiarity with Sanity's Visual Editing concepts, like loaders and overlays. To learn more, please visit the [Visual Editing documentation](https://www.sanity.io/docs/introduction-to-visual-editing).
 
-First set up your root route to enable preview mode across the entire application, if the preview session is active:
+### Configure Preview Mode
+
+For visual editing to work, you need to set up preview mode in your context configuration. First, initialize the preview session:
+
+```ts
+// ./lib/context.ts
+
+// ...all other imports
+import {createSanityContext} from 'hydrogen-sanity'
+import {PreviewSession} from 'hydrogen-sanity/preview/session'
+import {isPreviewEnabled} from 'hydrogen-sanity/preview'
+
+export async function createAppLoadContext(
+  request: Request,
+  env: Env,
+  executionContext: ExecutionContext,
+) {
+  // ... Leave all other functions like the Hydrogen context as-is
+  const waitUntil = executionContext.waitUntil.bind(executionContext)
+  const [cache, session, previewSession] = await Promise.all([
+    caches.open('hydrogen'),
+    AppSession.init(request, [env.SESSION_SECRET]),
+    // Initialize the preview session
+    PreviewSession.init(request, [env.SESSION_SECRET]),
+  ])
+
+  const sanity = createSanityContext({
+    request,
+    cache,
+    waitUntil,
+
+    client: {
+      projectId: env.SANITY_PROJECT_ID,
+      dataset: env.SANITY_DATASET || 'production',
+      apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
+      useCdn: process.env.NODE_ENV === 'production',
+
+      // Enable stega encoding only when in preview mode
+      stega: {
+        enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
+      },
+    },
+
+    // Preview configuration
+    preview: {
+      token: env.SANITY_PREVIEW_TOKEN,
+      session: previewSession,
+    },
+  })
+
+  return {
+    ...hydrogenContext,
+    sanity,
+  }
+}
+```
+
+### Add Visual Editing Component
+
+Set up your root route to enable visual editing across the entire application when preview mode is active:
 
 ```tsx
 // ./app/root.tsx
 
 // ...other imports
-import {usePreviewMode} from 'hydrogen-sanity'
+import {usePreviewMode} from 'hydrogen-sanity/preview'
 import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 
 export function Layout({children}: {children?: React.ReactNode}) {
@@ -356,17 +408,64 @@ export function Layout({children}: {children?: React.ReactNode}) {
 }
 ```
 
-This Visual Editing component will trigger incremental updates to draft documents from the server for users with a valid preview session. [Duplicate its source](https://github.com/sanity-io/visual-editing/blob/main/packages/visual-editing/src/react-router/VisualEditing.tsx) into your own project if you wish to customize its behavior.
+#### Visual Editing Configuration Options
+
+The `VisualEditing` component provides flexible configuration for different data loading patterns:
+
+**Server-Only Setup (default):**
+
+```tsx
+<VisualEditing /> // Overlays only with server revalidation
+```
+
+**With Client-Side Loaders (opt-in):**
+
+```tsx
+<VisualEditing liveMode /> // Enable live mode for real-time data sync via useQuery hooks
+```
+
+**Explicit Server-Only:**
+
+```tsx
+<VisualEditing /> // Default: overlays only, always use server revalidation
+```
+
+#### Individual Component Usage
+
+For advanced use cases, you can use the individual components:
+
+```tsx
+import {Overlays, LiveMode} from 'hydrogen-sanity/visual-editing'
+
+// Overlays only (server-only setups)
+<Overlays action="/api/preview" />
+
+// Live mode only (client-side data sync)
+<LiveMode />
+
+// Both (hybrid setups)
+<Overlays action="/api/preview" />
+<LiveMode />
+```
+
+This Visual Editing component provides a complete visual editing experience, including:
+
+- **Context-aware behavior**: Auto-detects Studio vs standalone preview contexts
+- **Real-time preview**: Updates content as you edit in Studio
+- **Visual overlays**: Click-to-edit functionality with element highlighting
+- **Perspective switching**: Draft/published content switching
+- **Server revalidation**: Smart refresh logic for server-side data
+- **Custom revalidation**: Customizable refresh logic for more control
 
 ### Enabling preview mode
 
 For users to enter preview mode, they will need to visit a route that performs some authentication and then writes to the session.
 
-`hydrogen-sanity` comes with a preconfigured route for this purpose. It checks the value of a secret in the URL used by Presentation tool - and if valid - writes the `projectId` to the Hydrogen session.
+`hydrogen-sanity` comes with a preconfigured route for this purpose. It checks the value of a secret in the URL used by Presentation tool - and if valid - writes the `projectId` to the session.
 
 > [!NOTE]
 >
-> By default, `hydrogen-sanity` enables stega-encoded Content Source Maps when preview mode is enabled.
+> For visual editing overlays and click-to-edit functionality to work, you must configure `stega.enabled: true` in your Sanity client configuration.
 >
 > You can learn more about [Content Source Maps and working with stega-encoded strings](https://www.sanity.io/docs/stega).
 

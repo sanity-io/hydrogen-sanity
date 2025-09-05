@@ -34,7 +34,6 @@
 ### Patch Changes
 
 - Fix an issue with our starter template where duplicate content can exist on URLs that use internationalized handles. For example, if you have a product handle in english of `the-havoc` and translate it to `das-chaos` in German, duplicate content exists at both: ([#2821](https://github.com/Shopify/hydrogen/pull/2821)) by [@blittle](https://github.com/blittle)
-
   1. https://hydrogen.shop/de-de/products/das-chaos
   2. https://hydrogen.shop/de-de/products/the-havoc
 
@@ -54,7 +53,6 @@
 ### Patch Changes
 
 - Moved the `Layout` component back into `root.tsx` to avoid issues with styled errors. ([#2829](https://github.com/Shopify/hydrogen/pull/2829)) by [@ruggishop](https://github.com/ruggishop)
-
   1. If you have a separate `app/layout.tsx` file, delete it and move its default exported component into your `root.tsx`. For example:
 
      ```ts
@@ -108,7 +106,6 @@
 - Support for the Remix future flag `v3_routeConfig`. ([#2722](https://github.com/Shopify/hydrogen/pull/2722)) by [@seanparsons](https://github.com/seanparsons)
 
   Please refer to the Remix documentation for more details on `v3_routeConfig` future flag: [https://remix.run/docs/en/main/start/future-flags#v3_routeconfig](https://remix.run/docs/en/main/start/future-flags#v3_routeconfig)
-
   1. Update your `vite.config.ts`.
 
      ```diff
@@ -203,7 +200,6 @@
   Remix single fetch migration guide: https://remix.run/docs/en/main/guides/single-fetch
 
   **Note:** If you have any routes that appends (or looks for) a search param named `_data`, make sure to rename it to something else.
-
   1. In your `vite.config.ts`, add the single fetch future flag.
 
      ```diff
@@ -501,7 +497,6 @@
 - Remove initial redirect from product display page ([#2643](https://github.com/Shopify/hydrogen/pull/2643)) by [@scottdixon](https://github.com/scottdixon)
 
 - Optional updates for the product route and product form to handle combined listing and 2000 variant limit. ([#2659](https://github.com/Shopify/hydrogen/pull/2659)) by [@wizardlyhel](https://github.com/wizardlyhel)
-
   1. Update your SFAPI product query to bring in the new query fields:
 
   ```diff
@@ -1313,7 +1308,6 @@
 ### Patch Changes
 
 - Stabilize `getSitemap`, `getSitemapIndex` and implement on skeleton ([#2589](https://github.com/Shopify/hydrogen/pull/2589)) by [@juanpprieto](https://github.com/juanpprieto)
-
   1. Update the `getSitemapIndex` at `/app/routes/[sitemap.xml].tsx`
 
   ```diff
@@ -1423,7 +1417,6 @@
 - [**Breaking change**] ([#2585](https://github.com/Shopify/hydrogen/pull/2585)) by [@wizardlyhel](https://github.com/wizardlyhel)
 
   Deprecate usages of `product.options.values` and use `product.options.optionValues` instead.
-
   1. Update your product graphql query to use the new `optionValues` field.
 
   ```diff
@@ -2104,7 +2097,6 @@
 ### Patch Changes
 
 - Improve performance of predictive search: ([#1823](https://github.com/Shopify/hydrogen/pull/1823)) by [@frandiox](https://github.com/frandiox)
-
   - Change the request to be GET instead of POST to avoid Remix route revalidations.
   - Add Cache-Control headers to the response to get quicker results when typing.
 
@@ -2324,7 +2316,6 @@
 ### Major Changes
 
 - The Storefront API 2023-10 now returns menu item URLs that include the `primaryDomainUrl`, instead of defaulting to the Shopify store ID URL (example.myshopify.com). The skeleton template requires changes to check for the `primaryDomainUrl`: by [@blittle](https://github.com/blittle)
-
   1. Update the `HeaderMenu` component to accept a `primaryDomainUrl` and include
      it in the internal url check
 
