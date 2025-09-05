@@ -1,4 +1,5 @@
 export {VisualEditing} from './VisualEditing'
+export type {VisualEditingProps} from './VisualEditing.client'
 export {
   type CreateDataAttribute,
   createDataAttribute,

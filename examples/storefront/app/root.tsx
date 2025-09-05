@@ -19,6 +19,7 @@ import {PageLayout} from './components/PageLayout';
 import {VisualEditing} from 'hydrogen-sanity/visual-editing';
 import {Sanity} from 'hydrogen-sanity';
 import {usePreviewMode} from 'hydrogen-sanity/preview';
+import {filter} from '~/lib/sanity/stega';
 
 export type RootLoader = typeof loader;
 
@@ -93,6 +94,7 @@ export async function loader(args: LoaderFunctionArgs) {
       country: args.context.storefront.i18n.country,
       language: args.context.storefront.i18n.language,
     },
+    studioOrigin: env.SANITY_STUDIO_ORIGIN,
   };
 }
 
@@ -171,7 +173,13 @@ export function Layout({children}: {children?: React.ReactNode}) {
         ) : (
           children
         )}
-        {previewMode ? <VisualEditing action="/api/preview" /> : null}
+        {previewMode ? (
+          <VisualEditing
+            action="/api/preview"
+            filter={filter}
+            studioUrl={data?.studioOrigin}
+          />
+        ) : null}
         <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />

@@ -12,7 +12,8 @@ export default async function handleRequest(
   reactRouterContext: EntryContext,
   context: AppLoadContext,
 ) {
-  const {preview, SanityProvider, client} = context.sanity;
+  const {env, sanity} = context;
+  const {preview, SanityProvider, client} = sanity;
   const {projectId, dataset} = client.config();
   const isPreviewEnabled = preview?.enabled;
 
@@ -22,14 +23,14 @@ export default async function handleRequest(
       `https://cdn.sanity.io/images/${projectId}/${dataset}`,
     ],
     shop: {
-      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
+      storeDomain: env.PUBLIC_STORE_DOMAIN,
     },
 
     // When preview is enabled for the current session, allow the Studio to embed the storefront in the Presentation tool
     ...(isPreviewEnabled
       ? {
-          frameAncestors: context.sanity.preview?.studioUrl,
+          frameAncestors: env.SANITY_STUDIO_ORIGIN,
         }
       : {}),
   });

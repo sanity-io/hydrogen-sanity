@@ -20,6 +20,7 @@ import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
+import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
 import {getPerspective} from './utils'
@@ -52,7 +53,6 @@ export type CreateSanityContextOptions = {
    */
   preview?: {
     token: string
-    studioUrl: string
     session: SanityPreviewSession | HydrogenSession
   }
 }
@@ -145,17 +145,16 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
   }
 
   // Determine if preview is enabled using session-based detection or legacy enabled flag
-  let isPreviewEnabled = false
+  let previewEnabled = false
   let previewClient: SanityClient | undefined
   if (preview) {
     if (!preview.token) {
       throw new Error('Enabling preview mode requires a token.')
     }
 
-    const sessionProjectId = preview.session?.get('projectId')
-    isPreviewEnabled = Boolean(sessionProjectId && sessionProjectId === client.config().projectId)
+    previewEnabled = isPreviewEnabled(client.config().projectId!, preview.session)
 
-    if (isPreviewEnabled) {
+    if (previewEnabled) {
       const apiVersion = client.config().apiVersion
       let perspective: ClientPerspective
       if (supportsPerspectiveStack(apiVersion)) {
@@ -175,23 +174,21 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         useCdn: false,
         token: preview.token,
         perspective,
-        stega: {
-          ...client.config().stega,
-          enabled: true,
-          studioUrl: preview.studioUrl,
-        },
       })
     }
   }
 
   setServerClient(previewClient ?? client)
 
-  const {apiHost, projectId, dataset} = client.config()
+  const {apiHost, projectId, dataset, apiVersion, stega} = client.config()
   const providerValue: SanityProviderValue = {
     projectId: projectId!,
     dataset: dataset!,
     apiHost,
-    preview: isPreviewEnabled,
+    apiVersion: apiVersion!,
+    preview: previewEnabled,
+    perspective: previewClient?.config().perspective || client.config().perspective || 'published',
+    stegaEnabled: previewEnabled,
   }
 
   const sanity = {
@@ -205,7 +202,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       }
 
       // Don't store response if preview is enabled
-      const cacheStrategy = isPreviewEnabled
+      const cacheStrategy = previewEnabled
         ? CacheNone()
         : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
 
@@ -233,7 +230,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
     client,
 
-    preview: preview ? {...preview, client: previewClient!, enabled: isPreviewEnabled} : undefined,
+    preview: preview ? {...preview, client: previewClient!, enabled: previewEnabled} : undefined,
 
     SanityProvider({children}: PropsWithChildren<object>) {
       return createElement(
