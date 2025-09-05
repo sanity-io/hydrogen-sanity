@@ -25,7 +25,6 @@ describe('the preview route', () => {
   const projectId = 'my-project-id'
   const dataset = 'my-dataset'
   const token = 'my-token'
-  const studioUrl = 'https://example.com'
 
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -46,7 +45,6 @@ describe('the preview route', () => {
         client: {projectId, dataset},
         preview: {
           token,
-          studioUrl,
           session: previewSession,
         },
       })
@@ -98,9 +96,8 @@ describe('the preview route', () => {
         createSanityContext({
           request,
           client: {projectId, dataset},
-          // @ts-expect-error Testing when a token isn't provided
           preview: {
-            studioUrl,
+            token: '', // Testing with empty token to trigger the error
             session: new PreviewSession(),
           },
         })
@@ -114,7 +111,6 @@ describe('the preview route', () => {
           client: {dataset},
           preview: {
             token,
-            studioUrl,
             session: new PreviewSession(),
           },
         })
@@ -130,7 +126,6 @@ describe('the preview route', () => {
         preview: {
           session: hydrogenSession,
           token,
-          studioUrl,
         },
       })
 
@@ -163,7 +158,6 @@ describe('the preview route', () => {
         client: {projectId, dataset},
         preview: {
           token,
-          studioUrl,
           session: previewSession,
         },
       })
@@ -191,7 +185,6 @@ describe('the preview route', () => {
         client: {projectId, dataset},
         preview: {
           token,
-          studioUrl,
           session: previewSession,
         },
       })
@@ -268,7 +261,6 @@ describe('the preview route', () => {
         client: {projectId, dataset},
         preview: {
           token,
-          studioUrl,
           session: previewSession,
         },
       })
@@ -304,7 +296,6 @@ describe('the preview route', () => {
         client: {projectId, dataset},
         preview: {
           token,
-          studioUrl,
           session: previewSession,
         },
       })
@@ -341,7 +332,6 @@ describe('the preview route', () => {
         client: {projectId, dataset},
         preview: {
           token,
-          studioUrl,
           session: previewSession,
         },
       })
@@ -392,7 +382,6 @@ describe('the preview route', () => {
         preview: {
           session: previewSession,
           token,
-          studioUrl: 'https://example.com',
         },
       })
 

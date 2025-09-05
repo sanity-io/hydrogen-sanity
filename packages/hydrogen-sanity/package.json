@@ -109,6 +109,7 @@
     "@sanity/pkg-utils": "^7.11.9",
     "@sanity/semantic-release-preset": "^5.0.0",
     "@shopify/hydrogen": "~2025.5.0",
+    "@testing-library/react": "^16.3.0",
     "@types/react": "^18.3.24",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
