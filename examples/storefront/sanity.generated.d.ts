@@ -1014,223 +1014,304 @@ export type AllSanitySchemaTypes =
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: app/routes/_index.tsx
 // Variable: HOMEPAGE_QUERY
-// Query: *[_id == "home"][0]
+// Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          name,          reference->{            _type,            slug          }        },        _type == "linkExternal" => {          name,          url        }      },      content[]{        _type,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            },            alt          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            name,            reference->{              _type,              slug            }          },          _type == "linkExternal" => {            name,            url          }        }      },      _type == "products" => {        layout,        products[]->{          _id,          store{            title,            slug,            previewImageUrl          }        }      }    }  }
 export type HOMEPAGE_QUERYResult =
   | {
       _id: string;
-      _type: 'collection';
-      _createdAt: string;
-      _updatedAt: string;
       _rev: string;
-      hidden?: string;
-      titleProxy?: ProxyString;
-      slugProxy?: ProxyString;
-      colorTheme?: {
-        _ref: string;
-        _type: 'reference';
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: 'colorTheme';
-      };
-      vector?: {
-        asset?: {
-          _ref: string;
-          _type: 'reference';
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        _type: 'image';
-      };
-      showHero?: boolean;
-      hero?: Hero;
-      modules?: Array<
-        | ({
-            _key: string;
-          } & Callout)
-        | ({
-            _key: string;
-          } & CallToAction)
-        | ({
-            _key: string;
-          } & Instagram)
+      hero: null;
+      modules: null;
+    }
+  | {
+      _id: string;
+      _rev: string;
+      hero: {
+        title: string | null;
+        description: string | null;
+        link: Array<
+          | {
+              _type: 'linkExternal';
+              name: null;
+              url: string | null;
+            }
+          | {
+              _type: 'linkInternal';
+              name: null;
+              reference:
+                | {
+                    _type: 'collection';
+                    slug: null;
+                  }
+                | {
+                    _type: 'home';
+                    slug: null;
+                  }
+                | {
+                    _type: 'page';
+                    slug: Slug | null;
+                  }
+                | {
+                    _type: 'product';
+                    slug: null;
+                  }
+                | null;
+            }
+        > | null;
+        content: Array<
+          | {
+              _type: 'imageWithProductHotspots';
+              image: {
+                asset: {
+                  _id: string;
+                  url: string | null;
+                } | null;
+                alt: null;
+              } | null;
+            }
+          | {
+              _type: 'productWithVariant';
+              product: {
+                _id: string;
+                store: {
+                  title: string | null;
+                  slug: Slug | null;
+                  previewImageUrl: string | null;
+                } | null;
+              } | null;
+            }
+        > | null;
+      } | null;
+      modules: null;
+    }
+  | {
+      _id: string;
+      _rev: string;
+      hero: {
+        title: string | null;
+        description: string | null;
+        link: Array<
+          | {
+              _type: 'linkExternal';
+              name: null;
+              url: string | null;
+            }
+          | {
+              _type: 'linkInternal';
+              name: null;
+              reference:
+                | {
+                    _type: 'collection';
+                    slug: null;
+                  }
+                | {
+                    _type: 'home';
+                    slug: null;
+                  }
+                | {
+                    _type: 'page';
+                    slug: Slug | null;
+                  }
+                | {
+                    _type: 'product';
+                    slug: null;
+                  }
+                | null;
+            }
+        > | null;
+        content: Array<
+          | {
+              _type: 'imageWithProductHotspots';
+              image: {
+                asset: {
+                  _id: string;
+                  url: string | null;
+                } | null;
+                alt: null;
+              } | null;
+            }
+          | {
+              _type: 'productWithVariant';
+              product: {
+                _id: string;
+                store: {
+                  title: string | null;
+                  slug: Slug | null;
+                  previewImageUrl: string | null;
+                } | null;
+              } | null;
+            }
+        > | null;
+      } | null;
+      modules: Array<
         | {
-            asset?: {
-              _ref: string;
-              _type: 'reference';
-              _weak?: boolean;
-              [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-            };
-            media?: unknown;
-            hotspot?: SanityImageHotspot;
-            crop?: SanityImageCrop;
+            _type: 'accordion';
+            _key: string;
+          }
+        | {
+            _type: 'callout';
+            _key: string;
+            text: string | null;
+            link: Array<
+              | {
+                  _type: 'linkExternal';
+                  name: null;
+                  url: string | null;
+                }
+              | {
+                  _type: 'linkInternal';
+                  name: null;
+                  reference:
+                    | {
+                        _type: 'collection';
+                        slug: null;
+                      }
+                    | {
+                        _type: 'home';
+                        slug: null;
+                      }
+                    | {
+                        _type: 'page';
+                        slug: Slug | null;
+                      }
+                    | {
+                        _type: 'product';
+                        slug: null;
+                      }
+                    | null;
+                }
+            > | null;
+          }
+        | {
+            _type: 'grid';
+            _key: string;
+          }
+        | {
+            _type: 'images';
+            _key: string;
+          }
+        | {
+            _type: 'imageWithProductHotspots';
+            _key: string;
+          }
+        | {
+            _type: 'instagram';
+            _key: string;
+          }
+        | {
+            _type: 'products';
+            _key: string;
+            layout: 'card' | 'pill' | null;
+            products: Array<null> | null;
+          }
+      > | null;
+    }
+  | {
+      _id: string;
+      _rev: string;
+      hero: {
+        title: string | null;
+        description: string | null;
+        link: Array<
+          | {
+              _type: 'linkExternal';
+              name: null;
+              url: string | null;
+            }
+          | {
+              _type: 'linkInternal';
+              name: null;
+              reference:
+                | {
+                    _type: 'collection';
+                    slug: null;
+                  }
+                | {
+                    _type: 'home';
+                    slug: null;
+                  }
+                | {
+                    _type: 'page';
+                    slug: Slug | null;
+                  }
+                | {
+                    _type: 'product';
+                    slug: null;
+                  }
+                | null;
+            }
+        > | null;
+        content: Array<
+          | {
+              _type: 'imageWithProductHotspots';
+              image: {
+                asset: {
+                  _id: string;
+                  url: string | null;
+                } | null;
+                alt: null;
+              } | null;
+            }
+          | {
+              _type: 'productWithVariant';
+              product: {
+                _id: string;
+                store: {
+                  title: string | null;
+                  slug: Slug | null;
+                  previewImageUrl: string | null;
+                } | null;
+              } | null;
+            }
+        > | null;
+      } | null;
+      modules: Array<
+        | {
+            _type: 'callout';
+            _key: string;
+            text: string | null;
+            link: Array<
+              | {
+                  _type: 'linkExternal';
+                  name: null;
+                  url: string | null;
+                }
+              | {
+                  _type: 'linkInternal';
+                  name: null;
+                  reference:
+                    | {
+                        _type: 'collection';
+                        slug: null;
+                      }
+                    | {
+                        _type: 'home';
+                        slug: null;
+                      }
+                    | {
+                        _type: 'page';
+                        slug: Slug | null;
+                      }
+                    | {
+                        _type: 'product';
+                        slug: null;
+                      }
+                    | null;
+                }
+            > | null;
+          }
+        | {
+            _type: 'callToAction';
+            _key: string;
+          }
+        | {
             _type: 'image';
             _key: string;
           }
-      >;
-      store?: ShopifyCollection;
-      seo?: Seo;
-    }
-  | {
-      _id: string;
-      _type: 'colorTheme';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      title?: string;
-      text?: Color;
-      background?: Color;
-    }
-  | {
-      _id: string;
-      _type: 'home';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      hero?: Hero;
-      modules?: Array<
-        | ({
+        | {
+            _type: 'instagram';
             _key: string;
-          } & Accordion)
-        | ({
-            _key: string;
-          } & Callout)
-        | ({
-            _key: string;
-          } & Grid)
-        | ({
-            _key: string;
-          } & Images)
-        | ({
-            _key: string;
-          } & ImageWithProductHotspots)
-        | ({
-            _key: string;
-          } & Instagram)
-        | ({
-            _key: string;
-          } & Products)
-      >;
-      seo?: Seo;
-    }
-  | {
-      _id: string;
-      _type: 'media.tag';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      name?: Slug;
-    }
-  | {
-      _id: string;
-      _type: 'page';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      title?: string;
-      slug?: Slug;
-      colorTheme?: {
-        _ref: string;
-        _type: 'reference';
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: 'colorTheme';
-      };
-      showHero?: boolean;
-      hero?: Hero;
-      body?: PortableText;
-      seo?: Seo;
-    }
-  | {
-      _id: string;
-      _type: 'product';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      hidden?: string;
-      titleProxy?: ProxyString;
-      slugProxy?: ProxyString;
-      colorTheme?: {
-        _ref: string;
-        _type: 'reference';
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: 'colorTheme';
-      };
-      body?: PortableText;
-      store?: ShopifyProduct;
-      seo?: Seo;
-    }
-  | {
-      _id: string;
-      _type: 'productVariant';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      hidden?: string;
-      titleProxy?: ProxyString;
-      store?: ShopifyProductVariant;
-    }
-  | {
-      _id: string;
-      _type: 'sanity.fileAsset';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      originalFilename?: string;
-      label?: string;
-      title?: string;
-      description?: string;
-      altText?: string;
-      sha1hash?: string;
-      extension?: string;
-      mimeType?: string;
-      size?: number;
-      assetId?: string;
-      uploadId?: string;
-      path?: string;
-      url?: string;
-      source?: SanityAssetSourceData;
-    }
-  | {
-      _id: string;
-      _type: 'sanity.imageAsset';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      originalFilename?: string;
-      label?: string;
-      title?: string;
-      description?: string;
-      altText?: string;
-      sha1hash?: string;
-      extension?: string;
-      mimeType?: string;
-      size?: number;
-      assetId?: string;
-      uploadId?: string;
-      path?: string;
-      url?: string;
-      metadata?: SanityImageMetadata;
-      source?: SanityAssetSourceData;
-    }
-  | {
-      _id: string;
-      _type: 'settings';
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      menu?: Menu;
-      footer?: FooterSettings;
-      customProductOptions?: Array<
-        | ({
-            _key: string;
-          } & CustomProductOptionColor)
-        | ({
-            _key: string;
-          } & CustomProductOptionSize)
-      >;
-      notFoundPage?: NotFoundPage;
-      seo?: Seo;
+          }
+      > | null;
     }
   | null;
 
@@ -1238,6 +1319,6 @@ export type HOMEPAGE_QUERYResult =
 import '@sanity/client';
 declare module '@sanity/client' {
   interface SanityQueries {
-    '*[_id == "home"][0]': HOMEPAGE_QUERYResult;
+    '\n  *[_id == "home"][0]{\n    _id,\n    _rev,\n    hero{\n      title,\n      description,\n      link[]{\n        _type,\n        _type == "linkInternal" => {\n          name,\n          reference->{\n            _type,\n            slug\n          }\n        },\n        _type == "linkExternal" => {\n          name,\n          url\n        }\n      },\n      content[]{\n        _type,\n        _type == "productWithVariant" => {\n          product->{\n            _id,\n            store{\n              title,\n              slug,\n              previewImageUrl\n            }\n          }\n        },\n        _type == "imageWithProductHotspots" => {\n          image{\n            asset->{\n              _id,\n              url\n            },\n            alt\n          }\n        }\n      }\n    },\n    modules[]{\n      _type,\n      _key,\n      _type == "callout" => {\n        text,\n        link[]{\n          _type,\n          _type == "linkInternal" => {\n            name,\n            reference->{\n              _type,\n              slug\n            }\n          },\n          _type == "linkExternal" => {\n            name,\n            url\n          }\n        }\n      },\n      _type == "products" => {\n        layout,\n        products[]->{\n          _id,\n          store{\n            title,\n            slug,\n            previewImageUrl\n          }\n        }\n      }\n    }\n  }\n': HOMEPAGE_QUERYResult;
   }
 }

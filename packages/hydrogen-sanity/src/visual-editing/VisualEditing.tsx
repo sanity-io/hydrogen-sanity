@@ -1,8 +1,7 @@
-import type {VisualEditingProps} from '@sanity/visual-editing/react-router'
 import {lazy, type ReactElement, Suspense} from 'react'
 
 import {isServer} from '../utils'
-import type {PresentationComlinkProps} from './PresentationComlink.client'
+import type {VisualEditingProps} from './VisualEditing.client'
 
 /**
  * Provide a consistent fallback to prevent hydration mismatch errors.
@@ -25,7 +24,29 @@ const VisualEditingComponent = isServer()
         import('./VisualEditing.client'),
     )
 
-export function VisualEditing(props: VisualEditingProps & PresentationComlinkProps): ReactElement {
+/**
+ * Combined visual editing component with overlays and optional live mode.
+ *
+ * Provides click-to-edit overlays by default. Enable `liveMode` for real-time
+ * data synchronization when using client-side loaders like `useQuery`.
+ *
+ * @param props.liveMode - Enable live data sync (default: false)
+ * @param props.components - Custom overlay components
+ * @param props.zIndex - CSS z-index for overlays
+ * @param props.refresh - Custom refresh logic
+ * @param props.onConnect - Studio connection callback
+ * @param props.onDisconnect - Studio disconnection callback
+ *
+ * @example
+ * ```tsx
+ * // Server-only (overlays only)
+ * <VisualEditing />
+ *
+ * // With live data sync
+ * <VisualEditing liveMode={true} />
+ * ```
+ */
+export function VisualEditing(props: VisualEditingProps): ReactElement {
   return (
     <Suspense fallback={<VisualEditingFallback />}>
       <VisualEditingComponent {...props} />

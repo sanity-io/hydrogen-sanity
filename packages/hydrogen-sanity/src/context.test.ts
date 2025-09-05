@@ -112,7 +112,6 @@ describe('when configured for preview', () => {
     client,
     preview: {
       token: 'my-token',
-      studioUrl: 'https://example.com',
       session: previewSession,
     },
   })
@@ -159,7 +158,6 @@ describe('session-based preview detection', () => {
       client,
       preview: {
         token: 'my-token',
-        studioUrl: 'https://example.com',
         session: previewSession,
       },
     })
@@ -176,7 +174,6 @@ describe('session-based preview detection', () => {
       client,
       preview: {
         token: 'my-token',
-        studioUrl: 'https://example.com',
         session: previewSession,
       },
     })
@@ -193,11 +190,223 @@ describe('session-based preview detection', () => {
       client,
       preview: {
         token: 'my-token',
-        studioUrl: 'https://example.com',
         session: previewSession,
       },
     })
 
     expect(context.preview?.enabled).toBe(false)
+  })
+})
+
+describe('stegaEnabled serialization', () => {
+  const request = new Request('https://example.com')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should set stegaEnabled to false when preview is enabled but stega not configured', () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    expect(providerProps.value.stegaEnabled).toBe(false) // stega is opt-in, not automatic
+    expect(providerProps.value.previewEnabled).toBe(true)
+  })
+
+  it('should set stegaEnabled to false when preview is disabled', () => {
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    expect(providerProps.value.stegaEnabled).toBe(false)
+    expect(providerProps.value.previewEnabled).toBe(false)
+  })
+
+  it('should set stegaEnabled to false when preview session contains different project ID', () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', 'different-project-id')
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    expect(providerProps.value.stegaEnabled).toBe(false)
+    expect(providerProps.value.previewEnabled).toBe(false)
+  })
+
+  it('should set stegaEnabled to false when preview session contains no project ID', () => {
+    const previewSession = new PreviewSession()
+    // Don't set projectId
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    expect(providerProps.value.stegaEnabled).toBe(false)
+    expect(providerProps.value.previewEnabled).toBe(false)
+  })
+
+  it('should work with Hydrogen session for stegaEnabled', () => {
+    const hydrogenSession = {
+      get: vi.fn().mockImplementation((key: string) => {
+        if (key === 'projectId') return projectId
+        return undefined
+      }),
+      set: vi.fn(),
+      unset: vi.fn(),
+      has: vi.fn(),
+      commit: vi.fn(),
+      destroy: vi.fn(),
+    }
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: hydrogenSession as unknown as PreviewSession,
+      },
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    expect(providerProps.value.stegaEnabled).toBe(false) // stega is opt-in, not automatic
+    expect(providerProps.value.previewEnabled).toBe(true)
+  })
+
+  it('should include stegaEnabled in provider value interface', () => {
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    const providerValue = providerProps.value
+
+    // Ensure all expected properties are present
+    expect(providerValue).toHaveProperty('projectId')
+    expect(providerValue).toHaveProperty('dataset')
+    expect(providerValue).toHaveProperty('apiHost')
+    expect(providerValue).toHaveProperty('apiVersion')
+    expect(providerValue).toHaveProperty('previewEnabled')
+    expect(providerValue).toHaveProperty('perspective')
+    expect(providerValue).toHaveProperty('stegaEnabled')
+
+    // Type assertion to ensure stegaEnabled is boolean
+    expect(typeof providerValue.stegaEnabled).toBe('boolean')
+  })
+
+  it('should enable stegaEnabled when explicitly configured in client', () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const clientWithStega = createClient({
+      projectId,
+      dataset: 'production',
+      stega: {
+        enabled: true,
+        studioUrl: 'https://test.sanity.studio',
+      },
+    })
+
+    const context = createSanityContext({
+      request,
+      cache,
+      client: clientWithStega,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    expect(providerProps.value.stegaEnabled).toBe(true)
+    expect(providerProps.value.previewEnabled).toBe(true)
+  })
+
+  it('should maintain independence between preview and stegaEnabled flags', () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const contextWithPreview = createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    const contextWithoutPreview = createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    const providerPropsWithPreview = (
+      contextWithPreview.SanityProvider({children: null}) as {props: {value: unknown}}
+    ).props
+    const providerPropsWithoutPreview = (
+      contextWithoutPreview.SanityProvider({children: null}) as {props: {value: unknown}}
+    ).props
+
+    // Preview can be true while stegaEnabled remains false (stega is opt-in)
+    expect(providerPropsWithPreview.value.previewEnabled).toBe(true)
+    expect(providerPropsWithPreview.value.stegaEnabled).toBe(false)
+
+    // Both should be false when preview is disabled
+    expect(providerPropsWithoutPreview.value.previewEnabled).toBe(false)
+    expect(providerPropsWithoutPreview.value.stegaEnabled).toBe(false)
+  })
+
+  it('should freeze provider value object', () => {
+    const context = createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    const providerProps = (context.SanityProvider({children: null}) as {props: {value: unknown}})
+      .props
+    const providerValue = providerProps.value
+
+    expect(Object.isFrozen(providerValue)).toBe(true)
   })
 })

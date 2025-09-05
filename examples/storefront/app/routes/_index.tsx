@@ -30,7 +30,6 @@ export async function loader(args: LoaderFunctionArgs) {
 async function loadCriticalData({context}: LoaderFunctionArgs) {
   const [{collections}, homepage] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
-    // Add other queries here, so that they are loaded in parallel
     context.sanity.loadQuery(HOMEPAGE_QUERY, undefined, {
       tag: 'homepage',
       hydrogen: {debug: {displayName: 'query Homepage'}},
@@ -39,6 +38,7 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
 
   return {
     featuredCollection: collections.nodes[0],
+    homepage: homepage.data,
   };
 }
 
@@ -63,11 +63,159 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
+      {/* Render Sanity homepage content when available */}
+      {data.homepage && (
+        <>
+          {data.homepage.hero && <HeroSection hero={data.homepage.hero} />}
+          {data.homepage.modules && <ModulesSection modules={data.homepage.modules} />}
+        </>
+      )}
+      
+      {/* Fallback to Shopify content when no Sanity homepage exists */}
+      {!data.homepage && (
+        <>
+          <FeaturedCollection collection={data.featuredCollection} />
+          <RecommendedProducts products={data.recommendedProducts} />
+        </>
+      )}
+      
+      {/* Always show recommended products at the bottom */}
+      {data.homepage && <RecommendedProducts products={data.recommendedProducts} />}
     </div>
+  );
+}
+
+function HeroSection({hero}: {hero: any}) {
+  return (
+    <section className="hero">
+      {hero.title && (
+        <h1 className="hero-title">
+          {hero.title}
+        </h1>
+      )}
+      {hero.description && (
+        <p className="hero-description">
+          {hero.description}
+        </p>
+      )}
+      {hero.link?.[0] && (
+        <div className="hero-link">
+          {hero.link[0]._type === 'linkInternal' ? (
+            <Link 
+              to={`/${hero.link[0].reference?.slug || ''}`}
+              className="hero-button"
+            >
+              {hero.link[0].name}
+            </Link>
+          ) : (
+            <a 
+              href={hero.link[0].url}
+              className="hero-button"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {hero.link[0].name}
+            </a>
+          )}
+        </div>
+      )}
+      {hero.content?.[0] && (
+        <div className="hero-content">
+          {hero.content[0]._type === 'productWithVariant' && hero.content[0].product && (
+            <div className="hero-product">
+              <h3>Featured Product</h3>
+              {hero.content[0].product.store?.previewImageUrl && (
+                <img 
+                  src={hero.content[0].product.store.previewImageUrl} 
+                  alt={hero.content[0].product.store?.title || 'Product'}
+                  style={{maxWidth: '200px', height: 'auto'}}
+                />
+              )}
+              <p>{hero.content[0].product.store?.title}</p>
+              {hero.content[0].product.store?.slug && (
+                <Link to={`/products/${hero.content[0].product.store.slug}`}>
+                  View Product
+                </Link>
+              )}
+            </div>
+          )}
+          {hero.content[0]._type === 'imageWithProductHotspots' && hero.content[0].image && (
+            <div className="hero-image">
+              <img 
+                src={hero.content[0].image.asset?.url} 
+                alt={hero.content[0].image.alt || 'Hero image'}
+                style={{maxWidth: '100%', height: 'auto'}}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ModulesSection({modules}: {modules: any[]}) {
+  return (
+    <section className="modules">
+      {modules.map((module, index) => (
+        <div key={module._key || index} className={`module module-${module._type}`}>
+          {module._type === 'callout' && (
+            <div className="callout">
+              <p className="callout-text">{module.text}</p>
+              {module.link?.[0] && (
+                <div className="callout-link">
+                  {module.link[0]._type === 'linkInternal' ? (
+                    <Link 
+                      to={`/${module.link[0].reference?.slug || ''}`}
+                      className="callout-button"
+                    >
+                      {module.link[0].name}
+                    </Link>
+                  ) : (
+                    <a 
+                      href={module.link[0].url}
+                      className="callout-button"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {module.link[0].name}
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {module._type === 'products' && module.products && (
+            <div className="products-module">
+              <h2>Featured Products</h2>
+              <div className={`products-grid layout-${module.layout || 'card'}`}>
+                {module.products.map((product: any) => (
+                  <div key={product._id} className="product-card">
+                    {product.store?.previewImageUrl && (
+                      <img 
+                        src={product.store.previewImageUrl} 
+                        alt={product.store?.title || 'Product'}
+                        style={{width: '100%', aspectRatio: '1', objectFit: 'cover'}}
+                      />
+                    )}
+                    <h3>{product.store?.title}</h3>
+                    {product.store?.slug && (
+                      <Link to={`/products/${product.store.slug}`}>
+                        View Product
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </section>
   );
 }
 
@@ -171,4 +319,81 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
   }
 ` as const;
 
-const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]`);
+const HOMEPAGE_QUERY = defineQuery(`
+  *[_id == "home"][0]{
+    _id,
+    _rev,
+    hero{
+      title,
+      description,
+      link[]{
+        _type,
+        _type == "linkInternal" => {
+          name,
+          reference->{
+            _type,
+            slug
+          }
+        },
+        _type == "linkExternal" => {
+          name,
+          url
+        }
+      },
+      content[]{
+        _type,
+        _type == "productWithVariant" => {
+          product->{
+            _id,
+            store{
+              title,
+              slug,
+              previewImageUrl
+            }
+          }
+        },
+        _type == "imageWithProductHotspots" => {
+          image{
+            asset->{
+              _id,
+              url
+            },
+            alt
+          }
+        }
+      }
+    },
+    modules[]{
+      _type,
+      _key,
+      _type == "callout" => {
+        text,
+        link[]{
+          _type,
+          _type == "linkInternal" => {
+            name,
+            reference->{
+              _type,
+              slug
+            }
+          },
+          _type == "linkExternal" => {
+            name,
+            url
+          }
+        }
+      },
+      _type == "products" => {
+        layout,
+        products[]->{
+          _id,
+          store{
+            title,
+            slug,
+            previewImageUrl
+          }
+        }
+      }
+    }
+  }
+`);
