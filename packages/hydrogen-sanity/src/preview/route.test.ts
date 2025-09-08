@@ -1,4 +1,3 @@
-/* eslint-disable max-nested-callbacks */
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createSanityContext} from '../context'
@@ -40,7 +39,7 @@ describe('the preview route', () => {
     it('enters preview mode successfully', async () => {
       const previewSession = new PreviewSession()
 
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {
@@ -72,7 +71,7 @@ describe('the preview route', () => {
     })
 
     it('blocks access when preview mode is disabled', async () => {
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
       })
@@ -91,8 +90,8 @@ describe('the preview route', () => {
       )
     })
 
-    it('fails when no preview token is provided', () => {
-      expect(() => {
+    it('fails when no preview token is provided', async () => {
+      await expect(
         createSanityContext({
           request,
           client: {projectId, dataset},
@@ -100,12 +99,14 @@ describe('the preview route', () => {
             token: '', // Testing with empty token to trigger the error
             session: new PreviewSession(),
           },
-        })
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: Enabling preview mode requires a token.]`,
+      )
     })
 
-    it('fails when project ID is missing from client config', () => {
-      expect(() => {
+    it('fails when project ID is missing from client config', async () => {
+      await expect(
         createSanityContext({
           request,
           client: {dataset},
@@ -113,14 +114,16 @@ describe('the preview route', () => {
             token,
             session: new PreviewSession(),
           },
-        })
-      }).toThrowErrorMatchingInlineSnapshot(`[Error: Configuration must contain \`projectId\`]`)
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: Configuration must contain \`projectId\`]`,
+      )
     })
 
     it('works with Hydrogen session is provided', async () => {
       const hydrogenSession = new Session()
 
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {
@@ -153,7 +156,7 @@ describe('the preview route', () => {
 
     it('rejects invalid preview URLs', async () => {
       const previewSession = new PreviewSession()
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {
@@ -180,7 +183,7 @@ describe('the preview route', () => {
 
     it('uses default settings when redirect URL and perspective are not specified', async () => {
       const previewSession = new PreviewSession()
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {
@@ -256,7 +259,7 @@ describe('the preview route', () => {
       previewSession.set('projectId', projectId)
       previewSession.set('perspective', 'drafts')
 
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {
@@ -291,7 +294,7 @@ describe('the preview route', () => {
       const previewSession = new PreviewSession()
       previewSession.set('projectId', projectId)
 
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {
@@ -327,7 +330,7 @@ describe('the preview route', () => {
       const previewSession = new PreviewSession()
       previewSession.set('projectId', projectId)
 
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request: new Request('https://example.com'),
         client: {projectId, dataset},
         preview: {
@@ -352,7 +355,7 @@ describe('the preview route', () => {
 
     it('blocks perspective changes when preview mode is disabled', async () => {
       const request = new Request('https://example.com', {method: 'PUT'})
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request: new Request('https://example.com'),
         client: {projectId, dataset},
       })
@@ -376,7 +379,7 @@ describe('the preview route', () => {
       const previewSession = new PreviewSession()
       previewSession.set('projectId', 'different-project-id')
 
-      const sanity = createSanityContext({
+      const sanity = await createSanityContext({
         request,
         client: {projectId, dataset},
         preview: {

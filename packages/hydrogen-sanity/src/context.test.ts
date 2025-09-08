@@ -20,9 +20,7 @@ const cache = vi.hoisted<Cache>(() => ({
   put: vi.fn().mockResolvedValue(undefined),
 }))
 
-// Mock the Sanity loader
 const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
-
 let withCache = vi.hoisted<WithCache | null>(() => null)
 
 vi.mock('@shopify/hydrogen', async (importOriginal) => {
@@ -49,10 +47,8 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
 })
 
 const runWithCache = vi.spyOn(withCache!, 'run')
-
 const projectId = 'my-project-id'
 const client = createClient({projectId, dataset: 'my-dataset'})
-
 const query = groq`true`
 const params = {}
 const hashedQuery = await hashQuery(query, params)
@@ -63,7 +59,11 @@ beforeEach(() => {
 
 describe('the Sanity request context', () => {
   const request = new Request('https://example.com')
-  const sanity = createSanityContext({request, cache, client})
+  let sanity: Awaited<ReturnType<typeof createSanityContext>>
+
+  beforeEach(async () => {
+    sanity = await createSanityContext({request, cache, client})
+  })
 
   it('should return a client', () => {
     expect(sanity.client).toSatisfy((contextClient) => contextClient instanceof SanityClient)
@@ -72,7 +72,7 @@ describe('the Sanity request context', () => {
   it('queries should get cached using the default caching strategy', async () => {
     const defaultStrategy = CacheShort()
 
-    const contextWithDefaultStrategy = createSanityContext({
+    const contextWithDefaultStrategy = await createSanityContext({
       request,
       cache,
       client,
@@ -107,21 +107,25 @@ describe('when configured for preview', () => {
   const previewSession = new PreviewSession()
   previewSession.set('projectId', projectId)
 
-  const sanity = createSanityContext({
-    request,
-    cache,
-    client,
-    preview: {
-      token: 'my-token',
-      session: previewSession,
-    },
+  let sanity: Awaited<ReturnType<typeof createSanityContext>>
+
+  beforeEach(async () => {
+    sanity = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
   })
 
-  it('should throw if a token is not provided', () => {
-    expect(() =>
+  it('should throw if a token is not provided', async () => {
+    await expect(
       // @ts-expect-error meant to test invalid configuration
       createSanityContext({client, preview: {enabled: true}}),
-    ).toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Enabling preview mode requires a token.]`)
   })
 
   it.todo(`shouldn't use API CDN`, () => {
@@ -141,6 +145,17 @@ describe('when configured for preview', () => {
     expect(loadQuery).toHaveBeenCalledOnce()
     expect(cache.put).not.toHaveBeenCalledOnce()
   })
+
+  it(`shouldn't cache fetch calls`, async () => {
+    const spy = vi.spyOn(sanity.client, 'fetch').mockResolvedValue({
+      result: true,
+      resultSourceMap: undefined,
+      ms: 100,
+    })
+    await sanity.fetch<boolean>(query)
+    expect(spy).toHaveBeenCalledOnce()
+    expect(cache.put).not.toHaveBeenCalledOnce()
+  })
 })
 
 describe('session-based preview detection', () => {
@@ -152,8 +167,8 @@ describe('session-based preview detection', () => {
     vi.clearAllMocks()
   })
 
-  it('should enable preview when provided session contains matching project ID', () => {
-    const context = createSanityContext({
+  it('should enable preview when provided session contains matching project ID', async () => {
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -166,10 +181,10 @@ describe('session-based preview detection', () => {
     expect(context.preview?.enabled).toBe(true)
   })
 
-  it('should disable preview when provided session contains different project ID', () => {
+  it('should disable preview when provided session contains different project ID', async () => {
     previewSession.set('projectId', 'different-project-id')
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -182,10 +197,10 @@ describe('session-based preview detection', () => {
     expect(context.preview?.enabled).toBe(false)
   })
 
-  it('should disable preview when provided session contains no project ID', () => {
+  it('should disable preview when provided session contains no project ID', async () => {
     previewSession.unset('projectId')
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -206,11 +221,11 @@ describe('stegaEnabled serialization', () => {
     vi.clearAllMocks()
   })
 
-  it('should set stegaEnabled to false when preview is enabled but stega not configured', () => {
+  it('should set stegaEnabled to false when preview is enabled but stega not configured', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', projectId)
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -227,8 +242,8 @@ describe('stegaEnabled serialization', () => {
     expect(providerProps.value.previewEnabled).toBe(true)
   })
 
-  it('should set stegaEnabled to false when preview is disabled', () => {
-    const context = createSanityContext({
+  it('should set stegaEnabled to false when preview is disabled', async () => {
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -241,11 +256,11 @@ describe('stegaEnabled serialization', () => {
     expect(providerProps.value.previewEnabled).toBe(false)
   })
 
-  it('should set stegaEnabled to false when preview session contains different project ID', () => {
+  it('should set stegaEnabled to false when preview session contains different project ID', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', 'different-project-id')
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -262,11 +277,11 @@ describe('stegaEnabled serialization', () => {
     expect(providerProps.value.previewEnabled).toBe(false)
   })
 
-  it('should set stegaEnabled to false when preview session contains no project ID', () => {
+  it('should set stegaEnabled to false when preview session contains no project ID', async () => {
     const previewSession = new PreviewSession()
     // Don't set projectId
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -283,7 +298,7 @@ describe('stegaEnabled serialization', () => {
     expect(providerProps.value.previewEnabled).toBe(false)
   })
 
-  it('should work with Hydrogen session for stegaEnabled', () => {
+  it('should work with Hydrogen session for stegaEnabled', async () => {
     const hydrogenSession = {
       get: vi.fn().mockImplementation((key: string) => {
         if (key === 'projectId') return projectId
@@ -296,7 +311,7 @@ describe('stegaEnabled serialization', () => {
       destroy: vi.fn(),
     }
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -313,8 +328,8 @@ describe('stegaEnabled serialization', () => {
     expect(providerProps.value.previewEnabled).toBe(true)
   })
 
-  it('should include stegaEnabled in provider value interface', () => {
-    const context = createSanityContext({
+  it('should include stegaEnabled in provider value interface', async () => {
+    const context = await createSanityContext({
       request,
       cache,
       client,
@@ -338,7 +353,7 @@ describe('stegaEnabled serialization', () => {
     expect(typeof providerValue.stegaEnabled).toBe('boolean')
   })
 
-  it('should enable stegaEnabled when explicitly configured in client', () => {
+  it('should enable stegaEnabled when explicitly configured in client', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', projectId)
 
@@ -351,7 +366,7 @@ describe('stegaEnabled serialization', () => {
       },
     })
 
-    const context = createSanityContext({
+    const context = await createSanityContext({
       request,
       cache,
       client: clientWithStega,
@@ -368,11 +383,11 @@ describe('stegaEnabled serialization', () => {
     expect(providerProps.value.previewEnabled).toBe(true)
   })
 
-  it('should maintain independence between preview and stegaEnabled flags', () => {
+  it('should maintain independence between preview and stegaEnabled flags', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', projectId)
 
-    const contextWithPreview = createSanityContext({
+    const contextWithPreview = await createSanityContext({
       request,
       cache,
       client,
@@ -382,7 +397,7 @@ describe('stegaEnabled serialization', () => {
       },
     })
 
-    const contextWithoutPreview = createSanityContext({
+    const contextWithoutPreview = await createSanityContext({
       request,
       cache,
       client,
@@ -406,8 +421,8 @@ describe('stegaEnabled serialization', () => {
     expect(providerPropsWithoutPreview.value.stegaEnabled).toBe(false)
   })
 
-  it('should freeze provider value object', () => {
-    const context = createSanityContext({
+  it('should freeze provider value object', async () => {
+    const context = await createSanityContext({
       request,
       cache,
       client,

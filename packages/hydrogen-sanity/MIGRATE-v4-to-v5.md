@@ -44,6 +44,37 @@ export default defineConfig({
 })
 ```
 
+## createSanityContext is now async
+
+`createSanityContext` is now asynchronous, which is a breaking change that requires updating your context creation:
+
+```ts
+const sanity = await createSanityContext({
+  request,
+  cache,
+  client: {
+    projectId: env.SANITY_PROJECT_ID,
+    dataset: env.SANITY_DATASET,
+  },
+})
+```
+
+The functionality remains the same once awaited.
+
+### New `fetch` method
+
+v5 introduces a new `context.fetch()` method that provides direct client results without loader integration, offering an alternative for bundle optimization:
+
+```ts
+// Using loadQuery (includes react-loader features)
+const result = await context.loadQuery(query, params)
+
+// Using fetch (lighter, direct client results)
+const result = await context.fetch(query, params)
+```
+
+Both methods integrate with Hydrogen's caching system and automatically disable caching in preview mode.
+
 ## Preview mode now uses a dedicated session
 
 Preview mode now uses its own dedicated session instead of sharing the storefront's session cookie. Replace the previous `preview.enabled` flag approach with the `PreviewSession` class exported from `hydrogen-sanity`:
@@ -62,7 +93,7 @@ const [cache, session, previewSession] = await Promise.all([
 
 // then, when you're configuring the Sanity context
 
-const sanity = createSanityContext({
+const sanity = await createSanityContext({
   request,
   cache,
   waitUntil,
@@ -89,7 +120,7 @@ const sanity = createSanityContext({
 ```ts
 import {isPreviewEnabled} from 'hydrogen-sanity/preview'
 
-const sanity = createSanityContext({
+const sanity = await createSanityContext({
   client: {
     projectId: env.SANITY_PROJECT_ID,
     dataset: env.SANITY_DATASET,

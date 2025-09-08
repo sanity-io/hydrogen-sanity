@@ -8,6 +8,8 @@ import type {
 } from 'storefrontapi.generated';
 import {ProductItem} from '~/components/ProductItem';
 import {defineQuery} from 'groq';
+import {useQuery} from 'hydrogen-sanity';
+import {HOMEPAGE_QUERYResult} from 'sanity.generated';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -38,7 +40,7 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
 
   return {
     featuredCollection: collections.nodes[0],
-    homepage: homepage.data,
+    homepage,
   };
 }
 
@@ -63,16 +65,25 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  const homepageLoader = useQuery<HOMEPAGE_QUERYResult>(
+    HOMEPAGE_QUERY,
+    undefined,
+    {
+      initial: data.homepage,
+    },
+  );
+
+  const homepage = homepageLoader.loading
+    ? data.homepage.data
+    : homepageLoader.data;
 
   return (
     <div className="home">
       {/* Render Sanity homepage content when available */}
-      {data.homepage && (
+      {homepage && (
         <>
-          {data.homepage.hero && <HeroSection hero={data.homepage.hero} />}
-          {data.homepage.modules && (
-            <ModulesSection modules={data.homepage.modules} />
-          )}
+          {homepage.hero && <HeroSection hero={homepage.hero} />}
+          {homepage.modules && <ModulesSection modules={homepage.modules} />}
         </>
       )}
 
