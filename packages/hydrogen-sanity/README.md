@@ -11,6 +11,7 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 - [Interacting with Sanity data](#interacting-with-sanity-data)
   - [Preferred: Cached queries using `loadQuery`](#preferred-cached-queries-using-loadquery)
     - [Additional `loadQuery` options](#additional-loadquery-options)
+  - [Alternative: Direct queries using `fetch`](#alternative-direct-queries-using-fetch)
   - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
   - [Using Sanity TypeGen](#using-sanity-typegen)
 - [Working with Images](#working-with-images)
@@ -28,7 +29,8 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 
 **Features:**
 
-- Cacheable queries to [Sanity API CDN](https://www.sanity.io/docs/api-cdn).
+- TypeScript support with [Sanity TypeGen](https://www.sanity.io/docs/sanity-typegen).
+- Cacheable queries to [Sanity API CDN](https://www.sanity.io/docs/api-cdn) with `loadQuery` and `fetch` methods.
 - Interactive live preview with [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays).
 
 > [!TIP]
@@ -94,7 +96,7 @@ export async function createAppLoadContext(
   ])
 
   // 1. Configure the Sanity Loader and preview mode
-  const sanity = createSanityContext({
+  const sanity = await createSanityContext({
     request,
 
     // To use the Hydrogen cache for queries
@@ -177,7 +179,7 @@ declare global {
 
 ### Preferred: Cached queries using `loadQuery`
 
-Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy). While in preview mode, `loadQuery` uses `CacheNone` to prevent results from being cached.
+Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy). While in preview mode, `loadQuery` automatically bypasses the cache.
 
 > [!TIP]
 > You can use [Sanity TypeGen tooling](https://www.sanity.io/docs/sanity-typegen) to generate TypeScript definitions for your [GROQ](https://www.sanity.io/docs/groq) queries.
@@ -231,9 +233,30 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
 > [!TIP]
 > Learn more about [request tagging](https://www.sanity.io/docs/reference-api-request-tags).
 
+### Alternative: Direct queries using `fetch`
+
+For Sanity queries that don't need loader integration, there is a `fetch` method that also integrates with Hydrogen's cache:
+
+```ts
+export async function loader({context, params}: LoaderFunctionArgs) {
+  const query = `*[_type == "page" && _id == $id][0]`
+  const params = {id: 'home'}
+
+  const page = await context.sanity.fetch<HomePage>(query, params, {
+    hydrogen: {
+      cache: CacheShort(),
+      debug: {displayName: 'fetch Homepage'},
+    },
+    tag: 'home',
+  })
+
+  return {page}
+}
+```
+
 ### Alternatively: Using `client` directly
 
-The Sanity client (either instantiated from your configuration or passed through directly) is also available in your app's context. It is recommended to use `loadQuery` for data fetching; but the Sanity client can be used for mutations within actions, for example:
+The Sanity client (either instantiated from your configuration or passed through directly) is also available in your app's context. It is recommended to use `loadQuery` or `fetch` for data fetching; but the Sanity client can be used for mutations within actions, for example:
 
 ```ts
 export async function action({context, request}: ActionFunctionArgs) {
@@ -340,7 +363,7 @@ export async function createAppLoadContext(
     PreviewSession.init(request, [env.SESSION_SECRET]),
   ])
 
-  const sanity = createSanityContext({
+  const sanity = await createSanityContext({
     request,
     cache,
     waitUntil,

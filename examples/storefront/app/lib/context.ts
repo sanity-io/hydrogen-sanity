@@ -41,7 +41,7 @@ export async function createAppLoadContext(
     },
   });
 
-  const sanity = createSanityContext({
+  const sanity = await createSanityContext({
     request,
     cache,
     waitUntil,

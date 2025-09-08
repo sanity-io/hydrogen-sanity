@@ -10,12 +10,7 @@ import {
   SanityClient,
 } from '@sanity/client'
 import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
-import {
-  CacheNone,
-  type CachingStrategy,
-  createWithCache,
-  type HydrogenSession,
-} from '@shopify/hydrogen'
+import {type CachingStrategy, createWithCache, type HydrogenSession} from '@shopify/hydrogen'
 import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
@@ -85,6 +80,44 @@ type LoadQueryOptions<T> = Pick<
 > & {
   hydrogen?: {
     /**
+     * The caching strategy to use for the subrequest.
+     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
+     */
+    cache?: CachingStrategy
+
+    /**
+     * Optional debugging information to be displayed in the subrequest profiler.
+     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
+     */
+    debug?: {
+      displayName: string
+    }
+
+    /**
+     * Whether to cache the result of the query or not.
+     * @defaultValue () => true
+     */
+    shouldCacheResult?: (value: QueryResponseInitial<T>) => boolean
+  }
+}
+
+type FetchOptions<T> = HydrogenResponseQueryOptions & {
+  hydrogen?: {
+    /**
+     * The caching strategy to use for the subrequest.
+     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
+     */
+    cache?: CachingStrategy
+
+    /**
+     * Optional debugging information to be displayed in the subrequest profiler.
+     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
+     */
+    debug?: {
+      displayName: string
+    }
+
+    /**
      * Whether to cache the result of the query or not.
      * @defaultValue () => true
      */
@@ -102,6 +135,17 @@ export interface SanityContext {
     params?: QueryParams | QueryWithoutParams,
     options?: LoadQueryOptions<ClientReturn<Query, Result>>,
   ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>>
+
+  /**
+   * Query Sanity using direct client fetch with Hydrogen caching.
+   * Use this when you need direct client results without react-loader integration.
+   * Automatically disables caching in preview mode for real-time updates.
+   */
+  fetch<Result = Any, Query extends string = string>(
+    query: Query,
+    params?: QueryParams | QueryWithoutParams,
+    options?: FetchOptions<Result>,
+  ): Promise<ClientReturn<Query, Result>>
 
   /**
    * The Sanity client, automatically configured for preview mode when enabled.
@@ -122,7 +166,9 @@ export interface SanityContext {
 /**
  * @public
  */
-export function createSanityContext(options: CreateSanityContextOptions): SanityContext {
+export async function createSanityContext(
+  options: CreateSanityContextOptions,
+): Promise<SanityContext> {
   const {cache, waitUntil = () => Promise.resolve(), request, preview, defaultStrategy} = options
   const withCache = cache ? createWithCache({cache, waitUntil, request}) : null
   let client =
@@ -139,6 +185,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       didWarnAboutNoApiVersion = true
     }
+
     client = client.withConfig({apiVersion: DEFAULT_API_VERSION})
   }
 
@@ -194,15 +241,12 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
-      if (!withCache) {
+      if (!withCache || previewEnabled) {
         return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
       }
 
-      // Don't store response if preview is enabled
-      const cacheStrategy = previewEnabled
-        ? CacheNone()
-        : loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
-
+      const cacheStrategy =
+        loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
       const queryHash = await hashQuery(query, params)
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
@@ -221,6 +265,39 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
           })
 
           return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
+        },
+      )
+    },
+
+    async fetch<Result = Any, Query extends string = string>(
+      query: Query,
+      params?: QueryParams | QueryWithoutParams,
+      fetchOptions?: Pick<
+        LoadQueryOptions<Result>,
+        'perspective' | 'hydrogen' | 'useCdn' | 'headers' | 'tag'
+      >,
+    ): Promise<ClientReturn<Query, Result>> {
+      const queryParams = params || {}
+
+      if (!withCache || previewEnabled) {
+        return await client.fetch<ClientReturn<Query, Result>>(query, queryParams, fetchOptions)
+      }
+
+      const cacheStrategy =
+        fetchOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
+      const queryHash = await hashQuery(query, queryParams)
+
+      return await withCache.run(
+        {cacheKey: queryHash, cacheStrategy, shouldCacheResult: () => true},
+        async ({addDebugData}: CacheActionFunctionParam): Promise<ClientReturn<Query, Result>> => {
+          // Name displayed in the subrequest profiler
+          const displayName = fetchOptions?.hydrogen?.debug?.displayName || 'fetch Sanity'
+
+          addDebugData({
+            displayName,
+          })
+
+          return await client.fetch<ClientReturn<Query, Result>>(query, queryParams, fetchOptions)
         },
       )
     },
