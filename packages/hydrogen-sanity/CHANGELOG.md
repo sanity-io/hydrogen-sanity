@@ -5,6 +5,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-next.3 (2025-09-08)
+
+- feat!: enhance support for client-side loaders and visual editing ([e07928b](https://github.com/sanity-io/hydrogen-sanity/commit/e07928b))
+- docs: adjust README ([814d89c](https://github.com/sanity-io/hydrogen-sanity/commit/814d89c))
+
+### BREAKING CHANGE
+
+- Sanity context no longer returns a `previewClient`. Instead, the client that is passed to `createSanityContext` is configured automatically.
+
 ## 5.0.0-next.2 (2025-08-29)
 
 - docs: add image hook to README ([d204a1e](https://github.com/sanity-io/hydrogen-sanity/commit/d204a1e))
