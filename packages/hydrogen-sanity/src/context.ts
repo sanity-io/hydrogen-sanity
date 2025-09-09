@@ -9,7 +9,7 @@ import {
   type ResponseQueryOptions,
   SanityClient,
 } from '@sanity/client'
-import {loadQuery, type QueryResponseInitial, setServerClient} from '@sanity/react-loader'
+import type {QueryResponseInitial} from '@sanity/react-loader'
 import {type CachingStrategy, createWithCache, type HydrogenSession} from '@shopify/hydrogen'
 import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 
@@ -23,6 +23,19 @@ import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
+let serverClientInitialized = false
+
+/**
+ * Lazy initialization of server client for @sanity/react-loader
+ * Only loads the dependencies when loadQuery is actually called
+ */
+async function initializeServerClient(client: SanityClient): Promise<void> {
+  if (serverClientInitialized) return
+  
+  const {setServerClient} = await import('@sanity/react-loader')
+  setServerClient(client)
+  serverClientInitialized = true
+}
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -222,7 +235,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     }
   }
 
-  setServerClient(client)
+  // Server client will be initialized lazily on first loadQuery call
 
   const {apiHost, projectId, dataset, apiVersion} = client.config()
   const providerValue: SanityProviderValue = {
@@ -235,13 +248,17 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     stegaEnabled: client.config().stega?.enabled ?? false,
   }
 
-  return {
+  const sanityContext: SanityContext = {
     async loadQuery<Result = Any, Query extends string = string>(
       query: Query,
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
+      // Initialize server client on first loadQuery call
+      await initializeServerClient(client)
+      
       if (!withCache || previewEnabled) {
+        const {loadQuery} = await import('@sanity/react-loader')
         return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
       }
 
@@ -264,6 +281,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
             displayName,
           })
 
+          const {loadQuery} = await import('@sanity/react-loader')
           return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
         },
       )
@@ -316,4 +334,6 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       )
     },
   }
+
+  return sanityContext
 }
