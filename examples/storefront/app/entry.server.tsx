@@ -18,10 +18,7 @@ export default async function handleRequest(
   const isPreviewEnabled = preview?.enabled;
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    defaultSrc: [
-      // TODO: add CSP helpers
-      `https://cdn.sanity.io/images/${projectId}/${dataset}`,
-    ],
+    defaultSrc: ['https://cdn.sanity.io'],
     shop: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: env.PUBLIC_STORE_DOMAIN,
