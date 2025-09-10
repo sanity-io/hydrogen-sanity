@@ -61,19 +61,47 @@ const sanity = await createSanityContext({
 
 The functionality remains the same once awaited.
 
-### New `fetch` method
+### New `query` method and `Query` component (Recommended)
 
-v5 introduces a new `context.fetch()` method that provides direct client results without loader integration, offering an alternative for bundle optimization:
+v5 introduces intelligent wrappers that automatically choose the optimal data fetching and rendering strategy based on preview mode:
 
 ```ts
-// Using loadQuery (includes react-loader features)
-const result = await context.loadQuery(query, params)
-
-// Using fetch (lighter, direct client results)
-const result = await context.fetch(query, params)
+// Recommended: Use context.query() instead of loadQuery
+const result = await context.sanity.query(query, params)
 ```
 
-Both methods integrate with Hydrogen's caching system and automatically disable caching in preview mode.
+```tsx
+// Recommended: Use Query component for rendering
+import {Query} from 'hydrogen-sanity'
+;<Query query={query} params={params} options={result}>
+  {(data, encodeDataAttribute) => <h1 {...encodeDataAttribute?.('title')}>{data?.title}</h1>}
+</Query>
+```
+
+These new methods automatically optimize based on context:
+
+- **In preview mode**: Uses `loadQuery` for loader integration and client-side updates
+- **In production**: Uses `fetch` for optimal performance and static rendering
+
+### New `fetch` method
+
+v5 also introduces a new `context.fetch()` method that provides direct client results without loader integration, offering an alternative for bundle optimization:
+
+```ts
+// Using fetch (lighter, direct client results)
+const result = await context.sanity.fetch(query, params)
+```
+
+### Legacy method
+
+You can continue using the v4 method:
+
+```ts
+// v4 method (still supported)
+const result = await context.sanity.loadQuery(query, params)
+```
+
+All methods integrate with Hydrogen's caching system and automatically disable caching in preview mode.
 
 ## Preview mode now uses a dedicated session
 

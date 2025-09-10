@@ -3,8 +3,8 @@ import type {HistoryRefresh, OverlayComponentResolver} from '@sanity/visual-edit
 import type {ReactNode} from 'react'
 
 import {isServer} from '../utils'
-import LiveMode from './LiveMode.client'
-import Overlays from './Overlays.client'
+import LiveModeClient from './LiveMode.client'
+import OverlaysClient from './Overlays.client'
 import type {Revalidator} from './types'
 
 export interface VisualEditingProps extends Omit<StegaConfig, 'enabled'> {
@@ -79,7 +79,7 @@ if (isServer()) {
  *
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
-export default function VisualEditing(props: VisualEditingProps): ReactNode {
+function VisualEditingClient(props: VisualEditingProps): ReactNode {
   const {action, components, zIndex, refresh, onConnect, onDisconnect, liveMode, ...stegaProps} =
     props
 
@@ -94,8 +94,10 @@ export default function VisualEditing(props: VisualEditingProps): ReactNode {
 
   return (
     <>
-      <Overlays {...overlaysProps} />
-      {effectiveLiveMode && liveModeProps && <LiveMode {...liveModeProps} />}
+      <OverlaysClient {...overlaysProps} />
+      {effectiveLiveMode && liveModeProps && <LiveModeClient {...liveModeProps} />}
     </>
   )
 }
+
+export default VisualEditingClient

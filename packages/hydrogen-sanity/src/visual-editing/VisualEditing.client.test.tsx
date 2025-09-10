@@ -5,7 +5,7 @@ import {render} from '@testing-library/react'
 import {BrowserRouter} from 'react-router'
 import {beforeEach, expect, it, vi} from 'vitest'
 
-import VisualEditing from './VisualEditing.client'
+import VisualEditingClient from './VisualEditing.client'
 
 // Mock all external dependencies as simple functions
 vi.mock('@sanity/react-loader', () => ({
@@ -75,13 +75,13 @@ beforeEach(() => {
 })
 
 it('should export a React component', () => {
-  expect(typeof VisualEditing).toBe('function')
+  expect(typeof VisualEditingClient).toBe('function')
 })
 
 it('should enable visual editing when rendered', () => {
   render(
     <BrowserRouter>
-      <VisualEditing />
+      <VisualEditingClient />
     </BrowserRouter>,
   )
 
@@ -91,7 +91,7 @@ it('should enable visual editing when rendered', () => {
 it('should setup live mode when liveMode is true', () => {
   render(
     <BrowserRouter>
-      <VisualEditing liveMode />
+      <VisualEditingClient liveMode />
     </BrowserRouter>,
   )
 
@@ -101,7 +101,7 @@ it('should setup live mode when liveMode is true', () => {
 it('should create client with correct config when liveMode is enabled', () => {
   render(
     <BrowserRouter>
-      <VisualEditing liveMode />
+      <VisualEditingClient liveMode />
     </BrowserRouter>,
   )
 
@@ -125,7 +125,7 @@ it('should configure stega when enabled and liveMode is true', () => {
   const handleFilter = vi.fn(() => true)
   render(
     <BrowserRouter>
-      <VisualEditing liveMode filter={handleFilter} studioUrl={studioUrl} />
+      <VisualEditingClient liveMode filter={handleFilter} studioUrl={studioUrl} />
     </BrowserRouter>,
   )
 
@@ -141,7 +141,7 @@ it('should configure stega when enabled and liveMode is true', () => {
 it('should not enable live mode by default', () => {
   render(
     <BrowserRouter>
-      <VisualEditing />
+      <VisualEditingClient />
     </BrowserRouter>,
   )
 
@@ -152,7 +152,7 @@ it('should not enable live mode by default', () => {
 it('should enable live mode when liveMode is true', () => {
   render(
     <BrowserRouter>
-      <VisualEditing liveMode />
+      <VisualEditingClient liveMode />
     </BrowserRouter>,
   )
 
@@ -167,7 +167,7 @@ it('should enable live mode when liveMode is true', () => {
 it('should return null (no visual output)', () => {
   const {container} = render(
     <BrowserRouter>
-      <VisualEditing />
+      <VisualEditingClient />
     </BrowserRouter>,
   )
 
@@ -177,7 +177,7 @@ it('should return null (no visual output)', () => {
 it('should integrate useLiveMode with correct client for loader functionality when liveMode is enabled', () => {
   render(
     <BrowserRouter>
-      <VisualEditing liveMode onConnect={vi.fn()} onDisconnect={vi.fn()} />
+      <VisualEditingClient liveMode onConnect={vi.fn()} onDisconnect={vi.fn()} />
     </BrowserRouter>,
   )
 
@@ -192,7 +192,7 @@ it('should integrate useLiveMode with correct client for loader functionality wh
 it('should integrate enableVisualEditing with history and refresh for comlink functionality', () => {
   render(
     <BrowserRouter>
-      <VisualEditing zIndex={1000} />
+      <VisualEditingClient zIndex={1000} />
     </BrowserRouter>,
   )
 

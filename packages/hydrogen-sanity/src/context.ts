@@ -23,19 +23,6 @@ import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
-let serverClientInitialized = false
-
-/**
- * Lazy initialization of server client for @sanity/react-loader
- * Only loads the dependencies when loadQuery is actually called
- */
-async function initializeServerClient(client: SanityClient): Promise<void> {
-  if (serverClientInitialized) return
-  
-  const {setServerClient} = await import('@sanity/react-loader')
-  setServerClient(client)
-  serverClientInitialized = true
-}
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -87,7 +74,7 @@ type HydrogenResponseQueryOptions = Omit<ResponseQueryOptions, 'next' | 'cache'>
   hydrogen?: 'hydrogen' extends keyof RequestInit ? RequestInit['hydrogen'] : never
 }
 
-type LoadQueryOptions<T> = Pick<
+export type LoadQueryOptions<T> = Pick<
   HydrogenResponseQueryOptions,
   'perspective' | 'hydrogen' | 'useCdn' | 'stega' | 'headers' | 'tag'
 > & {
@@ -114,7 +101,7 @@ type LoadQueryOptions<T> = Pick<
   }
 }
 
-type FetchOptions<T> = HydrogenResponseQueryOptions & {
+export type FetchOptions<T> = HydrogenResponseQueryOptions & {
   hydrogen?: {
     /**
      * The caching strategy to use for the subrequest.
@@ -159,6 +146,16 @@ export interface SanityContext {
     params?: QueryParams | QueryWithoutParams,
     options?: FetchOptions<Result>,
   ): Promise<ClientReturn<Query, Result>>
+
+  /**
+   * Conditionally query Sanity using either loadQuery (for preview mode) or fetch (for static mode).
+   * This optimizes bundle size by only loading @sanity/react-loader dependencies when in preview mode.
+   */
+  query<Result = Any, Query extends string = string>(
+    query: Query,
+    params?: QueryParams | QueryWithoutParams,
+    options?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
+  ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>>
 
   /**
    * The Sanity client, automatically configured for preview mode when enabled.
@@ -232,6 +229,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         token: preview.token,
         perspective,
       })
+
+      // Set server client for react-loader when in preview mode
+      const {setServerClient} = await import('@sanity/react-loader')
+      setServerClient(client)
     }
   }
 
@@ -254,9 +255,6 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
-      // Initialize server client on first loadQuery call
-      await initializeServerClient(client)
-      
       if (!withCache || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
         return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
@@ -318,6 +316,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
           return await client.fetch<ClientReturn<Query, Result>>(query, queryParams, fetchOptions)
         },
       )
+    },
+
+    async query<Result = Any, Query extends string = string>(
+      query: Query,
+      params?: QueryParams | QueryWithoutParams,
+      queryOptions?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
+    ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>> {
+      return await (previewEnabled ? this.loadQuery : this.fetch)(query, params, queryOptions)
     },
 
     client,

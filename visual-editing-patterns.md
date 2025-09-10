@@ -193,6 +193,7 @@ refresh: (payload) => {
    - **Safe default** - prevents Studio from assuming active client loaders
 
 2. **Live Mode Setups** (`liveMode={true}` - Explicit Opt-in):
+
    ```tsx
    <VisualEditing liveMode={true} /> // Only when useQuery hooks are active
    ```

@@ -94,6 +94,7 @@
   },
   "dependencies": {
     "@sanity/comlink": "^3.0.9",
+    "@sanity/core-loader": "^1.8.18",
     "@sanity/image-url": "^1.1.0",
     "@sanity/presentation-comlink": "^1.0.28",
     "@sanity/preview-url-secret": "^2.1.14",

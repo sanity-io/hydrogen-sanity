@@ -9,10 +9,11 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 - [Usage](#usage)
   - [Satisfy TypeScript](#satisfy-typescript)
 - [Interacting with Sanity data](#interacting-with-sanity-data)
-  - [Preferred: Cached queries using `loadQuery`](#preferred-cached-queries-using-loadquery)
+  - [Recommended: Using `query` and `Query` together](#recommended-using-query-and-query-together)
+  - [Alternative: Cached queries using `loadQuery`](#alternative-cached-queries-using-loadquery)
     - [Additional `loadQuery` options](#additional-loadquery-options)
   - [Alternative: Direct queries using `fetch`](#alternative-direct-queries-using-fetch)
-  - [Alternatively: Using `client` directly](#alternatively-using-client-directly)
+  - [Alternative: Using `client` directly](#alternative-using-client-directly)
   - [Using Sanity TypeGen](#using-sanity-typegen)
 - [Working with Images](#working-with-images)
 - [Enable Visual Editing](#enable-visual-editing)
@@ -30,6 +31,7 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 **Features:**
 
 - TypeScript support with [Sanity TypeGen](https://www.sanity.io/docs/sanity-typegen).
+- Intelligent data fetching with `query` method and `Query` component that automatically optimize based on preview mode.
 - Cacheable queries to [Sanity API CDN](https://www.sanity.io/docs/api-cdn) with `loadQuery` and `fetch` methods.
 - Interactive live preview with [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays).
 
@@ -177,7 +179,80 @@ declare global {
 
 ## Interacting with Sanity data
 
-### Preferred: Cached queries using `loadQuery`
+### Recommended: Using `query` and `Query` together
+
+The `query` method and `Query` component work together to provide an optimized data fetching and rendering experience that automatically adapts based on your app's current mode:
+
+- **In preview mode**: `query` uses `loadQuery` for loader integration, while `Query` renders with real-time updates via `useQuery`
+- **In production**: `query` uses `fetch` for optimal performance, while `Query` renders static data directly
+
+> [!TIP]
+> You can use [Sanity TypeGen tooling](https://www.sanity.io/docs/sanity-typegen) to generate TypeScript definitions for your [GROQ](https://www.sanity.io/docs/groq) queries.
+
+**Step 1: Fetch data in your loader with `query`**
+
+```ts
+export async function loader({context, params}: LoaderFunctionArgs) {
+  const queryString = `*[_type == "page" && _id == $id][0]`
+  const queryParams = {id: 'home'}
+  const initial = await context.sanity.query(queryString, queryParams)
+
+  return {initial}
+}
+```
+
+**Step 2: Render with the `Query` component**
+
+```tsx
+import {Query} from 'hydrogen-sanity'
+
+export default function HomePage({loaderData}: {loaderData: {initial: any}}) {
+  const {initial} = loaderData
+
+  return (
+    <Query query={`*[_type == "page" && _id == $id][0]`} params={{id: 'home'}} options={initial}>
+      {(data, encodeDataAttribute) => (
+        <div>
+          <h1 {...encodeDataAttribute?.('title')}>{data?.title}</h1>
+          <p {...encodeDataAttribute?.('description')}>{data?.description}</p>
+        </div>
+      )}
+    </Query>
+  )
+}
+```
+
+> [!NOTE]
+> The `encodeDataAttribute` function is only available in preview mode and enables click-to-edit functionality. In production, it returns `undefined`.
+
+**Advanced Options**
+
+Both methods accept the same options as their underlying implementations:
+
+```ts
+// In your loader
+const page = await context.sanity.query<HomePage>(queryString, params, {
+  // Hydrogen caching options
+  hydrogen: {
+    cache: CacheShort(),
+    debug: {displayName: 'query Homepage'},
+  },
+  // Sanity request options
+  tag: 'home',
+})
+
+// In your component
+<Query
+  query={queryString}
+  params={params}
+  options={initial}
+  fallback={<div>Loading...</div>} // React Suspense props
+>
+  {(data) => <YourComponent data={data} />}
+</Query>
+```
+
+### Alternative: Cached queries using `loadQuery`
 
 Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy). While in preview mode, `loadQuery` automatically bypasses the cache.
 
@@ -254,9 +329,9 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 }
 ```
 
-### Alternatively: Using `client` directly
+### Alternative: Using `client` directly
 
-The Sanity client (either instantiated from your configuration or passed through directly) is also available in your app's context. It is recommended to use `loadQuery` or `fetch` for data fetching; but the Sanity client can be used for mutations within actions, for example:
+The Sanity client (either instantiated from your configuration or passed through directly) is also available in your app's context. It is recommended to use `query` for data fetching; but the Sanity client can be used for mutations within actions, for example:
 
 ```ts
 export async function action({context, request}: ActionFunctionArgs) {
@@ -674,6 +749,9 @@ export async function loader({context, params}: LoaderArgs) {
 
 - [From `v3` to `v4`](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v3-to-v4.md)
 - [From `v4` to `v5`](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v4-to-v5.md)
+
+> [!NOTE]
+> **New in v5**: The `query` method and `Query` component are now the **recommended** approach for data fetching and rendering. These wrappers automatically choose the optimal strategy based on preview mode, providing better performance and developer experience. While `loadQuery` and `fetch` are still available as alternatives for granular control, the new wrappers should be your first choice.
 
 ## License
 
