@@ -46,10 +46,9 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: lts/*
-          cache: pnpm
       - run: pnpm i --filter="@workspace:." --filter="studio" --filter="@repo/sanity-config"
 
       - name: Set Studio hostname
@@ -102,10 +101,9 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: lts/*
-          cache: pnpm
       - run: pnpm install --filter="@workspace:." --filter="studio" --filter="repo/sanity-config"
 
       - name: Cleanup PR preview

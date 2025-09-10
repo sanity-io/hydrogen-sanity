@@ -33,10 +33,9 @@ jobs:
           run_install: false
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 'lts/*'
-          cache: 'pnpm'
 
       - name: Install Dependencies
         run: pnpm install --filter="@workspace:." --filter="hydrogen-sanity" --filter="storefront"

@@ -56,9 +56,8 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          cache: pnpm
           node-version: lts/*
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
         # Linting can be skipped
@@ -104,9 +103,8 @@ jobs:
           git config --global core.eol lf
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          cache: pnpm
           node-version: ${{ matrix.node }}
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
       - run: pnpm test --project="hydrogen-sanity"
@@ -131,9 +129,8 @@ jobs:
           # analyze every commit since last release
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          cache: pnpm
           node-version: lts/*
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
         # Branches that will release new versions are defined in .releaserc.json
