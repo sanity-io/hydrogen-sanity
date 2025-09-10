@@ -5,6 +5,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-next.4 (2025-09-10)
+
+- feat: add wrappers for server fetching and client-side loading ([6439320](https://github.com/sanity-io/hydrogen-sanity/commit/6439320))
+- fix: force ESM resolution for `rxjs` and add `@sanity/image-url-builder` to optimized dependencies ([005cc61](https://github.com/sanity-io/hydrogen-sanity/commit/005cc61))
+- fix: lazy load query store ([f48bcf5](https://github.com/sanity-io/hydrogen-sanity/commit/f48bcf5))
+- feat!: add a `fetch` method ([1eefda2](https://github.com/sanity-io/hydrogen-sanity/commit/1eefda2))
+
+### BREAKING CHANGE
+
+- `createSanityContext` now returns a Promise.
+
 ## 5.0.0-next.3 (2025-09-08)
 
 - feat!: enhance support for client-side loaders and visual editing ([e07928b](https://github.com/sanity-io/hydrogen-sanity/commit/e07928b))
