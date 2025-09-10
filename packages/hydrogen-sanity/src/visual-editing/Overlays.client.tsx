@@ -63,7 +63,7 @@ if (isServer()) {
  *
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
-export default function Overlays(props: OverlaysProps): ReactNode {
+function OverlaysClient(props: OverlaysProps): ReactNode {
   const {components, zIndex, refresh, action, liveMode = false} = props
 
   const submit = useSubmit()
@@ -140,3 +140,5 @@ export default function Overlays(props: OverlaysProps): ReactNode {
 
   return null
 }
+
+export default OverlaysClient

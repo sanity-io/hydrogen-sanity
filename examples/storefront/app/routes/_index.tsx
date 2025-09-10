@@ -8,8 +8,7 @@ import type {
 } from 'storefrontapi.generated';
 import {ProductItem} from '~/components/ProductItem';
 import {defineQuery} from 'groq';
-import {useQuery} from 'hydrogen-sanity';
-import {HOMEPAGE_QUERYResult} from 'sanity.generated';
+import {Query, useImageUrlBuilder} from 'hydrogen-sanity';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -30,9 +29,10 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({context}: LoaderFunctionArgs) {
+  const {storefront, sanity} = context;
   const [{collections}, homepage] = await Promise.all([
-    context.storefront.query(FEATURED_COLLECTION_QUERY),
-    context.sanity.loadQuery(HOMEPAGE_QUERY, undefined, {
+    storefront.query(FEATURED_COLLECTION_QUERY),
+    sanity.query(HOMEPAGE_QUERY, undefined, {
       tag: 'homepage',
       hydrogen: {debug: {displayName: 'query Homepage'}},
     }),
@@ -65,45 +65,46 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  const homepageLoader = useQuery<HOMEPAGE_QUERYResult>(
-    HOMEPAGE_QUERY,
-    undefined,
-    {
-      initial: data.homepage,
-    },
-  );
-
-  const homepage = homepageLoader.loading
-    ? data.homepage.data
-    : homepageLoader.data;
 
   return (
     <div className="home">
-      {/* Render Sanity homepage content when available */}
-      {homepage && (
-        <>
-          {homepage.hero && <HeroSection hero={homepage.hero} />}
-          {homepage.modules && <ModulesSection modules={homepage.modules} />}
-        </>
-      )}
+      <Query query={HOMEPAGE_QUERY} options={{initial: data.homepage}}>
+        {(homepage) => {
+          return (
+            <>
+              {/* Render Sanity homepage content when available */}
+              {homepage && (
+                <>
+                  {homepage.hero && <HeroSection hero={homepage.hero} />}
+                  {homepage.modules && (
+                    <ModulesSection modules={homepage.modules} />
+                  )}
+                </>
+              )}
 
-      {/* Fallback to Shopify content when no Sanity homepage exists */}
-      {!data.homepage && (
-        <>
-          <FeaturedCollection collection={data.featuredCollection} />
-          <RecommendedProducts products={data.recommendedProducts} />
-        </>
-      )}
+              {/* Fallback to Shopify content when no Sanity homepage exists */}
+              {!homepage && (
+                <>
+                  <FeaturedCollection collection={data.featuredCollection} />
+                  <RecommendedProducts products={data.recommendedProducts} />
+                </>
+              )}
 
-      {/* Always show recommended products at the bottom */}
-      {data.homepage && (
-        <RecommendedProducts products={data.recommendedProducts} />
-      )}
+              {/* Always show recommended products at the bottom */}
+              {homepage && (
+                <RecommendedProducts products={data.recommendedProducts} />
+              )}
+            </>
+          );
+        }}
+      </Query>
     </div>
   );
 }
 
 function HeroSection({hero}: {hero: any}) {
+  const imageUrlBuilder = useImageUrlBuilder();
+
   return (
     <section className="hero">
       {hero.title && <h1 className="hero-title">{hero.title}</h1>}
@@ -156,7 +157,12 @@ function HeroSection({hero}: {hero: any}) {
             hero.content[0].image && (
               <div className="hero-image">
                 <img
-                  src={hero.content[0].image.asset?.url}
+                  src={imageUrlBuilder
+                    .image(hero.content[0].image)
+                    .width(800)
+                    .height(600)
+                    .auto('format')
+                    .url()}
                   alt={hero.content[0].image.alt || 'Hero image'}
                   style={{maxWidth: '100%', height: 'auto'}}
                 />
@@ -169,6 +175,8 @@ function HeroSection({hero}: {hero: any}) {
 }
 
 function ModulesSection({modules}: {modules: any[]}) {
+  const imageUrlBuilder = useImageUrlBuilder();
+
   return (
     <section className="modules">
       {modules.map((module, index) => (
@@ -231,6 +239,22 @@ function ModulesSection({modules}: {modules: any[]}) {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {module._type === 'imageWithProductHotspots' && module.image && (
+            <div className="image-module">
+              <h2>Image Module</h2>
+              <img
+                src={imageUrlBuilder
+                  .image(module.image)
+                  .width(600)
+                  .height(400)
+                  .auto('format')
+                  .url()}
+                alt={module.image.alt || 'Module image'}
+                style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}}
+              />
             </div>
           )}
         </div>

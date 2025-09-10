@@ -5,7 +5,7 @@ import {render} from '@testing-library/react'
 import {BrowserRouter} from 'react-router'
 import {beforeEach, expect, it, vi} from 'vitest'
 
-import Overlays from './Overlays.client'
+import OverlaysClient from './Overlays.client'
 
 // Mock external dependencies
 vi.mock('@sanity/visual-editing', () => ({
@@ -60,7 +60,7 @@ beforeEach(() => {
 it('should enable visual editing overlays', () => {
   render(
     <BrowserRouter>
-      <Overlays />
+      <OverlaysClient />
     </BrowserRouter>,
   )
 
@@ -72,7 +72,7 @@ it('should pass components and zIndex to enableVisualEditing', () => {
 
   render(
     <BrowserRouter>
-      <Overlays components={components} zIndex={999} />
+      <OverlaysClient components={components} zIndex={999} />
     </BrowserRouter>,
   )
 
@@ -87,7 +87,7 @@ it('should pass components and zIndex to enableVisualEditing', () => {
 it('should return null (no visual output)', () => {
   const {container} = render(
     <BrowserRouter>
-      <Overlays />
+      <OverlaysClient />
     </BrowserRouter>,
   )
 

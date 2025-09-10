@@ -40,7 +40,7 @@ if (isServer()) {
  *
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
-export default function LiveMode(props: LiveModeProps): ReactNode {
+function LiveModeClient(props: LiveModeProps): ReactNode {
   const {onConnect, onDisconnect, ...stegaProps} = props
 
   const sanityProvider = useSanityProviderValue()
@@ -89,3 +89,5 @@ export default function LiveMode(props: LiveModeProps): ReactNode {
 
   return null
 }
+
+export default LiveModeClient

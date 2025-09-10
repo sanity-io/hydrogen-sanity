@@ -5,7 +5,7 @@ import {render} from '@testing-library/react'
 import {BrowserRouter} from 'react-router'
 import {beforeEach, expect, it, vi} from 'vitest'
 
-import LiveMode from './LiveMode.client'
+import LiveModeClient from './LiveMode.client'
 
 // Mock external dependencies
 vi.mock('@sanity/react-loader', () => ({
@@ -59,7 +59,7 @@ beforeEach(() => {
 it('should enable live mode with client', () => {
   render(
     <BrowserRouter>
-      <LiveMode />
+      <LiveModeClient />
     </BrowserRouter>,
   )
 
@@ -73,7 +73,7 @@ it('should enable live mode with client', () => {
 it('should return null (no visual output)', () => {
   const {container} = render(
     <BrowserRouter>
-      <LiveMode />
+      <LiveModeClient />
     </BrowserRouter>,
   )
 
