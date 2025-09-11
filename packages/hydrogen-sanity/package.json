@@ -119,7 +119,7 @@
     "eslint-config-sanity": "^7.1.4",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "0.0.0-experimental-f3a80361-20250911",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "groq": "^4.5.0",
     "react": "^18.3.1",

@@ -118,7 +118,7 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [handlePerspectiveChange, inStudioContext])
+  }, [inStudioContext])
 
   // Enable visual editing overlays and interactions
   useEffect(() => {
