@@ -132,7 +132,6 @@ export async function createAppLoadContext(
 +   // strategy: CacheShort() | null,
 + })
 
-- // 2. Make Sanity available to loaders and actions in the request context
 + // 2. Make Sanity available to loaders and actions in the request context
   return {
     ...hydrogenContext,
