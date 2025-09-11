@@ -18,3 +18,6 @@ export function useImageUrl(source: SanityImageSource): ImageUrlBuilder {
   const builder = useImageUrlBuilder()
   return builder.image(source)
 }
+
+export type {ImageUrlBuilder} from '@sanity/image-url/lib/types/builder'
+export type * from '@sanity/image-url/lib/types/types'
