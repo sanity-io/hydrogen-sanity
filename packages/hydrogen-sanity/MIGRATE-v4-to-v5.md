@@ -6,7 +6,7 @@
 
 ### Major changes requiring action:
 
-- **ESM-only**: If using CommonJS, switch to ESM imports
+- **ESM-only**: Update Node.js version or switch to ESM imports (see [ESM compatibility](#esm-compatibility) below)
 - **Async context creation**: Add `await` to `createSanityContext` calls
 - **Peer dependencies**: Install `@sanity/client` and `groq` as direct dependencies
 - **Deprecated APIs**: Replace `createSanityLoader` usage with `createSanityContext`
@@ -15,6 +15,49 @@
 ## Prerequisites
 
 Before upgrading to `hydrogen-sanity@^5`, you must first [migrate your Hydrogen project to use React Router 7](https://hydrogen.shopify.dev/update/may-2025).
+
+## ESM compatibility
+
+`hydrogen-sanity@^5` is published as an ESM-only package. You have several options for compatibility:
+
+### Option 1: Update Node.js version (Recommended)
+
+If you're using Node.js ≥20.19 or ≥22.12, you can continue using CommonJS `require()` statements to load ESM modules. Update your `package.json` to ensure compatible Node.js versions:
+
+```json
+{
+  "engines": {
+    "node": ">=20.19 <22 || >=22.12"
+  }
+}
+```
+
+No code changes required - your existing CommonJS code will work:
+
+```js
+// ✅ This works with Node.js ≥20.19 or ≥22.12
+const {createSanityContext} = require('hydrogen-sanity')
+```
+
+### Option 2: Switch to ESM imports
+
+If you can't upgrade Node.js or prefer to use ESM imports:
+
+```diff
+// ❌ CommonJS (won't work with older Node.js)
+- const {createSanityContext} = require('hydrogen-sanity')
+
+// ✅ ESM imports
++ import {createSanityContext} from 'hydrogen-sanity'
+```
+
+You'll also need to ensure your project supports ESM by either:
+- Adding `"type": "module"` to your `package.json`, or
+- Using `.mjs` file extensions
+
+### Option 3: Stay on v4
+
+If you're unable to upgrade Node.js or switch to ESM, you can continue using `hydrogen-sanity@^4` which supports CommonJS.
 
 ## Install dependencies
 
