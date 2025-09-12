@@ -145,7 +145,7 @@ const result = await context.sanity.query(query, params)
 import {Query} from 'hydrogen-sanity'
 
 ;<Query query={query} params={params} options={result}>
-  {(data, encodeDataAttribute) => <h1 {...encodeDataAttribute?.('title')}>{data?.title}</h1>}
+  {(data, encodeDataAttribute) => <h1 data-sanity={encodeDataAttribute('title')}>{data?.title}</h1>}
 </Query>
 ```
 

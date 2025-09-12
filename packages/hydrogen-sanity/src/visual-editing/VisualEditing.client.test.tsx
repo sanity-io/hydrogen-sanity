@@ -44,6 +44,10 @@ vi.mock('react-router', async () => {
   return {
     ...actual,
     useSubmit: vi.fn(),
+    useRevalidator: vi.fn(() => ({
+      revalidate: vi.fn(),
+      state: 'idle',
+    })),
   }
 })
 

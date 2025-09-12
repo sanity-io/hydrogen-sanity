@@ -6,7 +6,7 @@ import {
   type OverlayComponentResolver,
 } from '@sanity/visual-editing'
 import {type ReactNode, useEffect, useState} from 'react'
-import {useSubmit} from 'react-router'
+import {useRevalidator, useSubmit} from 'react-router'
 import {useEffectEvent} from 'use-effect-event'
 
 import {isServer} from '../utils'
@@ -67,16 +67,20 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
   const {components, zIndex, refresh, action, liveMode = false} = props
 
   const submit = useSubmit()
+  const revalidator = useRevalidator()
   const {refreshHandler} = useRefresh()
   const refreshFn = refreshHandler(refresh)
   const historyAdapter = useHistory()
 
-  // Detect if we're in a Studio presentation context
-  const [inStudioContext, setInStudioContext] = useState<boolean | null>(null)
+  // Detect if we're in a Studio presentation context (lazy initialization for SSR safety)
+  const [inStudioContext] = useState<boolean | null>(() => {
+    // Only run on client-side to avoid SSR mismatch
+    if (isServer()) {
+      return null
+    }
 
-  useEffect(() => {
-    setInStudioContext(isMaybePresentation())
-  }, [])
+    return isMaybePresentation()
+  })
 
   // Handle perspective changes from Studio
   const handlePerspectiveChange = useEffectEvent((perspective: ClientPerspective) => {
@@ -99,6 +103,22 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
       source: 'manual',
       livePreviewEnabled: false, // Force server revalidation for perspective changes
     } as const)
+  })
+
+  // Stable refresh handler for enableVisualEditing - wraps existing logic with useEffectEvent
+  const handleRefresh = useEffectEvent((payload: HistoryRefresh): false | Promise<void> => {
+    // Prioritize userland refresh function if provided
+    if (refresh) {
+      return refresh(payload, () => refreshFn(payload), revalidator)
+    }
+
+    // Original refresh logic - unchanged
+    // For server-only setups, always handle refresh events
+    // For live mode setups, let the client loaders handle mutations
+    if (!liveMode || payload.source === 'manual') {
+      return refreshFn(payload)
+    }
+    return false
   })
 
   // Listen for presentation events from Studio (only perspective changes needed for server revalidation)
@@ -125,18 +145,11 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
     const disable = enableVisualEditing({
       components,
       zIndex,
-      refresh: (payload) => {
-        // For server-only setups, always handle refresh events
-        // For live mode setups, let the client loaders handle mutations
-        if (!liveMode || payload.source === 'manual') {
-          return refreshFn(payload)
-        }
-        return false
-      },
+      refresh: handleRefresh,
       history: historyAdapter,
     })
     return () => disable()
-  }, [components, zIndex, refreshFn, historyAdapter, liveMode])
+  }, [components, zIndex, historyAdapter])
 
   return null
 }

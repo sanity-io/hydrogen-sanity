@@ -260,28 +260,34 @@ export default function HomePage({loaderData}: {loaderData: {initial: any}}) {
     <Query query={HOMEPAGE_QUERY} options={{initial}}>
       {(homepage, encodeDataAttribute) => (
         <div>
-          <h1 {...encodeDataAttribute?.('hero.title')}>{homepage?.hero?.title}</h1>
-          <p {...encodeDataAttribute?.('hero.description')}>{homepage?.hero?.description}</p>
+          <h1>{homepage?.hero?.title}</h1>
+          <p>{homepage?.hero?.description}</p>
 
-          {homepage?.modules?.map((module, index) => (
-            <div key={index} {...encodeDataAttribute?.(['modules', index])}>
-              {module._type === 'productShowcase' && (
-                <div className="products">
-                  {module.products?.map((product) => (
-                    <div
-                      key={product._id}
-                      {...encodeDataAttribute?.(['modules', index, 'products', product._id])}
-                    >
-                      <h3>{product.store?.title}</h3>
-                      {product.store?.slug && (
-                        <Link to={`/products/${product.store.slug}`}>View Product</Link>
-                      )}
+          {homepage?.modules?.map((module) => {
+            switch (module._type) {
+              case 'productShowcase':
+                return (
+                  <div
+                    key={module._key}
+                    data-sanity={encodeDataAttribute(['modules', {_key: module._key}, '_type'])}
+                  >
+                    <div className="products">
+                      {module.products?.map((product) => (
+                        <div key={product._id}>
+                          <h3>{product.store?.title}</h3>
+                          {product.store?.slug && (
+                            <Link to={`/products/${product.store.slug}`}>View Product</Link>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                  </div>
+                )
+
+              default:
+                return null
+            }
+          })}
         </div>
       )}
     </Query>
