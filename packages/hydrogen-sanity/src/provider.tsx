@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {InitializedClientConfig} from '@sanity/client'
 import type {HTMLProps, PropsWithChildren, ReactNode} from 'react'
+import {useEffect} from 'react'
 
+/**
+ * Contains essential Sanity client configuration and preview/stega state.
+ */
 export interface SanityProviderValue
   extends Required<
     Pick<
@@ -13,6 +17,10 @@ export interface SanityProviderValue
   stegaEnabled: boolean
 }
 
+/**
+ * Type guard that asserts a value is a valid SanityProviderValue.
+ * Throws an error if the provider value is missing or invalid.
+ */
 export function assertSanityProviderValue(value: unknown): value is SanityProviderValue {
   if (!value) {
     throw new Error(
@@ -23,6 +31,10 @@ export function assertSanityProviderValue(value: unknown): value is SanityProvid
   return true
 }
 
+/**
+ * Hook that retrieves the current Sanity provider configuration.
+ * Must be used within a SanityProvider component tree.
+ */
 export function useSanityProviderValue(): SanityProviderValue {
   const providerValue = (globalThis as any)[
     Symbol.for('Sanity Provider')
@@ -33,14 +45,25 @@ export function useSanityProviderValue(): SanityProviderValue {
   return providerValue!
 }
 
+/**
+ * Provider that makes Sanity configuration available to child components.
+ * Serializes configuration across server-client boundary via globalThis.
+ */
 export function SanityProvider({
   value,
   children,
 }: PropsWithChildren<{value: SanityProviderValue}>): ReactNode {
-  ;(globalThis as any)[Symbol.for('Sanity Provider')] = Object.freeze(value)
+  useEffect(() => {
+    setProviderValue(value)
+  }, [value])
+
   return <>{children}</>
 }
 
+/**
+ * Script component that hydrates Sanity configuration on the client side.
+ * Injects provider configuration into the client bundle for SSR compatibility.
+ */
 export function Sanity(props: SanityProps): ReactNode {
   const providerValue = useSanityProviderValue()
 
@@ -58,6 +81,10 @@ export function Sanity(props: SanityProps): ReactNode {
   )
 }
 
+/**
+ * Props for the Sanity script component.
+ * Extends HTMLScriptElement props while excluding conflicting attributes.
+ */
 export type SanityProps = Omit<
   HTMLProps<HTMLScriptElement>,
   | 'children'

@@ -11,7 +11,7 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 
 - TypeScript support with [Sanity TypeGen](https://www.sanity.io/docs/sanity-typegen).
 - Opinionated data fetching that automatically adapts to preview mode.
-- Interactive live preview with [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays) in Sanity's Presentation tool.
+- Interactive live preview with automatic loader detection for [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays) in Sanity's Presentation tool.
 
 > [!TIP]
 >
@@ -576,7 +576,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ...rest of the root layout */}
 
 +       {/* Conditionally render `VisualEditing` component only when in preview mode */}
-+       {previewMode ? <VisualEditing action="/api/preview" liveMode /> : null}
++       {previewMode ? <VisualEditing action="/api/preview" /> : null}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
@@ -597,19 +597,18 @@ Best when using only server-side data fetching (direct `fetch` or `loadQuery` wi
 ```
 
 **With Client-Side Loaders (recommended for `Query` component or `useQuery` hooks):**
-Enable when using client-side loaders - either the `Query` component or direct `useQuery` hooks from `@sanity/react-loader`.
+The component automatically detects when you're using client-side loaders (`Query` components or `useQuery` hooks) and enables live mode accordingly:
 
 ```tsx
-<VisualEditing liveMode /> // Enable live mode for real-time data sync via client-side useQuery hooks
+// Default usage - automatically enables live mode when needed
+<VisualEditing action="/api/preview" />
 ```
 
-> [!IMPORTANT]
-> Always add `liveMode` when using:
+> [!NOTE]
+> **Automatic Detection**: Live mode automatically activates when:
 >
-> - The `Query` component (from the recommended `query`/`Query` pattern)
-> - Direct `useQuery` hooks from `@sanity/react-loader` with `loadQuery`
->
-> Without `liveMode`, content changes in Studio will trigger server-side revalidations.
+> - `Query` components are rendered
+> - `useQuery` hooks are called
 
 #### Visual Editing components
 

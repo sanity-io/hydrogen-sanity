@@ -5,6 +5,10 @@ import {useMemo} from 'react'
 
 import {useSanityProviderValue} from './provider'
 
+/**
+ * Hook that returns a Sanity image URL builder configured with current provider settings.
+ * Use this to create custom image transformations beyond `useImageUrl`.
+ */
 export function useImageUrlBuilder(): ImageUrlBuilder {
   const {projectId, dataset, apiHost} = useSanityProviderValue()
   return useMemo(() => {
@@ -14,6 +18,10 @@ export function useImageUrlBuilder(): ImageUrlBuilder {
   }, [apiHost, dataset, projectId])
 }
 
+/**
+ * Hook that generates image URLs from Sanity image assets.
+ * Returns a configured image URL builder for the given source.
+ */
 export function useImageUrl(source: SanityImageSource): ImageUrlBuilder {
   const builder = useImageUrlBuilder()
   return builder.image(source)

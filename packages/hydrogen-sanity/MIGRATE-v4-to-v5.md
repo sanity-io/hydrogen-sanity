@@ -52,6 +52,7 @@ If you can't upgrade Node.js or prefer to use ESM imports:
 ```
 
 You'll also need to ensure your project supports ESM by either:
+
 - Adding `"type": "module"` to your `package.json`, or
 - Using `.mjs` file extensions
 
@@ -143,7 +144,6 @@ const result = await context.sanity.query(query, params)
 ```tsx
 // Recommended: Use Query component for rendering
 import {Query} from 'hydrogen-sanity'
-
 ;<Query query={query} params={params} options={result}>
   {(data, encodeDataAttribute) => <h1 data-sanity={encodeDataAttribute('title')}>{data?.title}</h1>}
 </Query>
@@ -173,10 +173,10 @@ const result = await context.sanity.loadQuery(query, params)
 ```
 
 > [!IMPORTANT]
-> If using `loadQuery` with client-side `useQuery` hooks, you must add `liveMode` to the `VisualEditing` component:
+> Live mode is now automatically detected when using `Query` components or `useQuery` hooks:
 >
 > ```tsx
-> <VisualEditing action="/api/preview" liveMode />
+> <VisualEditing action="/api/preview" /> // Automatically enables live mode when needed
 > ```
 
 All methods integrate with Hydrogen's caching system and automatically disable caching when Sanity preview mode is active.
@@ -299,8 +299,8 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ... your existing content ... */}
         {children}
 
-+       {/* Add Visual Editing support with liveMode for Query component */}
-+       {previewMode ? <VisualEditing action="/api/preview" liveMode /> : null}
++       {/* Add Visual Editing support with automatic live mode detection */}
++       {previewMode ? <VisualEditing action="/api/preview" /> : null}
 
 +       {/* Add Sanity client-side script */}
 +       <Sanity nonce={nonce} />
@@ -319,8 +319,8 @@ v5 introduces enhanced Visual Editing components with improved context detection
 ```tsx
 import {VisualEditing, Overlays, LiveMode} from 'hydrogen-sanity/visual-editing'
 
-// Recommended: Drop-in component with liveMode for Query component
-<VisualEditing action="/api/preview" liveMode />
+// Recommended: Drop-in component with automatic live mode detection
+<VisualEditing action="/api/preview" />
 
 // Alternative: Individual components for advanced use cases
 <Overlays action="/api/preview" />
@@ -333,11 +333,8 @@ import {VisualEditing, Overlays, LiveMode} from 'hydrogen-sanity/visual-editing'
 - **Server-only**: Only use when doing pure server-side data fetching without client components
 
 ```tsx
-// Server-only mode (default)
+// Default behavior - automatically detects when live mode is needed
 <VisualEditing />
-
-// Live mode (only when useQuery hooks are active)
-<VisualEditing liveMode />
 ```
 
 ### Custom server-side revalidation

@@ -24,7 +24,7 @@ export async function sha256(message: string): Promise<string> {
 }
 
 /**
- * Hash query and its parameters for use as cache key
+ * Hash query and its parameters for use as cache key.
  * NOTE: Oxygen deployment will break if the cache key is long or contains `\n`
  */
 export function hashQuery(
@@ -40,6 +40,10 @@ export function hashQuery(
   return sha256(hash)
 }
 
+/**
+ * Sanitizes and validates a perspective value.
+ * Handles both string (comma-separated) and array formats.
+ */
 export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspective, 'raw'> {
   const sanitizedPerspective =
     typeof perspective === 'string' && perspective.includes(',')
@@ -72,12 +76,19 @@ export function supportsPerspectiveStack(apiVersion: string): boolean {
   return versionDate >= cutoffDate
 }
 
+/**
+ * Extracts and validates the perspective from a session.
+ */
 export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
   const perspective = session.get('perspective')?.split(',')
   validateApiPerspective(perspective)
   return perspective
 }
 
+/**
+ * Type guard that checks if a session object is a SanityPreviewSession.
+ * Validates presence of required methods: has, destroy (in addition to Hydrogen session methods).
+ */
 export function isSanityPreviewSession(session: unknown): session is SanityPreviewSession {
   return (
     isHydrogenSession(session) &&
@@ -88,6 +99,10 @@ export function isSanityPreviewSession(session: unknown): session is SanityPrevi
   )
 }
 
+/**
+ * Type guard that checks if a session object is a valid Hydrogen session.
+ * Validates presence of required methods: get, set, unset, commit.
+ */
 export function isHydrogenSession(session: unknown): session is HydrogenSession {
   return (
     !!session &&
@@ -103,6 +118,10 @@ export function isHydrogenSession(session: unknown): session is HydrogenSession 
   )
 }
 
+/**
+ * Utility function that detects if code is running on the server.
+ * Used for SSR safety and preventing client-only code from running on server.
+ */
 export function isServer(): boolean {
   return typeof document === 'undefined'
 }

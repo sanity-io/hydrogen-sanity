@@ -332,7 +332,7 @@ function ModulesSection({
                           // @ts-expect-error without this it throw a runtime error
                           _index: index,
                         },
-                        '_type'
+                        '_type',
                       ])}
                     />
                   </div>

@@ -1,11 +1,11 @@
 import type {Any, ClientReturn, QueryParams, QueryWithoutParams} from '@sanity/client'
 import type {EncodeDataAttributeFunction} from '@sanity/core-loader/encode-data-attribute'
 import type {UseQueryOptionsDefinedInitial} from '@sanity/react-loader'
-import {useQuery} from '@sanity/react-loader'
 import type {ReactNode} from 'react'
 
 import type {LoadQueryOptions} from './context'
 import {isServer} from './utils'
+import {useQuery} from './visual-editing/useQuery'
 
 /**
  * Prevent a consumer from importing into a worker/server bundle.

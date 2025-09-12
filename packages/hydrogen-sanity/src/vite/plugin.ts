@@ -1,5 +1,9 @@
 import type {Plugin, ResolvedConfig} from 'vite'
 
+/**
+ * Vite plugin for optimizing Sanity integration in Hydrogen applications.
+ * Configures SSR optimization, dependency bundling, and ESM resolution for Sanity packages.
+ */
 export function sanity(): Plugin {
   return {
     name: 'sanity',

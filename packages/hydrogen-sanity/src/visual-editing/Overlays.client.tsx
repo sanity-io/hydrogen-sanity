@@ -12,6 +12,7 @@ import {useEffectEvent} from 'use-effect-event'
 import {isServer} from '../utils'
 import {useHistory} from './hooks/history'
 import {useRefresh} from './hooks/refresh'
+import {useHasActiveLoaders} from './registry'
 import type {Revalidator} from './types'
 
 export interface OverlaysProps {
@@ -35,10 +36,6 @@ export interface OverlaysProps {
    * The action URL path used to submit perspective changes.
    */
   action?: string
-  /**
-   * Whether live mode is enabled (affects refresh behavior).
-   */
-  liveMode?: boolean
 }
 
 /**
@@ -64,13 +61,14 @@ if (isServer()) {
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
 function OverlaysClient(props: OverlaysProps): ReactNode {
-  const {components, zIndex, refresh, action, liveMode = false} = props
+  const {components, zIndex, refresh, action = '/api/preview'} = props
 
   const submit = useSubmit()
   const revalidator = useRevalidator()
   const {refreshHandler} = useRefresh()
   const refreshFn = refreshHandler(refresh)
   const historyAdapter = useHistory()
+  const hasActiveLoaders = useHasActiveLoaders()
 
   // Detect if we're in a Studio presentation context (lazy initialization for SSR safety)
   const [inStudioContext] = useState<boolean | null>(() => {
@@ -84,16 +82,11 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
 
   // Handle perspective changes from Studio
   const handlePerspectiveChange = useEffectEvent((perspective: ClientPerspective) => {
-    let finalAction = action
-    if (!finalAction) {
-      finalAction = '/api/preview'
-    }
-
     const formData = new FormData()
     formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
     submit(formData, {
       method: 'PUT',
-      action: finalAction,
+      action,
       navigate: false,
       preventScrollReset: true,
     })
@@ -105,25 +98,29 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
     } as const)
   })
 
-  // Stable refresh handler for enableVisualEditing - wraps existing logic with useEffectEvent
   const handleRefresh = useEffectEvent((payload: HistoryRefresh): false | Promise<void> => {
     // Prioritize userland refresh function if provided
     if (refresh) {
       return refresh(payload, () => refreshFn(payload), revalidator)
     }
 
-    // Original refresh logic - unchanged
-    // For server-only setups, always handle refresh events
-    // For live mode setups, let the client loaders handle mutations
-    if (!liveMode || payload.source === 'manual') {
-      return refreshFn(payload)
+    switch (payload.source) {
+      case 'manual':
+        // Always handle manual refresh events (like perspective changes)
+        return refreshFn(payload)
+
+      default:
+        // For other refresh events, check if active loaders should handle them
+        if (hasActiveLoaders) {
+          return false // Let client loaders handle mutations (live mode active)
+        }
+        return refreshFn(payload) // Server revalidation for server-only setups
     }
-    return false
   })
 
   // Listen for presentation events from Studio (only perspective changes needed for server revalidation)
   useEffect(() => {
-    if (typeof window === 'undefined' || !inStudioContext) return undefined
+    if (isServer() || !inStudioContext) return undefined
 
     const handleMessage = (event: MessageEvent) => {
       const {type, data} = event.data || {}
@@ -135,6 +132,7 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
     }
 
     window.addEventListener('message', handleMessage)
+
     return () => {
       window.removeEventListener('message', handleMessage)
     }
@@ -148,6 +146,7 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
       refresh: handleRefresh,
       history: historyAdapter,
     })
+
     return () => disable()
   }, [components, zIndex, historyAdapter])
 

@@ -3,7 +3,7 @@
  */
 import {render} from '@testing-library/react'
 import {BrowserRouter} from 'react-router'
-import {beforeEach, expect, it, vi} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import VisualEditingClient from './VisualEditing.client'
 
@@ -39,6 +39,10 @@ vi.mock('../provider', () => ({
   })),
 }))
 
+vi.mock('./registry', () => ({
+  useHasActiveLoaders: vi.fn(() => false),
+}))
+
 vi.mock('react-router', async () => {
   const actual = await vi.importActual('react-router')
   return {
@@ -68,10 +72,13 @@ import {useLiveMode} from '@sanity/react-loader'
 import {enableVisualEditing} from '@sanity/visual-editing'
 import {useSubmit} from 'react-router'
 
+import {useHasActiveLoaders} from './registry'
+
 const mockEnableVisualEditing = vi.mocked(enableVisualEditing)
 const mockUseLiveMode = vi.mocked(useLiveMode)
 const mockCreateClient = vi.mocked(createClient)
 const mockUseSubmit = vi.mocked(useSubmit)
+const mockUseHasActiveLoaders = vi.mocked(useHasActiveLoaders)
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -92,20 +99,22 @@ it('should enable visual editing when rendered', () => {
   expect(mockEnableVisualEditing).toHaveBeenCalled()
 })
 
-it('should setup live mode when liveMode is true', () => {
+it('should setup live mode when queries are active', () => {
+  mockUseHasActiveLoaders.mockReturnValue(true)
   render(
     <BrowserRouter>
-      <VisualEditingClient liveMode />
+      <VisualEditingClient />
     </BrowserRouter>,
   )
 
   expect(mockUseLiveMode).toHaveBeenCalled()
 })
 
-it('should create client with correct config when liveMode is enabled', () => {
+it('should create client with correct config when queries are active', () => {
+  mockUseHasActiveLoaders.mockReturnValue(true)
   render(
     <BrowserRouter>
-      <VisualEditingClient liveMode />
+      <VisualEditingClient />
     </BrowserRouter>,
   )
 
@@ -118,18 +127,19 @@ it('should create client with correct config when liveMode is enabled', () => {
   })
 })
 
-it('should configure stega when enabled and liveMode is true', () => {
+it('should configure stega when enabled and queries are active', () => {
   const studioUrl = 'https://studio.test.com'
   const mockClient = {
     config: vi.fn(() => ({})),
     withConfig: vi.fn().mockReturnThis(),
   } as unknown as SanityClient
   mockCreateClient.mockReturnValue(mockClient)
+  mockUseHasActiveLoaders.mockReturnValue(true)
 
   const handleFilter = vi.fn(() => true)
   render(
     <BrowserRouter>
-      <VisualEditingClient liveMode filter={handleFilter} studioUrl={studioUrl} />
+      <VisualEditingClient filter={handleFilter} studioUrl={studioUrl} />
     </BrowserRouter>,
   )
 
@@ -142,25 +152,27 @@ it('should configure stega when enabled and liveMode is true', () => {
   })
 })
 
-it('should not enable live mode by default', () => {
+it('should not enable live mode when no queries are active', () => {
+  mockUseHasActiveLoaders.mockReturnValue(false)
   render(
     <BrowserRouter>
       <VisualEditingClient />
     </BrowserRouter>,
   )
 
-  // With liveMode=false (default), LiveMode component should not be rendered
+  // When no queries are active, LiveMode component should not be rendered
   expect(mockUseLiveMode).not.toHaveBeenCalled()
 })
 
-it('should enable live mode when liveMode is true', () => {
+it('should enable live mode when queries are active', () => {
+  mockUseHasActiveLoaders.mockReturnValue(true)
   render(
     <BrowserRouter>
-      <VisualEditingClient liveMode />
+      <VisualEditingClient />
     </BrowserRouter>,
   )
 
-  // With liveMode=true, LiveMode component should be rendered and useLiveMode called
+  // When queries are active, LiveMode component should be rendered and useLiveMode called
   expect(mockUseLiveMode).toHaveBeenCalledWith({
     client: expect.any(Object),
     onConnect: undefined,
@@ -178,10 +190,11 @@ it('should return null (no visual output)', () => {
   expect(container.firstChild).toBeNull()
 })
 
-it('should integrate useLiveMode with correct client for loader functionality when liveMode is enabled', () => {
+it('should integrate useLiveMode with correct client for loader functionality when queries are active', () => {
+  mockUseHasActiveLoaders.mockReturnValue(true)
   render(
     <BrowserRouter>
-      <VisualEditingClient liveMode onConnect={vi.fn()} onDisconnect={vi.fn()} />
+      <VisualEditingClient onConnect={vi.fn()} onDisconnect={vi.fn()} />
     </BrowserRouter>,
   )
 
@@ -190,6 +203,63 @@ it('should integrate useLiveMode with correct client for loader functionality wh
     client: expect.any(Object),
     onConnect: expect.any(Function),
     onDisconnect: expect.any(Function),
+  })
+})
+
+describe('Query detection behavior', () => {
+  beforeEach(() => {
+    // Reset all mocks before each test
+    vi.clearAllMocks()
+    mockUseHasActiveLoaders.mockReturnValue(false)
+  })
+
+  it('should default to auto mode and not enable live mode when no queries are active', () => {
+    mockUseHasActiveLoaders.mockReturnValue(false)
+
+    render(
+      <BrowserRouter>
+        <VisualEditingClient />
+      </BrowserRouter>,
+    )
+
+    // LiveMode should not be rendered when no queries are active
+    expect(mockUseLiveMode).not.toHaveBeenCalled()
+  })
+
+  it('should enable live mode automatically when queries are detected in auto mode', () => {
+    mockUseHasActiveLoaders.mockReturnValue(true)
+
+    render(
+      <BrowserRouter>
+        <VisualEditingClient />
+      </BrowserRouter>,
+    )
+
+    // LiveMode should be rendered when queries are detected
+    expect(mockUseLiveMode).toHaveBeenCalled()
+  })
+
+  it('should react to changes in query detection state', () => {
+    const {rerender} = render(
+      <BrowserRouter>
+        <VisualEditingClient />
+      </BrowserRouter>,
+    )
+
+    // Initially no queries
+    expect(mockUseLiveMode).not.toHaveBeenCalled()
+
+    // Simulate queries becoming active
+    mockUseHasActiveLoaders.mockReturnValue(true)
+
+    rerender(
+      <BrowserRouter>
+        <VisualEditingClient />
+      </BrowserRouter>,
+    )
+
+    // Now LiveMode should be active
+    expect(mockUseLiveMode).toHaveBeenCalled()
   })
 })
 

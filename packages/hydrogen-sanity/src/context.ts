@@ -250,6 +250,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
   }
 
   const sanityContext: SanityContext = {
+    /**
+     * Loads a Sanity query with client-side loader support and Hydrogen cache integration.
+     * Bypasses Hydrogen cache in preview mode.
+     */
     async loadQuery<Result = Any, Query extends string = string>(
       query: Query,
       params: QueryParams | QueryWithoutParams,
@@ -285,23 +289,25 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       )
     },
 
+    /**
+     * Executes a Sanity query with Hydrogen cache integration.
+     * Direct client fetch without loader integration. Bypasses cache in preview mode.
+     */
     async fetch<Result = Any, Query extends string = string>(
       query: Query,
-      params?: QueryParams | QueryWithoutParams,
+      params: QueryParams | QueryWithoutParams = {},
       fetchOptions?: Pick<
         LoadQueryOptions<Result>,
         'perspective' | 'hydrogen' | 'useCdn' | 'headers' | 'tag'
       >,
     ): Promise<ClientReturn<Query, Result>> {
-      const queryParams = params || {}
-
       if (!withCache || previewEnabled) {
-        return await client.fetch<ClientReturn<Query, Result>>(query, queryParams, fetchOptions)
+        return await client.fetch<ClientReturn<Query, Result>>(query, params, fetchOptions)
       }
 
       const cacheStrategy =
         fetchOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
-      const queryHash = await hashQuery(query, queryParams)
+      const queryHash = await hashQuery(query, params)
 
       return await withCache.run(
         {cacheKey: queryHash, cacheStrategy, shouldCacheResult: () => true},
@@ -313,11 +319,16 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
             displayName,
           })
 
-          return await client.fetch<ClientReturn<Query, Result>>(query, queryParams, fetchOptions)
+          return await client.fetch<ClientReturn<Query, Result>>(query, params, fetchOptions)
         },
       )
     },
 
+    /**
+     * Automatic query method that automatically adapts based on preview mode state.
+     * Uses `loadQuery` (with client-side loader integration) when preview is enabled, `fetch` otherwise.
+     * Bypasses cache in preview mode.
+     */
     async query<Result = Any, Query extends string = string>(
       query: Query,
       params?: QueryParams | QueryWithoutParams,
@@ -326,10 +337,15 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       return await (previewEnabled ? this.loadQuery : this.fetch)(query, params, queryOptions)
     },
 
+    /** The configured Sanity client instance */
     client,
 
+    /** Preview configuration with session-based state, undefined when preview is not configured */
     preview: preview ? {...preview, enabled: previewEnabled} : undefined,
 
+    /**
+     * React Provider component that serializes Sanity configuration across server-client boundary.
+     */
     SanityProvider({children}: PropsWithChildren<object>) {
       return createElement(
         SanityProvider,
