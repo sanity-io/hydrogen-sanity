@@ -45,6 +45,7 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
 
   const sanityProvider = useSanityProviderValue()
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const client = useMemo(() => {
     const baseClient = createClient({
       projectId: sanityProvider.projectId,
@@ -71,6 +72,7 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
     sanityProvider.perspective,
     sanityProvider.apiVersion,
     sanityProvider.stegaEnabled,
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     stegaProps,
   ])
 

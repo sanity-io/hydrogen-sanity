@@ -13,8 +13,8 @@ function getSession(context: AppLoadContext) {
 }
 
 /**
- * A `POST` or `DELETE` request to this route will disable preview mode,
- * a `PUT` request will change the preview perspective
+ * Route action handler for preview mode management.
+ * POST/DELETE: disable preview mode, PUT: change preview perspective.
  */
 export const action: ActionFunction = async ({context, request}) => {
   switch (request.method) {
@@ -108,7 +108,8 @@ export const action: ActionFunction = async ({context, request}) => {
 }
 
 /**
- * A `GET` request to this route will enter preview mode
+ * Route loader handler for entering preview mode.
+ * Validates secret token and activates preview session.
  */
 export const loader: LoaderFunction = async ({context, request}) => {
   try {

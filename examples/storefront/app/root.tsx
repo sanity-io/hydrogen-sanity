@@ -178,7 +178,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
             action="/api/preview"
             filter={filter}
             studioUrl={data?.studioOrigin}
-            liveMode
           />
         ) : null}
         <Sanity nonce={nonce} />

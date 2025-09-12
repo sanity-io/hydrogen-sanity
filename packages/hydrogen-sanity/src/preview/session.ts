@@ -5,6 +5,9 @@ interface PreviewSessionData {
   perspective: string
 }
 
+/**
+ * Interface for Sanity preview session management.
+ */
 export interface SanityPreviewSession {
   has: Session<PreviewSessionData, never>['has']
   get: Session<PreviewSessionData, never>['get']
@@ -14,6 +17,10 @@ export interface SanityPreviewSession {
   destroy: () => ReturnType<SessionStorage<PreviewSessionData, never>['destroySession']>
 }
 
+/**
+ * Cookie-based session storage for Sanity preview mode.
+ * Manages perspective state and authentication for preview mode.
+ */
 export class PreviewSession implements SanityPreviewSession {
   #sessionStorage
   #session
