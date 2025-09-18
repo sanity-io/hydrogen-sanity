@@ -5,6 +5,10 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>5.0.1 (2025-09-18)</small>
+
+- fix: set provider value on both server and client ([773bea5](https://github.com/sanity-io/hydrogen-sanity/commit/773bea5))
+
 ## 5.0.0 (2025-09-18)
 
 - chore: add preview origin ([5805076](https://github.com/sanity-io/hydrogen-sanity/commit/5805076))
