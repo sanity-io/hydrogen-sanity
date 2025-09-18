@@ -1,7 +1,7 @@
 # hydrogen-sanity
 
 > [!TIP]
-> **Upgrading from v4?** See the [migration guide](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v4-to-v5.md) for breaking changes and new features. 🎉
+> **Upgrading from v4?** See the [migration guide](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v4-to-v5.md) for breaking changes and new features. 🎉
 
 [Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2025.5.1`.
 
@@ -829,8 +829,8 @@ export async function loader({context, params}: LoaderArgs) {
 
 ## Migration Guides
 
-- [From `v3` to `v4`](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v3-to-v4.md)
-- [From `v4` to `v5`](https://github.com/sanity-io/hydrogen-sanity/blob/main/package/MIGRATE-v4-to-v5.md)
+- [From `v3` to `v4`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v3-to-v4.md)
+- [From `v4` to `v5`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v4-to-v5.md)
 
 ## License
 
