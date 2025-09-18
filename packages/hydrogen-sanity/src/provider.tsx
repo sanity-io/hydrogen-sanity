@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {InitializedClientConfig} from '@sanity/client'
 import type {HTMLProps, PropsWithChildren, ReactNode} from 'react'
-import {useEffect} from 'react'
 
 /**
  * Contains essential Sanity client configuration and preview/stega state.
@@ -22,7 +20,7 @@ export interface SanityProviderValue
  * Throws an error if the provider value is missing or invalid.
  */
 export function assertSanityProviderValue(value: unknown): value is SanityProviderValue {
-  if (!value) {
+  if (typeof value === 'undefined') {
     throw new Error(
       'Failed to find a Sanity provider value. Did you forget to wrap your app in a `SanityProvider`?',
     )
@@ -36,13 +34,10 @@ export function assertSanityProviderValue(value: unknown): value is SanityProvid
  * Must be used within a SanityProvider component tree.
  */
 export function useSanityProviderValue(): SanityProviderValue {
-  const providerValue = (globalThis as any)[
-    Symbol.for('Sanity Provider')
-  ] as SanityProviderValue | null
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const providerValue = (globalThis as any)[Symbol.for('Sanity Provider')]
   assertSanityProviderValue(providerValue)
-
-  return providerValue!
+  return providerValue
 }
 
 /**
@@ -53,10 +48,7 @@ export function SanityProvider({
   value,
   children,
 }: PropsWithChildren<{value: SanityProviderValue}>): ReactNode {
-  useEffect(() => {
-    setProviderValue(value)
-  }, [value])
-
+  setProviderValue(value)
   return <>{children}</>
 }
 
@@ -66,7 +58,6 @@ export function SanityProvider({
  */
 export function Sanity(props: SanityProps): ReactNode {
   const providerValue = useSanityProviderValue()
-
   assertSanityProviderValue(providerValue)
 
   return (
@@ -98,5 +89,6 @@ export type SanityProps = Omit<
 >
 
 function setProviderValue(value: SanityProviderValue) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(globalThis as any)[Symbol.for('Sanity Provider')] = Object.freeze(value)
 }

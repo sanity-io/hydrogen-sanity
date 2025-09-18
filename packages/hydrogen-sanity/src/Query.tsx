@@ -1,15 +1,7 @@
 import type {Any, ClientReturn, QueryParams, QueryWithoutParams} from '@sanity/client'
 import type {EncodeDataAttributeFunction} from '@sanity/core-loader/encode-data-attribute'
 import type {QueryResponseInitial} from '@sanity/react-loader'
-import {
-  lazy,
-  type ReactNode,
-  startTransition,
-  Suspense,
-  type SuspenseProps,
-  useEffect,
-  useState,
-} from 'react'
+import {lazy, type ReactNode, Suspense, type SuspenseProps, useSyncExternalStore} from 'react'
 
 import type {LoadQueryOptions} from './context'
 import {usePreviewMode} from './preview/hooks'
@@ -21,6 +13,19 @@ import {isServer} from './utils'
  */
 function SanityQueryFallback(): ReactNode {
   return null
+}
+
+/**
+ * Simple hydration store to avoid hydration mismatches.
+ * Returns false on server, true on client after hydration.
+ */
+function useIsHydrated(): boolean {
+  return useSyncExternalStore(
+    // eslint-disable-next-line no-empty-function
+    () => () => {},
+    () => true,
+    () => false,
+  )
 }
 
 const QueryClient = isServer()
@@ -66,14 +71,7 @@ export function Query<Result = Any, Query extends string = string>({
   ...suspenseProps
 }: QueryProps<Result, Query> & Omit<SuspenseProps, 'children'>): ReactNode {
   const isPreviewMode = usePreviewMode()
-  const [isHydrated, setIsHydrated] = useState(false)
-
-  // Mark component as hydrated after initial render to prevent hydration mismatches
-  useEffect(() => {
-    startTransition(() => {
-      setIsHydrated(true)
-    })
-  }, [])
+  const isHydrated = useIsHydrated()
 
   // If in preview mode and hydrated, render the client component
   if (isPreviewMode && isHydrated) {
