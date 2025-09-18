@@ -16,7 +16,7 @@ export default {
     {
       name: 'v4',
       channel: 'v4',
-      range: '^4.0.0',
+      range: '4.x.x',
     },
   ],
 }
