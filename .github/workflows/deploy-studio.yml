@@ -1,0 +1,115 @@
+name: Deploy Sanity Studio
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'examples/studio/**'
+      - 'packages/sanity-config/**'
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - 'examples/studio/**'
+      - 'packages/sanity-config/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+  SANITY_STUDIO_PROJECT_ID: ${{ vars.PROJECT_ID }}
+  SANITY_STUDIO_PREVIEW_ORIGIN: ${{ vars.STOREFRONT_ORIGIN }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && 'Production' || github.ref == 'refs/heads/main' && 'Production' || 'Preview' }}
+      url: ${{ steps.deploy.outputs.STUDIO_URL }}
+
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+      - run: pnpm i --filter="@workspace:." --filter="studio" --filter="@repo/sanity-config"
+
+      - name: Set Studio hostname
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "SANITY_STUDIO_HOSTNAME=${{ vars.STUDIO_HOSTNAME }}-pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          else
+            echo "SANITY_STUDIO_HOSTNAME=${{ vars.STUDIO_HOSTNAME }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build and deploy Sanity Studio
+        id: deploy
+        run: |
+          if [ -z "${SANITY_STUDIO_HOSTNAME}" ]; then
+            echo "Error: SANITY_STUDIO_HOSTNAME is not set" >&2
+            exit 1
+          fi
+
+          pnpx turbo run deploy --filter="studio" -- --yes
+
+          echo "STUDIO_URL=https://${SANITY_STUDIO_HOSTNAME}.sanity.studio" >> $GITHUB_OUTPUT
+
+      - name: Post preview link
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '**🚀 Preview environment has been deployed!**',
+              `Visit [${process.env.STUDIO_URL}](${process.env.STUDIO_URL}) to see your changes.`,
+              "*This is a temporary environment that will be undeployed when this PR is merged or closed.*"
+            ].join('\n\n')
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            })
+        env:
+          STUDIO_URL: ${{ steps.deploy.outputs.STUDIO_URL }}
+
+  teardown:
+    name: Teardown
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+      - run: pnpm install --filter="@workspace:." --filter="studio" --filter="repo/sanity-config"
+
+      - name: Cleanup PR preview
+        run: |
+          pushd examples/studio
+          pnpx sanity undeploy --yes
+          popd
+        env:
+          SANITY_STUDIO_HOSTNAME: ${STUDIO_HOSTNAME}-pr-${{ github.event.pull_request.number }}

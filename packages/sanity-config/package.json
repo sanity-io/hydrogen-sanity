@@ -1,0 +1,71 @@
+{
+  "name": "@repo/sanity-config",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./schema.json": "./schema.json",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "pkg-utils build --strict --clean --check",
+    "typecheck": "tsc",
+    "lint": "eslint --cache --config eslint.config.mjs .",
+    "watch": "pkg-utils watch --strict",
+    "extract": "sanity schema extract",
+    "extract:watch": "turbo watch --filter=\"@repo/sanity-config\" extract"
+  },
+  "dependencies": {
+    "@sanity/asset-utils": "^2.2.1",
+    "@sanity/color-input": "^4.0.6",
+    "@sanity/icons": "^3.7.4",
+    "@sanity/ui": "^3.0.7",
+    "@sanity/vision": "^4.5.0",
+    "lodash.get": "^4.4.2",
+    "pluralize-esm": "^9.0.5",
+    "sanity-plugin-hotspot-array": "^3.0.1",
+    "sanity-plugin-media": "^4.0.0",
+    "slug": "^11.0.0"
+  },
+  "devDependencies": {
+    "@portabletext/types": "^2.0.15",
+    "@sanity/eslint-config-studio": "^5.0.2",
+    "@sanity/pkg-utils": "^7.11.9",
+    "@types/lodash.get": "^4.4.9",
+    "@types/react": "^18.3",
+    "@types/slug": "^5.0.9",
+    "eslint": "^9.34.0",
+    "react": "^18.3",
+    "react-dom": "^18.3",
+    "sanity": "^4.6.1",
+    "styled-components": "^6.1.19",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "react": "^18.3",
+    "react-dom": "^18.3",
+    "sanity": "^4",
+    "styled-components": "^6.1"
+  }
+}

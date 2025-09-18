@@ -1,0 +1,45 @@
+# Don't change the line below!
+#! oxygen_storefront_id: 1000036147
+
+name: Storefront 1000036147
+on:
+  push:
+    paths:
+      - 'packages/hydrogen-sanity/**'
+      - 'examples/storefront/**'
+  pull_request:
+    paths:
+      - 'packages/hydrogen-sanity/**'
+      - 'examples/storefront/**'
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy `storefront`
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 'lts/*'
+
+      - name: Install Dependencies
+        run: pnpm install --filter="@workspace:." --filter="hydrogen-sanity" --filter="storefront"
+
+      - name: Deploy to Oxygen
+        id: deploy
+        run: pnpx turbo run deploy --filter storefront -- --token="${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036147 }}"
