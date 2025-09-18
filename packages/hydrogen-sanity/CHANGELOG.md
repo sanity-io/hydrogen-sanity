@@ -5,6 +5,91 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0 (2025-09-18)
+
+- chore: add preview origin ([5805076](https://github.com/sanity-io/hydrogen-sanity/commit/5805076))
+- chore: add studio deployment ([f0b39fd](https://github.com/sanity-io/hydrogen-sanity/commit/f0b39fd))
+- chore: add studio example and storefront deployment workflow ([80f2d11](https://github.com/sanity-io/hydrogen-sanity/commit/80f2d11))
+- chore: adjust example environment variables ([a1f2f51](https://github.com/sanity-io/hydrogen-sanity/commit/a1f2f51))
+- chore: adjust github workflow ([42ed535](https://github.com/sanity-io/hydrogen-sanity/commit/42ed535))
+- chore: adjust release workflow ([a34ad3b](https://github.com/sanity-io/hydrogen-sanity/commit/a34ad3b))
+- chore: adjust root workspace scripts ([f8fac68](https://github.com/sanity-io/hydrogen-sanity/commit/f8fac68))
+- chore: adjust turbo ([8d6ec01](https://github.com/sanity-io/hydrogen-sanity/commit/8d6ec01))
+- chore: adjust turbo configuration ([29649fa](https://github.com/sanity-io/hydrogen-sanity/commit/29649fa))
+- chore: adjust workflows ([3483c6a](https://github.com/sanity-io/hydrogen-sanity/commit/3483c6a))
+- chore: fix semantic release configuration ([e20755d](https://github.com/sanity-io/hydrogen-sanity/commit/e20755d))
+- chore: organize file and examples ([af8a714](https://github.com/sanity-io/hydrogen-sanity/commit/af8a714))
+- chore: remove old examples and scaffold a new react-router storefront ([4d4a8e5](https://github.com/sanity-io/hydrogen-sanity/commit/4d4a8e5))
+- chore: update branch references after renaming main->v4 and next->main (#143) ([d44499a](https://github.com/sanity-io/hydrogen-sanity/commit/d44499a)), closes [#143](https://github.com/sanity-io/hydrogen-sanity/issues/143)
+- chore: update examples ([022588c](https://github.com/sanity-io/hydrogen-sanity/commit/022588c))
+- chore: update todos ([83499af](https://github.com/sanity-io/hydrogen-sanity/commit/83499af))
+- chore: upgrade dependencies ([85cbab6](https://github.com/sanity-io/hydrogen-sanity/commit/85cbab6))
+- chore: use JS `semantic-release` configuration ([82cd6dc](https://github.com/sanity-io/hydrogen-sanity/commit/82cd6dc))
+- chore(ci): upgrade `actions/setup-node` ([2d6a690](https://github.com/sanity-io/hydrogen-sanity/commit/2d6a690))
+- chore(deps): use latest sanity version ([d50e33e](https://github.com/sanity-io/hydrogen-sanity/commit/d50e33e))
+- chore(release): 5.0.0-next.1 [skip ci] ([b96c826](https://github.com/sanity-io/hydrogen-sanity/commit/b96c826))
+- chore(release): 5.0.0-next.2 [skip ci] ([16fc39a](https://github.com/sanity-io/hydrogen-sanity/commit/16fc39a))
+- chore(release): 5.0.0-next.3 [skip ci] ([31fd9c8](https://github.com/sanity-io/hydrogen-sanity/commit/31fd9c8))
+- chore(release): 5.0.0-next.4 [skip ci] ([96496f7](https://github.com/sanity-io/hydrogen-sanity/commit/96496f7))
+- chore(studio): disable auto updates ([92e948b](https://github.com/sanity-io/hydrogen-sanity/commit/92e948b))
+- feat!: add a `fetch` method ([1eefda2](https://github.com/sanity-io/hydrogen-sanity/commit/1eefda2))
+- feat!: drop `groq` and `client` exports ([1117647](https://github.com/sanity-io/hydrogen-sanity/commit/1117647))
+- feat!: enhance support for client-side loaders and visual editing ([e07928b](https://github.com/sanity-io/hydrogen-sanity/commit/e07928b))
+- feat!: refactor session handling ([8f71fb5](https://github.com/sanity-io/hydrogen-sanity/commit/8f71fb5))
+- feat!: remove commonjs exports ([1d15fa6](https://github.com/sanity-io/hydrogen-sanity/commit/1d15fa6))
+- feat!: remove deprecated code ([8650e11](https://github.com/sanity-io/hydrogen-sanity/commit/8650e11))
+- feat!: remove groq export ([8a90536](https://github.com/sanity-io/hydrogen-sanity/commit/8a90536))
+- feat!: update dependencies and add vite plugin ([66bd3d5](https://github.com/sanity-io/hydrogen-sanity/commit/66bd3d5))
+- fix!: normlize preview client naming ([eba2a60](https://github.com/sanity-io/hydrogen-sanity/commit/eba2a60))
+- Merge branch 'next' ([f1052b3](https://github.com/sanity-io/hydrogen-sanity/commit/f1052b3))
+- feat: add `EncodeDataAttributeFunction` export and review `Overlays` ([7171e85](https://github.com/sanity-io/hydrogen-sanity/commit/7171e85))
+- feat: add `groq` export ([95a3537](https://github.com/sanity-io/hydrogen-sanity/commit/95a3537))
+- feat: add automatic loader detection for `VisualEditing` ([1c68a36](https://github.com/sanity-io/hydrogen-sanity/commit/1c68a36))
+- feat: add environment variable prefix `SANITY_STUDIO_` ([bef4c48](https://github.com/sanity-io/hydrogen-sanity/commit/bef4c48))
+- feat: add image URL hooks ([d7033ae](https://github.com/sanity-io/hydrogen-sanity/commit/d7033ae))
+- feat: add missing react loader exports ([e1ade77](https://github.com/sanity-io/hydrogen-sanity/commit/e1ade77))
+- feat: add preview mode hook ([bda8479](https://github.com/sanity-io/hydrogen-sanity/commit/bda8479))
+- feat: add Sanity provider ([742b9e0](https://github.com/sanity-io/hydrogen-sanity/commit/742b9e0))
+- feat: Add TypeGen compatibility for `loadQuery` ([2ffbb39](https://github.com/sanity-io/hydrogen-sanity/commit/2ffbb39))
+- feat: add wrappers for server fetching and client-side loading ([6439320](https://github.com/sanity-io/hydrogen-sanity/commit/6439320))
+- feat: adjust dependencies ([554f4f3](https://github.com/sanity-io/hydrogen-sanity/commit/554f4f3))
+- feat: compile with React Compiler ([cb9ce42](https://github.com/sanity-io/hydrogen-sanity/commit/cb9ce42))
+- feat: export image builder types ([2c6433f](https://github.com/sanity-io/hydrogen-sanity/commit/2c6433f))
+- feat: move `usePreviewMode` to `/preview` ([290b70d](https://github.com/sanity-io/hydrogen-sanity/commit/290b70d))
+- feat: use session handling for preview mode ([4abb244](https://github.com/sanity-io/hydrogen-sanity/commit/4abb244))
+- fix: add fallback back ([52d8d55](https://github.com/sanity-io/hydrogen-sanity/commit/52d8d55))
+- fix: adjust warning ([3c1ed71](https://github.com/sanity-io/hydrogen-sanity/commit/3c1ed71))
+- fix: force ESM resolution for `rxjs` and add `@sanity/image-url-builder` to optimized dependencies ([005cc61](https://github.com/sanity-io/hydrogen-sanity/commit/005cc61))
+- fix: lazy load query store ([f48bcf5](https://github.com/sanity-io/hydrogen-sanity/commit/f48bcf5))
+- fix: only warn about missing action once ([8155ca3](https://github.com/sanity-io/hydrogen-sanity/commit/8155ca3))
+- fix: remove `handlePerspectiveChange` from `useEffect` dependencies ([54a052e](https://github.com/sanity-io/hydrogen-sanity/commit/54a052e))
+- fix: use `@sanity/visual-editing`'s React Router build ([9b8b40a](https://github.com/sanity-io/hydrogen-sanity/commit/9b8b40a))
+- docs: add image hook to README ([d204a1e](https://github.com/sanity-io/hydrogen-sanity/commit/d204a1e))
+- docs: add instructions for installing vite plugin ([8f04e77](https://github.com/sanity-io/hydrogen-sanity/commit/8f04e77))
+- docs: add TypeGen section ([3d3ebe6](https://github.com/sanity-io/hydrogen-sanity/commit/3d3ebe6))
+- docs: adjust migration guide messaging on ESM-only exports ([2a8ca49](https://github.com/sanity-io/hydrogen-sanity/commit/2a8ca49))
+- docs: adjust README ([814d89c](https://github.com/sanity-io/hydrogen-sanity/commit/814d89c))
+- docs: improve README and migration guide ([2cd44af](https://github.com/sanity-io/hydrogen-sanity/commit/2cd44af))
+- docs: update migration documentation ([4a58090](https://github.com/sanity-io/hydrogen-sanity/commit/4a58090))
+- docs: update migration guide ([119a0d9](https://github.com/sanity-io/hydrogen-sanity/commit/119a0d9))
+- docs: update readme and migration guide ([ad83e04](https://github.com/sanity-io/hydrogen-sanity/commit/ad83e04))
+- refactor: add `isServer` utility ([a9a702b](https://github.com/sanity-io/hydrogen-sanity/commit/a9a702b))
+- refactor: adjust hook exports ([464ff6b](https://github.com/sanity-io/hydrogen-sanity/commit/464ff6b))
+- test: fix tests ([96878b1](https://github.com/sanity-io/hydrogen-sanity/commit/96878b1))
+
+### BREAKING CHANGE
+
+- `createSanityContext` now returns a Promise.
+- `createSanityLoader` has been removed.
+- `hydrogen-sanity` depends on React Router 7. You can
+  find more information in [Shopify's
+  changelog](https://hydrogen.shopify.dev/update/may-2025).
+- `hydrogen-sanity` is now ESM-only. CommonJS (CJS) exports have been removed.
+- `hydrogen-sanity` no longer re-exports `@sanity/client` and `groq`. Both are now true peer dependencies and you are expected to install them as direct dependencies of your storefront.
+- `hydrogen-sanity` no longer re-exports `groq`.
+- rename `preview.previewClient` to `preview.client`
+- Sanity context no longer returns a `previewClient`. Instead, the client that is passed to `createSanityContext` is configured automatically.
+
 ## 5.0.0-next.4 (2025-09-10)
 
 - feat: add wrappers for server fetching and client-side loading ([6439320](https://github.com/sanity-io/hydrogen-sanity/commit/6439320))

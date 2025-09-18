@@ -1,6 +1,6 @@
 {
   "name": "hydrogen-sanity",
-  "version": "5.0.0-next.4",
+  "version": "5.0.0",
   "description": "Sanity.io toolkit for Hydrogen",
   "keywords": [
     "sanity",
