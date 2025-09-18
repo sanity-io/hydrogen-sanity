@@ -9,9 +9,11 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 
 **Features:**
 
-- TypeScript support with [Sanity TypeGen](https://www.sanity.io/docs/sanity-typegen).
+- Drop-in preview mode handling with pre-built route and session management.
 - Opinionated data fetching that automatically adapts to preview mode.
 - Interactive live preview with automatic loader detection for [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays) in Sanity's Presentation tool.
+- Optimized image URL generation hooks with Sanity's image URL builder.
+- TypeScript support with [Sanity TypeGen](https://www.sanity.io/docs/sanity-typegen).
 
 > [!TIP]
 >
