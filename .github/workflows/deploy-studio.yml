@@ -3,7 +3,7 @@ name: Deploy Sanity Studio
 on:
   push:
     branches:
-      - next
+      - main
     paths:
       - 'examples/studio/**'
       - 'packages/sanity-config/**'
@@ -34,7 +34,7 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
 
     environment:
-      name: ${{ github.event_name == 'workflow_dispatch' && 'Production' || github.ref == 'refs/heads/next' && 'Production' || 'Preview' }}
+      name: ${{ github.event_name == 'workflow_dispatch' && 'Production' || github.ref == 'refs/heads/main' && 'Production' || 'Preview' }}
       url: ${{ steps.deploy.outputs.STUDIO_URL }}
 
     env:

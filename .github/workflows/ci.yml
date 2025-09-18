@@ -17,7 +17,7 @@ on:
       - 'packages/hydrogen-sanity/**'
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
-    branches: [main, beta, next]
+    branches: [main, beta, v4, next]
     paths:
       - 'packages/hydrogen-sanity/**'
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow

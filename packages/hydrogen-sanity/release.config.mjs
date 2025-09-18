@@ -5,11 +5,6 @@ export default {
       name: 'main',
       channel: 'latest',
     },
-    // {
-    //   name: 'v4',
-    //   channel: 'v4',
-    //   range: '^4.0.0',
-    // },
     {
       name: 'beta',
       prerelease: true,
@@ -17,6 +12,11 @@ export default {
     {
       name: 'next',
       prerelease: true,
+    },
+    {
+      name: 'v4',
+      channel: 'v4',
+      range: '^4.0.0',
     },
   ],
 }
