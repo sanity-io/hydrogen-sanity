@@ -132,55 +132,6 @@ export default defineConfig({
 
 The functionality remains the same once awaited.
 
-### New `query` method and `Query` component (Recommended)
-
-v5 introduces opinionated, intelligent wrappers that automatically choose the optimal data fetching and rendering strategy based on whether Sanity preview mode is active:
-
-```ts
-// Recommended: Use context.query() instead of loadQuery
-const result = await context.sanity.query(query, params)
-```
-
-```tsx
-// Recommended: Use Query component for rendering
-import {Query} from 'hydrogen-sanity'
-;<Query query={query} params={params} options={result}>
-  {(data, encodeDataAttribute) => <h1 data-sanity={encodeDataAttribute('title')}>{data?.title}</h1>}
-</Query>
-```
-
-These new methods automatically optimize based on Sanity preview mode session state:
-
-- **When preview mode is active**: Dynamically imports `@sanity/react-loader` with `loadQuery` for loader integration + client-side `useQuery` for real-time Studio updates
-- **When preview mode is inactive**: Uses lightweight direct client `fetch` for optimal performance and static rendering
-
-### Alternative: New `fetch` method
-
-v5 also introduces a `context.fetch()` method that provides direct client results without loader integration, offering an alternative for bundle optimization when preview mode is not needed:
-
-```ts
-// Using fetch (lighter, direct client results)
-const result = await context.sanity.fetch(query, params)
-```
-
-### Alternative: Continue using `loadQuery` + `useQuery`
-
-You can continue using the v4 method for granular control:
-
-```ts
-// Alternative: v4 method (still supported)
-const result = await context.sanity.loadQuery(query, params)
-```
-
-> [!IMPORTANT]
-> Live mode is now automatically detected when using `Query` components or `useQuery` hooks:
->
-> ```tsx
-> <VisualEditing action="/api/preview" /> // Automatically enables live mode when needed
-> ```
-
-All methods integrate with Hydrogen's caching system and automatically disable caching when Sanity preview mode is active.
-
 ## Sanity preview mode now uses a dedicated session
 
 Sanity preview mode now uses its own dedicated session instead of sharing the storefront's session cookie. Replace the previous `preview.enabled` flag approach with the `PreviewSession` class exported from `hydrogen-sanity`:
@@ -327,16 +278,6 @@ import {VisualEditing, Overlays, LiveMode} from 'hydrogen-sanity/visual-editing'
 <LiveMode />
 ```
 
-### Live mode configuration
-
-- **Live mode (recommended)**: Enable when using `Query` component or `useQuery` client loaders for real-time preview updates
-- **Server-only**: Only use when doing pure server-side data fetching without client components
-
-```tsx
-// Default behavior - automatically detects when live mode is needed
-<VisualEditing />
-```
-
 ### Custom server-side revalidation
 
 For more control, you can now customize refresh logic:
@@ -391,3 +332,52 @@ The `preview.previewClient` has been removed. The main `client` is now automatic
 // ✅ v5
 + const result = sanity.client.fetch(query) // Automatically uses preview config when preview mode is active
 ```
+
+### New `query` method and `Query` component (Recommended)
+
+v5 introduces opinionated, intelligent wrappers that automatically choose the optimal data fetching and rendering strategy based on whether Sanity preview mode is active:
+
+```ts
+// Recommended: Use context.query() instead of loadQuery
+const result = await context.sanity.query(query, params)
+```
+
+```tsx
+// Recommended: Use Query component for rendering
+import {Query} from 'hydrogen-sanity'
+;<Query query={query} params={params} options={result}>
+  {(data, encodeDataAttribute) => <h1 data-sanity={encodeDataAttribute('title')}>{data?.title}</h1>}
+</Query>
+```
+
+These new methods automatically optimize based on Sanity preview mode session state:
+
+- **When preview mode is active**: Dynamically imports `@sanity/react-loader` with `loadQuery` for loader integration + client-side `useQuery` for real-time Studio updates
+- **When preview mode is inactive**: Uses lightweight direct client `fetch` for optimal performance and static rendering
+
+### Alternative: New `fetch` method
+
+v5 also introduces a `context.fetch()` method that provides direct client results without loader integration, offering an alternative for bundle optimization when preview mode is not needed:
+
+```ts
+// Using fetch (lighter, direct client results)
+const result = await context.sanity.fetch(query, params)
+```
+
+### Alternative: Continue using `loadQuery` + `useQuery`
+
+You can continue using the v4 method for granular control:
+
+```ts
+// Alternative: v4 method (still supported)
+const result = await context.sanity.loadQuery(query, params)
+```
+
+> [!IMPORTANT]
+> Live mode is now automatically detected when using `Query` components or `useQuery` hooks:
+>
+> ```tsx
+> <VisualEditing action="/api/preview" /> // Automatically enables live mode when needed
+> ```
+
+All methods integrate with Hydrogen's caching system and automatically disable caching when Sanity preview mode is active.
