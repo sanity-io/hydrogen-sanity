@@ -23,6 +23,7 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
   - [Add Vite plugin](#add-vite-plugin)
 - [Usage](#usage)
   - [Satisfy TypeScript](#satisfy-typescript)
+  - [Set up the Sanity provider](#set-up-the-sanity-provider)
 - [Interacting with Sanity data](#interacting-with-sanity-data)
   - [Recommended: Using `query` and `Query` together](#recommended-using-query-and-query-together)
   - [Alternative: Cached queries using `loadQuery`](#alternative-cached-queries-using-loadquery)
@@ -183,6 +184,72 @@ declare global {
 +   SANITY_API_VERSION?: string
 +   SANITY_PREVIEW_TOKEN: string
   }
+}
+```
+
+### Set up the Sanity provider
+
+You now need to wrap your app with the Sanity provider to make Sanity context available to client-side hooks and components like `useImageUrl` and `Query`.
+
+**Update entry.server.tsx**
+
+Wrap your app with the Sanity provider in your server entry point:
+
+```diff
+// ./app/entry.server.tsx
+
+export default async function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  context: AppLoadContext,
+) {
++ const {SanityProvider} = context.sanity
+
+  // ... CSP setup etc ...
+
+  const body = await renderToReadableStream(
+    <NonceProvider>
++     <SanityProvider>
+        <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
++     </SanityProvider>
+    </NonceProvider>,
+    // ... render options
+  )
+}
+```
+
+**Update root.tsx**
+
+Add the `Sanity` component to your root layout:
+
+```diff
+// ./app/root.tsx
+
++ import {Sanity} from 'hydrogen-sanity'
+
+export function Layout({children}: {children?: React.ReactNode}) {
+  const nonce = useNonce()
+
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {children}
+
++       {/* Add Sanity client-side script */}
++       <Sanity nonce={nonce} />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
+      </body>
+    </html>
+  )
 }
 ```
 
