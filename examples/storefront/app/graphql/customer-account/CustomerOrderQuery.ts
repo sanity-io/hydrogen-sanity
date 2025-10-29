@@ -45,7 +45,9 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
   fragment Order on Order {
     id
     name
+    confirmationNumber
     statusPageUrl
+    fulfillmentStatus
     processedAt
     fulfillments(first: 1) {
       nodes {
@@ -77,7 +79,8 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
       }
     }
   }
-  query Order($orderId: ID!) {
+  query Order($orderId: ID!, $language: LanguageCode)
+    @inContext(language: $language) {
     order(id: $orderId) {
       ... on Order {
         ...Order

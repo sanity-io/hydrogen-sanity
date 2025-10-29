@@ -1,16 +1,34 @@
 import {createHydrogenContext} from '@shopify/hydrogen';
-import {createSanityContext} from 'hydrogen-sanity';
+import {createSanityContext, type SanityContext} from 'hydrogen-sanity';
 import {PreviewSession} from 'hydrogen-sanity/preview/session';
 import {isPreviewEnabled} from 'hydrogen-sanity/preview';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
 import {filter} from './sanity/stega';
 
+// Define the additional context object
+const additionalContext = {
+  // Additional context for custom properties, CMS clients, 3P SDKs, etc.
+  // These will be available as both context.propertyName and context.get(propertyContext)
+  // Example of complex objects that could be added:
+  // cms: await createCMSClient(env),
+  // reviews: await createReviewsClient(env),
+} as const;
+
+// Automatically augment HydrogenAdditionalContext with the additional context type
+type AdditionalContextType = typeof additionalContext;
+
+declare global {
+  interface HydrogenAdditionalContext extends AdditionalContextType {
+    sanity: SanityContext;
+  }
+}
+
 /**
- * The context implementation is separate from server.ts
- * so that type can be extracted for AppLoadContext
+ * Creates Hydrogen context for React Router 7.9.x
+ * Returns HydrogenRouterContextProvider with hybrid access patterns
  * */
-export async function createAppLoadContext(
+export async function createHydrogenRouterContext(
   request: Request,
   env: Env,
   executionContext: ExecutionContext,
@@ -28,18 +46,6 @@ export async function createAppLoadContext(
     AppSession.init(request, [env.SESSION_SECRET]),
     PreviewSession.init(request, [env.SESSION_SECRET]),
   ]);
-
-  const hydrogenContext = createHydrogenContext({
-    env,
-    request,
-    cache,
-    waitUntil,
-    session,
-    i18n: {language: 'EN', country: 'US'},
-    cart: {
-      queryFragment: CART_QUERY_FRAGMENT,
-    },
-  });
 
   const sanity = await createSanityContext({
     request,
@@ -63,9 +69,24 @@ export async function createAppLoadContext(
     },
   });
 
-  return {
-    ...hydrogenContext,
-    // declare additional Remix loader context
-    sanity,
-  };
+  const hydrogenContext = createHydrogenContext(
+    {
+      env,
+      request,
+      cache,
+      waitUntil,
+      session,
+      // Or detect from URL path based on locale subpath, cookies, or any other strategy
+      i18n: {language: 'EN', country: 'US'},
+      cart: {
+        queryFragment: CART_QUERY_FRAGMENT,
+      },
+    },
+    {
+      ...additionalContext,
+      sanity,
+    } as const,
+  );
+
+  return hydrogenContext;
 }
