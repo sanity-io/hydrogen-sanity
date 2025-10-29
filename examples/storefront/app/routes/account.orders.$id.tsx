@@ -1,25 +1,30 @@
-import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, type MetaFunction} from 'react-router';
-import {Money, Image, flattenConnection} from '@shopify/hydrogen';
-import type {OrderLineItemFullFragment} from 'customer-accountapi.generated';
+import {redirect, useLoaderData} from 'react-router';
+import type {Route} from './+types/account.orders.$id';
+import {Money, Image} from '@shopify/hydrogen';
+import type {
+  OrderLineItemFullFragment,
+  OrderQuery,
+} from 'customer-accountapi.generated';
 import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuery';
 
-export const meta: MetaFunction<typeof loader> = ({data}) => {
+export const meta: Route.MetaFunction = ({data}) => {
   return [{title: `Order ${data?.order?.name}`}];
 };
 
-export async function loader({params, context}: LoaderFunctionArgs) {
+export async function loader({params, context}: Route.LoaderArgs) {
+  const {customerAccount} = context;
   if (!params.id) {
     return redirect('/account/orders');
   }
 
   const orderId = atob(params.id);
-  const {data, errors} = await context.customerAccount.query(
-    CUSTOMER_ORDER_QUERY,
-    {
-      variables: {orderId},
-    },
-  );
+  const {data, errors}: {data: OrderQuery; errors?: Array<{message: string}>} =
+    await customerAccount.query(CUSTOMER_ORDER_QUERY, {
+      variables: {
+        orderId,
+        language: customerAccount.i18n.language,
+      },
+    });
 
   if (errors?.length || !data?.order) {
     throw new Error('Order not found');
@@ -27,20 +32,37 @@ export async function loader({params, context}: LoaderFunctionArgs) {
 
   const {order} = data;
 
-  const lineItems = flattenConnection(order.lineItems);
-  const discountApplications = flattenConnection(order.discountApplications);
+  // Extract line items directly from nodes array
+  const lineItems = order.lineItems.nodes;
 
-  const fulfillmentStatus =
-    flattenConnection(order.fulfillments)[0]?.status ?? 'N/A';
+  // Extract discount applications directly from nodes array
+  const discountApplications = order.discountApplications.nodes;
 
+  // Get fulfillment status from first fulfillment node
+  const fulfillmentStatus = order.fulfillments.nodes[0]?.status ?? 'N/A';
+
+  // Get first discount value with proper type checking
   const firstDiscount = discountApplications[0]?.value;
 
+  // Type guard for MoneyV2 discount
   const discountValue =
-    firstDiscount?.__typename === 'MoneyV2' && firstDiscount;
+    firstDiscount?.__typename === 'MoneyV2'
+      ? (firstDiscount as Extract<
+          typeof firstDiscount,
+          {__typename: 'MoneyV2'}
+        >)
+      : null;
 
+  // Type guard for percentage discount
   const discountPercentage =
-    firstDiscount?.__typename === 'PricingPercentageValue' &&
-    firstDiscount?.percentage;
+    firstDiscount?.__typename === 'PricingPercentageValue'
+      ? (
+          firstDiscount as Extract<
+            typeof firstDiscount,
+            {__typename: 'PricingPercentageValue'}
+          >
+        ).percentage
+      : null;
 
   return {
     order,
@@ -63,6 +85,9 @@ export default function OrderRoute() {
     <div className="account-order">
       <h2>Order {order.name}</h2>
       <p>Placed on {new Date(order.processedAt!).toDateString()}</p>
+      {order.confirmationNumber && (
+        <p>Confirmation: {order.confirmationNumber}</p>
+      )}
       <br />
       <div>
         <table>

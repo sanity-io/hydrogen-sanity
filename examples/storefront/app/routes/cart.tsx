@@ -1,21 +1,16 @@
-import {type MetaFunction, useLoaderData} from 'react-router';
+import {useLoaderData, data, type HeadersFunction} from 'react-router';
+import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
-import {
-  data,
-  type LoaderFunctionArgs,
-  type ActionFunctionArgs,
-  type HeadersFunction,
-} from '@shopify/remix-oxygen';
 import {CartMain} from '~/components/CartMain';
 
-export const meta: MetaFunction = () => {
+export const meta: Route.MetaFunction = () => {
   return [{title: `Hydrogen | Cart`}];
 };
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;
 
-export async function action({request, context}: ActionFunctionArgs) {
+export async function action({request, context}: Route.ActionArgs) {
   const {cart} = context;
 
   const formData = await request.formData();
@@ -67,6 +62,11 @@ export async function action({request, context}: ActionFunctionArgs) {
       result = await cart.updateGiftCardCodes(giftCardCodes);
       break;
     }
+    case CartForm.ACTIONS.GiftCardCodesRemove: {
+      const appliedGiftCardIds = inputs.giftCardCodes as string[];
+      result = await cart.removeGiftCardCodes(appliedGiftCardIds);
+      break;
+    }
     case CartForm.ACTIONS.BuyerIdentityUpdate: {
       result = await cart.updateBuyerIdentity({
         ...inputs.buyerIdentity,
@@ -100,7 +100,7 @@ export async function action({request, context}: ActionFunctionArgs) {
   );
 }
 
-export async function loader({context}: LoaderFunctionArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   const {cart} = context;
   return await cart.get();
 }
