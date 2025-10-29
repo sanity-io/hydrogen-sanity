@@ -5,6 +5,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.1.0 (2025-10-29)
+
+- feat: upgrade peer dependencies (#149) ([ada8bbf](https://github.com/sanity-io/hydrogen-sanity/commit/ada8bbf)), closes [#149](https://github.com/sanity-io/hydrogen-sanity/issues/149)
+- docs: add missing provider setup section ([d2091c0](https://github.com/sanity-io/hydrogen-sanity/commit/d2091c0))
+- docs: adjust README feature callouts ([be9bd73](https://github.com/sanity-io/hydrogen-sanity/commit/be9bd73))
+- docs: fix hydrogen minimum version typo ([d0cf832](https://github.com/sanity-io/hydrogen-sanity/commit/d0cf832))
+- docs: fix README links to migration guides ([0cc26a1](https://github.com/sanity-io/hydrogen-sanity/commit/0cc26a1))
+- docs: reorder migration guide sections ([567ba29](https://github.com/sanity-io/hydrogen-sanity/commit/567ba29))
+
 ## <small>5.0.1 (2025-09-18)</small>
 
 - fix: set provider value on both server and client ([773bea5](https://github.com/sanity-io/hydrogen-sanity/commit/773bea5))
