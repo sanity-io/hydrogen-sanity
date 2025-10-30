@@ -259,6 +259,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
+      if (!previewEnabled) {
+        console.warn(
+          '`loadQuery` should not be used when preview mode is not enabled. ' +
+            'Either enable preview mode, use `fetch` for direct queries, or use `query` for automatic mode switching. ' +
+            'This will throw an error in the next major version.',
+        )
+      }
+
       if (!withCache || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
         return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)

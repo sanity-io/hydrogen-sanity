@@ -79,18 +79,25 @@ describe('the Sanity request context', () => {
       defaultStrategy,
     })
 
-    await contextWithDefaultStrategy.loadQuery<boolean>(query, params)
+    const spy = vi
+      .spyOn(contextWithDefaultStrategy.client, 'fetch')
+      .mockResolvedValue({result: true, resultSourceMap: undefined, ms: 100})
+    await contextWithDefaultStrategy.fetch<boolean>(query, params)
     expect(runWithCache).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: defaultStrategy}),
       expect.any(Function),
     )
     expect(cache.put).toHaveBeenCalledOnce()
+    expect(spy).toHaveBeenCalledOnce()
   })
 
-  it('queries should use the cache strategy passed in `loadQuery`', async () => {
+  it('queries should use the cache strategy passed in `fetch`', async () => {
     const strategy = CacheShort()
-    await sanity.loadQuery<boolean>(query, params, {
+    const spy = vi
+      .spyOn(sanity.client, 'fetch')
+      .mockResolvedValue({result: true, resultSourceMap: undefined, ms: 100})
+    await sanity.fetch<boolean>(query, params, {
       hydrogen: {cache: strategy},
     })
     expect(runWithCache).toHaveBeenNthCalledWith(
@@ -99,6 +106,33 @@ describe('the Sanity request context', () => {
       expect.any(Function),
     )
     expect(cache.put).toHaveBeenCalledOnce()
+    expect(spy).toHaveBeenCalledOnce()
+  })
+
+  it('should warn when `loadQuery` is used without preview mode enabled', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn())
+
+    await sanity.loadQuery<boolean>(query, params)
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      '`loadQuery` should not be used when preview mode is not enabled. ' +
+        'Either enable preview mode, use `fetch` for direct queries, or use `query` for automatic mode switching. ' +
+        'This will throw an error in the next major version.',
+    )
+    expect(loadQuery).toHaveBeenCalledOnce()
+
+    warnSpy.mockRestore()
+  })
+
+  it('should use `fetch` when `query` is called without preview mode', async () => {
+    const spy = vi.spyOn(sanity.client, 'fetch').mockResolvedValue({
+      result: true,
+      resultSourceMap: undefined,
+      ms: 100,
+    })
+    await sanity.query<boolean>(query, params)
+    expect(spy).toHaveBeenCalledOnce()
+    expect(loadQuery).not.toHaveBeenCalled()
   })
 })
 
