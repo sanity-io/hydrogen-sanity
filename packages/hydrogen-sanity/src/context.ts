@@ -23,6 +23,8 @@ import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
+let didWarnAboutLoadQuery = false
+let didInitializeLoader = false
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -229,15 +231,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         token: preview.token,
         perspective,
       })
-
-      // Set server client for react-loader when in preview mode
-      const {setServerClient} = await import('@sanity/react-loader')
-      setServerClient(client)
     }
   }
 
   // Server client will be initialized lazily on first loadQuery call
-
   const {apiHost, projectId, dataset, apiVersion} = client.config()
   const providerValue: SanityProviderValue = {
     projectId: projectId!,
@@ -249,7 +246,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     stegaEnabled: client.config().stega?.enabled ?? false,
   }
 
-  const sanityContext: SanityContext = {
+  return {
     /**
      * Loads a Sanity query with client-side loader support and Hydrogen cache integration.
      * Bypasses Hydrogen cache in preview mode.
@@ -259,6 +256,21 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
+      // Lazy initialize the loader on first call with the configured client
+      if (!didInitializeLoader) {
+        const {setServerClient} = await import('@sanity/react-loader')
+        setServerClient(client)
+        didInitializeLoader = true
+      }
+
+      // Warn users to migrate to `query` method when using loadQuery outside preview mode
+      if (!previewEnabled && process.env.NODE_ENV === 'development' && !didWarnAboutLoadQuery) {
+        console.warn(
+          `\`loadQuery\` is being called outside of preview mode. Consider using \`query\` instead, which automatically handles both preview and production modes efficiently, or use \`fetch\`. \`loadQuery\` is intended to be called conditionally in preview and visual editing contexts.`,
+        )
+        didWarnAboutLoadQuery = true
+      }
+
       if (!withCache || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
         return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
@@ -355,7 +367,5 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         children,
       )
     },
-  }
-
-  return sanityContext
+  } satisfies SanityContext
 }

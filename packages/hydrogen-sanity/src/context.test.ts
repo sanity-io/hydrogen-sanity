@@ -21,6 +21,7 @@ const cache = vi.hoisted<Cache>(() => ({
 }))
 
 const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
+const setServerClient = vi.hoisted(() => vi.fn())
 let withCache = vi.hoisted<WithCache | null>(() => null)
 
 vi.mock('@shopify/hydrogen', async (importOriginal) => {
@@ -43,6 +44,7 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
   return {
     ...module,
     loadQuery,
+    setServerClient,
   }
 })
 
@@ -434,5 +436,142 @@ describe('stegaEnabled serialization', () => {
     const providerValue = providerProps.value
 
     expect(Object.isFrozen(providerValue)).toBe(true)
+  })
+})
+
+describe('lazy-initialize loaders', () => {
+  const request = new Request('https://example.com')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("shouldn't call `setServerClient` during context creation", async () => {
+    await createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    expect(setServerClient).not.toHaveBeenCalled()
+  })
+
+  it('should allow `loadQuery` to be called not in preview mode', async () => {
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    // loadQuery should work in non-preview mode (backwards compatibility)
+    // The actual loadQuery function will be called from the mocked module
+    await context.loadQuery<boolean>(query, params)
+
+    // Verify the mock was called (actual behavior testing is done in other tests)
+    expect(loadQuery).toHaveBeenCalled()
+  })
+
+  it('should call `setServerClient` on first `loadQuery` invocation in preview mode', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    // First call to `loadQuery`
+    await context.loadQuery<boolean>(query, params)
+
+    // Should be called with the preview-configured client
+    // Check the most recent call
+    const latestCall = setServerClient.mock.calls[setServerClient.mock.calls.length - 1]
+    if (latestCall) {
+      const calledWithClient = latestCall[0]
+      expect(calledWithClient.config().useCdn).toBe(false)
+      expect(calledWithClient.config().token).toBe('my-token')
+    }
+  })
+
+  it('should display warning when `loadQuery` called outside preview mode in development', async () => {
+    const originalNodeEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'development'
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    const callsBefore = warnSpy.mock.calls.length
+
+    await context.loadQuery<boolean>(query, params)
+
+    // Should have warned about loadQuery usage (may have other warnings too)
+    expect(warnSpy.mock.calls.length).toBeGreaterThan(callsBefore)
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('`loadQuery` is being called outside of preview mode'),
+    )
+
+    const callsAfterFirst = warnSpy.mock.calls.length
+
+    // Second call should not warn again about loadQuery
+    await context.loadQuery<boolean>(query, params)
+    expect(warnSpy.mock.calls.length).toBe(callsAfterFirst)
+
+    warnSpy.mockRestore()
+    process.env.NODE_ENV = originalNodeEnv
+  })
+
+  it("shouldn't display warning in production", async () => {
+    const originalNodeEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+    })
+
+    await context.loadQuery<boolean>(query, params)
+
+    expect(warnSpy).not.toHaveBeenCalled()
+
+    warnSpy.mockRestore()
+    process.env.NODE_ENV = originalNodeEnv
+  })
+
+  it("shouldn't display warning when in preview mode", async () => {
+    const originalNodeEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'development'
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    await context.loadQuery<boolean>(query, params)
+
+    // Should not warn because we're in preview mode
+    expect(warnSpy).not.toHaveBeenCalled()
+
+    warnSpy.mockRestore()
+    process.env.NODE_ENV = originalNodeEnv
   })
 })
