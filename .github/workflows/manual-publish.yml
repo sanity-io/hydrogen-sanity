@@ -21,15 +21,7 @@ jobs:
       contents: read
       id-token: write # to enable use of OIDC for npm provenance
     steps:
-      - uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ secrets.ECOSPARK_APP_ID }}
-          private-key: ${{ secrets.ECOSPARK_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -47,4 +39,5 @@ jobs:
       - name: Publish to NPM
         run: pnpm --filter="hydrogen-sanity" publish --provenance --access public
         env:
+          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
