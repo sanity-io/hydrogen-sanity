@@ -5,6 +5,10 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>5.1.1 (2025-11-15)</small>
+
+- fix: allow `loadQuery` to be called outside preview mode, with warning ([835b0ac](https://github.com/sanity-io/hydrogen-sanity/commit/835b0ac))
+
 ## 5.1.0 (2025-10-29)
 
 - feat: upgrade peer dependencies (#149) ([ada8bbf](https://github.com/sanity-io/hydrogen-sanity/commit/ada8bbf)), closes [#149](https://github.com/sanity-io/hydrogen-sanity/issues/149)
