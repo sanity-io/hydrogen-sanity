@@ -1,9 +1,12 @@
 import {
+  type Any,
+  type ClientReturn,
   type ClientPerspective,
   type QueryParams,
   type QueryWithoutParams,
   validateApiPerspective,
 } from '@sanity/client'
+import type {QueryResponseInitial} from '@sanity/react-loader'
 import type {HydrogenSession} from '@shopify/hydrogen'
 
 import type {SanityPreviewSession} from './preview/session'
@@ -124,4 +127,42 @@ export function isHydrogenSession(session: unknown): session is HydrogenSession 
  */
 export function isServer(): boolean {
   return typeof document === 'undefined'
+}
+
+/**
+ * Extracts data from a Sanity query result, handling both preview and non-preview modes.
+ *
+ * When the result is from preview mode (QueryResponseInitial), returns result.data.
+ * When the result is from non-preview mode, returns the result directly.
+ *
+ * This utility provides type-safe data extraction without needing type assertions.
+ *
+ * @example
+ * ```ts
+ * // In a loader
+ * const result = await context.sanity.query(HOMEPAGE_QUERY)
+ * const homepage = getQueryData(result)
+ * // homepage is now typed as HOMEPAGE_QUERYResult, not a union
+ *
+ * return json({
+ *   homepage: result // Pass original for <Query> component
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Using with context.sanity.preview
+ * const result = await context.sanity.query(HOMEPAGE_QUERY)
+ * const homepage = context.sanity.preview?.getData(result) ?? result
+ * ```
+ *
+ * @public
+ */
+export function getQueryData<Result = Any, Query extends string = string>(
+  result: ClientReturn<Query, Result> | QueryResponseInitial<ClientReturn<Query, Result>>,
+): ClientReturn<Query, Result> {
+  if (typeof result === 'object' && result !== null && 'data' in result) {
+    return result.data
+  }
+  return result
 }

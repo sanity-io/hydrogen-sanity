@@ -18,7 +18,7 @@ import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
-import {getPerspective} from './utils'
+import {getPerspective, getQueryData} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
@@ -168,6 +168,21 @@ export interface SanityContext {
      * Whether preview mode is currently enabled based on session detection
      */
     enabled: boolean
+
+    /**
+     * Extracts data from query results in a preview-aware way.
+     * When preview is enabled, extracts from QueryResponseInitial.data
+     * When preview is disabled, returns the result as-is.
+     *
+     * @example
+     * ```ts
+     * const result = await context.sanity.query(HOMEPAGE_QUERY)
+     * const homepage = context.sanity.preview?.getData(result) ?? result
+     * ```
+     */
+    getData<Result = Any, Query extends string = string>(
+      result: ClientReturn<Query, Result> | QueryResponseInitial<ClientReturn<Query, Result>>,
+    ): ClientReturn<Query, Result>
   }
 
   SanityProvider: (props: PropsWithChildren<object>) => ReactNode
@@ -341,7 +356,21 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     client,
 
     /** Preview configuration with session-based state, undefined when preview is not configured */
-    preview: preview ? {...preview, enabled: previewEnabled} : undefined,
+    preview: preview
+      ? {
+          ...preview,
+          enabled: previewEnabled,
+          getData<Result = Any, Query extends string = string>(
+            result: ClientReturn<Query, Result> | QueryResponseInitial<ClientReturn<Query, Result>>,
+          ): ClientReturn<Query, Result> {
+            // Only unwrap if preview is actually enabled
+            if (previewEnabled) {
+              return getQueryData(result)
+            }
+            return result as ClientReturn<Query, Result>
+          },
+        }
+      : undefined,
 
     /**
      * React Provider component that serializes Sanity configuration across server-client boundary.

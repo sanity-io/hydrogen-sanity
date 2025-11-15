@@ -6,7 +6,7 @@ import {lazy, type ReactNode, Suspense, type SuspenseProps, useSyncExternalStore
 import type {LoadQueryOptions} from './context'
 import {usePreviewMode} from './preview/hooks'
 import type {QueryClientProps} from './Query.client'
-import {isServer} from './utils'
+import {getQueryData, isServer} from './utils'
 
 /**
  * Fallback component that renders nothing, preventing hydration mismatches.
@@ -89,5 +89,6 @@ export function Query<Result = Any, Query extends string = string>({
   }
 
   // Render static data in non-preview mode or during hydration
-  return children(options.initial as ClientReturn<Query, Result>, noopEncodeDataAttribute)
+  const initialData = getQueryData(options.initial)
+  return children(initialData, noopEncodeDataAttribute)
 }

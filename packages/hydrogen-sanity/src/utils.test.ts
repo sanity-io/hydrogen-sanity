@@ -2,7 +2,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {PreviewSession} from './fixtures'
 import {isPreviewEnabled} from './preview/utils'
-import {getPerspective} from './utils'
+import {getPerspective, getQueryData} from './utils'
 import {sanitizePerspective, supportsPerspectiveStack} from './utils'
 
 describe('sanitizePerspective', () => {
@@ -169,5 +169,114 @@ describe('isPreviewEnabled', () => {
     previewSession.set('projectId', projectId)
 
     expect(isPreviewEnabled(projectId, previewSession)).toBe(true)
+  })
+})
+
+describe('getQueryData', () => {
+  it('should extract data from QueryResponseInitial', () => {
+    const mockQueryResponse = {
+      data: {id: '123', title: 'Test'},
+      loading: false,
+      error: undefined,
+      perspective: 'previewDrafts' as const,
+      sourceMap: undefined,
+    }
+
+    const result = getQueryData(mockQueryResponse)
+
+    expect(result).toEqual({id: '123', title: 'Test'})
+  })
+
+  it('should return raw data when not QueryResponseInitial', () => {
+    const rawData = {id: '456', title: 'Production'}
+
+    const result = getQueryData(rawData)
+
+    expect(result).toEqual({id: '456', title: 'Production'})
+  })
+
+  it('should handle null values', () => {
+    const result = getQueryData(null)
+
+    expect(result).toBe(null)
+  })
+
+  it('should handle undefined values', () => {
+    const result = getQueryData(undefined)
+
+    expect(result).toBe(undefined)
+  })
+
+  it('should handle primitive values', () => {
+    expect(getQueryData('string')).toBe('string')
+    expect(getQueryData(123)).toBe(123)
+    expect(getQueryData(true)).toBe(true)
+  })
+
+  it('should handle arrays', () => {
+    const arrayData = [{id: '1'}, {id: '2'}]
+
+    const result = getQueryData(arrayData)
+
+    expect(result).toEqual(arrayData)
+  })
+
+  it('should handle objects without data property', () => {
+    const obj = {id: '789', title: 'Test', perspective: 'published'}
+
+    const result = getQueryData(obj)
+
+    expect(result).toEqual(obj)
+  })
+
+  it('should handle objects with data but missing other QueryResponseInitial properties', () => {
+    const partialResponse = {data: {id: '999'}, perspective: 'published'}
+
+    // This should be treated as QueryResponseInitial since it has 'data'
+    const result = getQueryData(partialResponse)
+
+    expect(result).toEqual({id: '999'})
+  })
+
+  it('should handle nested QueryResponseInitial structures', () => {
+    const nestedResponse = {
+      data: {
+        id: '111',
+        nested: {
+          data: {value: 'nested'},
+          loading: false,
+        },
+      },
+      loading: false,
+      error: undefined,
+      perspective: 'previewDrafts' as const,
+    }
+
+    const result = getQueryData(nestedResponse)
+
+    // Only unwraps the outer layer
+    expect(result).toEqual({
+      id: '111',
+      nested: {
+        data: {value: 'nested'},
+        loading: false,
+      },
+    })
+  })
+
+  it('should be type-safe with generics', () => {
+    type MyData = {id: string; title: string}
+
+    const queryResponse = {
+      data: {id: '123', title: 'Test'} as MyData,
+      loading: false,
+      error: undefined,
+      perspective: 'previewDrafts' as const,
+      sourceMap: undefined,
+    }
+
+    const result: MyData = getQueryData<MyData>(queryResponse)
+
+    expect(result).toEqual({id: '123', title: 'Test'})
   })
 })

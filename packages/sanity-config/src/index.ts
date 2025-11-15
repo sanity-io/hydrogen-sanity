@@ -19,7 +19,7 @@ type Config = {
   presentation?: PresentationPluginOptions
 }
 
-export function defineStudioConfig(config: Config) {
+export function defineStudioConfig(config: Config): ReturnType<typeof defineConfig> {
   return defineConfig({
     ...config,
     dataset: 'production',
@@ -58,6 +58,14 @@ export function defineStudioConfig(config: Config) {
       components: {
         navbar: Navbar,
       },
+    },
+
+    scheduledDrafts: {
+      enabled: true,
+    },
+
+    releases: {
+      enabled: true,
     },
   })
 }

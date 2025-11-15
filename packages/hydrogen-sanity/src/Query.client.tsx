@@ -4,7 +4,7 @@ import type {UseQueryOptionsDefinedInitial} from '@sanity/react-loader'
 import type {ReactNode} from 'react'
 
 import type {LoadQueryOptions} from './context'
-import {isServer} from './utils'
+import {getQueryData, isServer} from './utils'
 import {useQuery} from './visual-editing/useQuery'
 
 /**
@@ -51,10 +51,7 @@ function QueryClient<Result = Any, Query extends string = string>({
 
   // During loading, show initial server data to prevent flash of missing content
   if (loading) {
-    const initialData =
-      options.initial && typeof options.initial === 'object' && 'data' in options.initial
-        ? options.initial.data
-        : options.initial
+    const initialData = getQueryData(options.initial)
     return children(initialData, encodeDataAttribute)
   }
 
