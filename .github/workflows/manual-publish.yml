@@ -1,0 +1,43 @@
+name: Manual NPM Publish
+
+# Manually publish the current package version to NPM if it doesn't already exist
+run-name: Manually publishing `hydrogen-sanity` to NPM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read # for checkout
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+    name: Publish to NPM
+    permissions:
+      contents: read
+      id-token: write # to enable use of OIDC for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
+
+      # Build the package
+      - name: Build
+        run: pnpm --filter="hydrogen-sanity" run prepublishOnly
+
+      # Publish to NPM with provenance
+      - name: Publish to NPM
+        run: pnpm --filter="hydrogen-sanity" publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
