@@ -39,5 +39,5 @@ jobs:
       - name: Publish to NPM
         run: pnpm --filter="hydrogen-sanity" publish --provenance --access public
         env:
-          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
