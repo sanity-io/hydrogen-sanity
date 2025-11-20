@@ -9,6 +9,7 @@
     "dev": "shopify hydrogen dev --codegen",
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",
+    "deploy": "shopify hydrogen deploy --no-lockfile-check",
     "typecheck": "npm run codegen && tsc --noEmit",
     "codegen": "shopify hydrogen codegen && sanity typegen generate && react-router typegen"
   },
