@@ -26,11 +26,11 @@ export default async function handleRequest(
     },
 
     // When preview is enabled for the current session, allow the Studio to embed the storefront in the Presentation tool
-    ...(isPreviewEnabled
-      ? {
-          frameAncestors: env.SANITY_STUDIO_ORIGIN,
-        }
-      : {}),
+    frameAncestors: [
+      // Allow Dashboard to embed the Studio and Presentation tool
+      'https://www.sanity.io',
+      ...(isPreviewEnabled ? [env.SANITY_STUDIO_ORIGIN] : []),
+    ],
   });
 
   const body = await renderToReadableStream(
