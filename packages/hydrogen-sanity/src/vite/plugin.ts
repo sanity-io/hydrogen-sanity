@@ -14,7 +14,7 @@ export function sanity(): Plugin {
         ssr: {
           optimizeDeps: {
             // Pre-bundle Sanity dependencies for better SSR performance
-            include: ['@sanity/client', 'hydrogen-sanity > @sanity/image-url'],
+            include: ['@sanity/client'],
           },
           // Prevent externalization of Sanity dependencies to ensure proper ESM resolution
           noExternal: ['@sanity/client'],

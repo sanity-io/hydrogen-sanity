@@ -1,6 +1,5 @@
-import {default as createImageUrlBuilder} from '@sanity/image-url'
-import type {ImageUrlBuilder} from '@sanity/image-url/lib/types/builder'
-import type {SanityImageSource, SanityModernClientLike} from '@sanity/image-url/lib/types/types'
+import type {ImageUrlBuilder, SanityImageSource, SanityModernClientLike} from '@sanity/image-url'
+import {createImageUrlBuilder} from '@sanity/image-url'
 import {useMemo} from 'react'
 
 import {useSanityProviderValue} from './provider'
@@ -27,5 +26,4 @@ export function useImageUrl(source: SanityImageSource): ImageUrlBuilder {
   return builder.image(source)
 }
 
-export type {ImageUrlBuilder} from '@sanity/image-url/lib/types/builder'
-export type * from '@sanity/image-url/lib/types/types'
+export type * from '@sanity/image-url'
