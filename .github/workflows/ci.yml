@@ -146,6 +146,6 @@ jobs:
         # Branches that will release new versions are defined in .releaserc.json
       - run: pnpm --filter="hydrogen-sanity" run release
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
