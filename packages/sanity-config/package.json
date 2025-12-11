@@ -37,34 +37,34 @@
     "extract:watch": "turbo watch --filter=\"@repo/sanity-config\" extract"
   },
   "dependencies": {
-    "@sanity/asset-utils": "^2.2.1",
-    "@sanity/color-input": "^4.0.6",
+    "@sanity/asset-utils": "^2.3.0",
+    "@sanity/color-input": "^5.0.4",
     "@sanity/icons": "^3.7.4",
-    "@sanity/ui": "^3.0.7",
-    "@sanity/vision": "^4.5.0",
+    "@sanity/ui": "^3.1.11",
+    "@sanity/vision": "^4.21.1",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
     "sanity-plugin-hotspot-array": "^3.0.1",
-    "sanity-plugin-media": "^4.0.0",
-    "slug": "^11.0.0"
+    "sanity-plugin-media": "^4.1.0",
+    "slug": "^11.0.1"
   },
   "devDependencies": {
-    "@portabletext/types": "^2.0.15",
+    "@portabletext/types": "^4.0.0",
     "@sanity/eslint-config-studio": "^5.0.2",
-    "@sanity/pkg-utils": "^7.11.9",
+    "@sanity/pkg-utils": "^10.1.2",
     "@types/lodash.get": "^4.4.9",
-    "@types/react": "^18.3",
+    "@types/react": "^19.2",
     "@types/slug": "^5.0.9",
-    "eslint": "^9.34.0",
-    "react": "^18.3",
-    "react-dom": "^18.3",
-    "sanity": "^4.6.1",
+    "eslint": "^9.39.1",
+    "react": "^19.2",
+    "react-dom": "^19.2",
+    "sanity": "^4.21.1",
     "styled-components": "^6.1.19",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "react": "^18.3",
-    "react-dom": "^18.3",
+    "react": "^19.2",
+    "react-dom": "^19.2",
     "sanity": "^4",
     "styled-components": "^6.1"
   }

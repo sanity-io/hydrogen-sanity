@@ -24,15 +24,5 @@
     "vitest": "^4.0.15",
     "vitest-github-actions-reporter": "^0.11.1"
   },
-  "packageManager": "pnpm@10.25.0",
-  "pnpm": {
-    "overrides": {
-      "hydrogen-sanity": "workspace:*",
-      "sanity": "^4.6.1",
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "@types/react": "^18.2.0",
-      "@types/react-dom": "^18.2.0"
-    }
-  }
+  "packageManager": "pnpm@10.25.0"
 }

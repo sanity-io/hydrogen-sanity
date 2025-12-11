@@ -1,4 +1,4 @@
-import {defineConfig, isDev} from 'sanity'
+import {defineConfig, isDev, type Config, type PluginOptions} from 'sanity'
 import {presentationTool, type PresentationPluginOptions} from 'sanity/presentation'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
@@ -11,15 +11,15 @@ import {structure} from './structure'
 import {customDocumentActions} from './plugins/customDocumentActions'
 import Navbar from './components/studio/Navbar'
 
-const devOnlyPlugins = [visionTool()]
+const devOnlyPlugins = [visionTool()] as PluginOptions[]
 
-type Config = {
+type StudioConfig = {
   projectId: string
   basePath?: string
   presentation?: PresentationPluginOptions
 }
 
-export function defineStudioConfig(config: Config) {
+export function defineStudioConfig(config: StudioConfig): Config {
   return defineConfig({
     ...config,
     dataset: 'production',
