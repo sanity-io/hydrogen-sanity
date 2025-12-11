@@ -45,8 +45,10 @@ const noopEncodeDataAttribute: EncodeDataAttributeFunction = Object.assign(() =>
   scope: () => noopEncodeDataAttribute,
 })
 
-export interface QueryProps<Result = Any, Query extends string = string>
-  extends Omit<QueryClientProps<Result, Query>, 'options'> {
+export interface QueryProps<Result = Any, Query extends string = string> extends Omit<
+  QueryClientProps<Result, Query>,
+  'options'
+> {
   query: Query
   params?: QueryParams | QueryWithoutParams
   options: {

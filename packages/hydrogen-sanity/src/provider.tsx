@@ -4,13 +4,9 @@ import type {HTMLProps, PropsWithChildren, ReactNode} from 'react'
 /**
  * Contains essential Sanity client configuration and preview/stega state.
  */
-export interface SanityProviderValue
-  extends Required<
-    Pick<
-      InitializedClientConfig,
-      'projectId' | 'dataset' | 'apiHost' | 'apiVersion' | 'perspective'
-    >
-  > {
+export interface SanityProviderValue extends Required<
+  Pick<InitializedClientConfig, 'projectId' | 'dataset' | 'apiHost' | 'apiVersion' | 'perspective'>
+> {
   previewEnabled: boolean
   stegaEnabled: boolean
 }
