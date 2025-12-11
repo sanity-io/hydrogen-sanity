@@ -60,6 +60,8 @@ jobs:
         with:
           node-version: lts/*
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
+        # Verify the integrity of provenance attestations and registry signatures for installed dependencies
+      - run: npm audit signatures
         # Linting can be skipped
       - run: pnpm --filter="hydrogen-sanity" run lint
         if: github.event.inputs.test != 'false'
@@ -121,7 +123,7 @@ jobs:
       contents: write # to be able to publish a GitHub release
       issues: write # to be able to comment on released issues
       pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+      id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
       - uses: actions/create-github-app-token@v2
         id: app-token
