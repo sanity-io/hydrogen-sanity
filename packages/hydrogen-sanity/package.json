@@ -17,7 +17,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/sanity-io/hydrogen-sanity.git"
+    "url": "git+https://github.com/sanity-io/hydrogen-sanity.git",
+    "directory": "packages/hydrogen-sanity"
   },
   "license": "MIT",
   "author": "Sanity.io <hello@sanity.io>",
