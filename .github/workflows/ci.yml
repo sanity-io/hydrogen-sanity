@@ -130,7 +130,7 @@ jobs:
         with:
           app-id: ${{ secrets.ECOSPARK_APP_ID }}
           private-key: ${{ secrets.ECOSPARK_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Need to fetch entire commit history to
           # analyze every commit since last release
@@ -140,11 +140,16 @@ jobs:
           # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
           persist-credentials: false
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
+      - run: |
+          npm whoami
+          npm config list
         # Branches that will release new versions are defined in .releaserc.json
       - run: pnpm --filter="hydrogen-sanity" run release
         env:
