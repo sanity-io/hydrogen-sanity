@@ -5,6 +5,35 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>5.1.2 (2025-12-12)</small>
+
+- chore: add manual publishing action ([005b891](https://github.com/sanity-io/hydrogen-sanity/commit/005b891))
+- chore: adding app token ([5a2bd59](https://github.com/sanity-io/hydrogen-sanity/commit/5a2bd59))
+- chore: adjust `repository` field ([f725624](https://github.com/sanity-io/hydrogen-sanity/commit/f725624))
+- chore: adjust workflow ([02ac005](https://github.com/sanity-io/hydrogen-sanity/commit/02ac005))
+- chore: configure NPM provenance ([13a7446](https://github.com/sanity-io/hydrogen-sanity/commit/13a7446))
+- chore: move provenance to the package file ([a4de6ea](https://github.com/sanity-io/hydrogen-sanity/commit/a4de6ea))
+- chore: remove provenance environment variable from ci workflow ([80faa32](https://github.com/sanity-io/hydrogen-sanity/commit/80faa32))
+- chore: use correct environment variable ([3507862](https://github.com/sanity-io/hydrogen-sanity/commit/3507862))
+- chore: use correct environment variable ([2d487fd](https://github.com/sanity-io/hydrogen-sanity/commit/2d487fd))
+- chore: use npm ([6c87bc9](https://github.com/sanity-io/hydrogen-sanity/commit/6c87bc9))
+- chore: use NPM publishing token ([6e2ab47](https://github.com/sanity-io/hydrogen-sanity/commit/6e2ab47))
+- chore(ci): add signature audit ([bfb7dcc](https://github.com/sanity-io/hydrogen-sanity/commit/bfb7dcc))
+- chore(ci): debug npm setup ([693a973](https://github.com/sanity-io/hydrogen-sanity/commit/693a973))
+- chore(ci): don't log npm user ([d5e234b](https://github.com/sanity-io/hydrogen-sanity/commit/d5e234b))
+- chore(ci): move environment variables up to the workflow level to test ([9bb5594](https://github.com/sanity-io/hydrogen-sanity/commit/9bb5594))
+- chore(ci): remove registry from workflow ([91d1bd2](https://github.com/sanity-io/hydrogen-sanity/commit/91d1bd2))
+- chore(deps): update root workspace dependencies ([eef3772](https://github.com/sanity-io/hydrogen-sanity/commit/eef3772))
+- chore(deps): upgrade `hydrogen-sanity` dev dependencies ([b3dcebc](https://github.com/sanity-io/hydrogen-sanity/commit/b3dcebc))
+- chore(deps): upgrade sanity dependencies ([7d21c3f](https://github.com/sanity-io/hydrogen-sanity/commit/7d21c3f))
+- chore(example): add Dashboard-compatible CSP ([7e82436](https://github.com/sanity-io/hydrogen-sanity/commit/7e82436))
+- chore(storefront): re-add `deploy` script ([390406a](https://github.com/sanity-io/hydrogen-sanity/commit/390406a))
+- test: isolate unit tests ([1f8da46](https://github.com/sanity-io/hydrogen-sanity/commit/1f8da46))
+- style: fix linting issues ([4d47270](https://github.com/sanity-io/hydrogen-sanity/commit/4d47270))
+- style: run formatter ([c2c9c6e](https://github.com/sanity-io/hydrogen-sanity/commit/c2c9c6e))
+- set npm_token in release step ([7b24b18](https://github.com/sanity-io/hydrogen-sanity/commit/7b24b18))
+- fix(deps): upgrade `@sanity/image-url` to v2 ([ec39cbb](https://github.com/sanity-io/hydrogen-sanity/commit/ec39cbb))
+
 ## <small>5.1.1 (2025-11-15)</small>
 
 - fix: allow `loadQuery` to be called outside preview mode, with warning ([835b0ac](https://github.com/sanity-io/hydrogen-sanity/commit/835b0ac))
