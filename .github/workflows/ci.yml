@@ -118,6 +118,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
+      NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
     name: Semantic release
     permissions:
       contents: write # to be able to publish a GitHub release
@@ -144,8 +146,6 @@ jobs:
         with:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
       - run: |
           npm whoami
@@ -154,4 +154,3 @@ jobs:
       - run: pnpm --filter="hydrogen-sanity" run release
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
