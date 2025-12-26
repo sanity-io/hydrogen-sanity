@@ -177,9 +177,8 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         token: preview.token,
         perspective,
         stega: {
-          ...client.config().stega,
-          enabled: true,
           studioUrl: preview.studioUrl,
+          ...client.config().stega,
         },
       })
 
