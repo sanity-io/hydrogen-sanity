@@ -1,14 +1,4 @@
 {
   "extends": "@sanity/semantic-release-preset",
-  "branches": [
-    "main",
-    {
-      "name": "beta",
-      "prerelease": true
-    },
-    {
-      "name": "next",
-      "prerelease": true
-    }
-  ]
+  "branches": ["main", {"name": "v4", "channel": "4", "range": "4.x.x"}]
 }

@@ -1,4 +1,3 @@
----
 name: CI & Release
 
 # Workflow name based on selected inputs. Fallback to default Github naming when expression evaluates to empty string
@@ -14,9 +13,13 @@ run-name: >-
 on:
   # Build on pushes branches that have a PR (including drafts)
   pull_request:
+    paths:
+      - 'package/**'
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
-    branches: [main, beta]
+    branches: [v4]
+    paths:
+      - 'package/**'
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch:
     inputs:
@@ -51,11 +54,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
         with:
-          cache: pnpm
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
           node-version: lts/*
-      - run: pnpm install
+      - run: pnpm i --filter="hydrogen-sanity"
+        # Verify the integrity of provenance attestations and registry signatures for installed dependencies
+      - run: npm audit signatures
         # Linting can be skipped
       - run: pnpm --filter="hydrogen-sanity" run lint
         if: github.event.inputs.test != 'false'
@@ -99,12 +105,11 @@ jobs:
           git config --global core.eol lf
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          cache: pnpm
           node-version: ${{ matrix.node }}
-      - run: pnpm install
-      - run: pnpm --filter="hydrogen-sanity" test
+      - run: pnpm i --filter="hydrogen-sanity"
+      - run: pnpm test --project="hydrogen-sanity"
 
   release:
     needs: [build, test]
@@ -113,19 +118,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
+      NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
     name: Semantic release
     permissions:
       contents: write # to be able to publish a GitHub release
       issues: write # to be able to comment on released issues
       pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+      id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
           app-id: ${{ secrets.ECOSPARK_APP_ID }}
           private-key: ${{ secrets.ECOSPARK_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Need to fetch entire commit history to
           # analyze every commit since last release
@@ -135,13 +142,11 @@ jobs:
           # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
           persist-credentials: false
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          cache: pnpm
           node-version: lts/*
-      - run: pnpm install
+      - run: pnpm i --filter="hydrogen-sanity"
         # Branches that will release new versions are defined in .releaserc.json
       - run: pnpm --filter="hydrogen-sanity" run release
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
