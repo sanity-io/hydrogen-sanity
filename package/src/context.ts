@@ -53,11 +53,21 @@ export type CreateSanityContextOptions = {
         enabled: boolean
         token: string
         studioUrl: string
+        /**
+         * Whether to enable stega encoding in preview mode.
+         * @defaultValue true
+         */
+        stega?: boolean
       }
     | {
         token: string
         studioUrl: string
         session: SanityPreviewSession | HydrogenSession
+        /**
+         * Whether to enable stega encoding in preview mode.
+         * @defaultValue true
+         */
+        stega?: boolean
       }
 }
 
@@ -172,13 +182,15 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         perspective = 'previewDrafts'
       }
 
+      // Enable stega by default in preview mode, unless explicitly disabled via preview.stega
+      const stegaEnabled = preview.stega !== false
+
       const previewClient = client.withConfig({
         useCdn: false,
         token: preview.token,
         perspective,
         stega: {
-          ...client.config().stega,
-          enabled: true,
+          enabled: stegaEnabled,
           studioUrl: preview.studioUrl,
         },
       })
