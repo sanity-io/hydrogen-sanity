@@ -20,6 +20,7 @@ const cache = vi.hoisted<Cache>(() => ({
 
 // Mock the Sanity loader
 const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
+const setServerClient = vi.hoisted(() => vi.fn())
 
 let withCache = vi.hoisted<WithCache | null>(() => null)
 
@@ -43,6 +44,7 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
   return {
     ...module,
     loadQuery,
+    setServerClient,
   }
 })
 
@@ -206,5 +208,83 @@ describe('session-based preview detection', () => {
 
     expect(context.preview?.enabled).toBe(false)
     expect(mockSession.get).toHaveBeenCalledWith('projectId')
+  })
+})
+
+describe('stega configuration in preview mode', () => {
+  const request = new Request('https://example.com')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should enable stega by default when preview is enabled', () => {
+    createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        enabled: true,
+        token: 'my-token',
+        studioUrl: 'https://my-studio.sanity.studio',
+      },
+    })
+
+    expect(setServerClient).toHaveBeenCalledOnce()
+    const previewClient = setServerClient.mock.calls[0][0]
+    expect(previewClient.config().stega?.enabled).toBe(true)
+  })
+
+  it('should use studioUrl from preview config', () => {
+    createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        enabled: true,
+        token: 'my-token',
+        studioUrl: 'https://my-studio.sanity.studio',
+      },
+    })
+
+    expect(setServerClient).toHaveBeenCalledOnce()
+    const previewClient = setServerClient.mock.calls[0][0]
+    expect(previewClient.config().stega?.studioUrl).toBe('https://my-studio.sanity.studio')
+  })
+
+  it('should allow user to disable stega via preview.stega option', () => {
+    createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        enabled: true,
+        token: 'my-token',
+        studioUrl: 'https://my-studio.sanity.studio',
+        stega: false,
+      },
+    })
+
+    expect(setServerClient).toHaveBeenCalledOnce()
+    const previewClient = setServerClient.mock.calls[0][0]
+    expect(previewClient.config().stega?.enabled).toBe(false)
+  })
+
+  it('should enable stega when preview.stega is explicitly true', () => {
+    createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        enabled: true,
+        token: 'my-token',
+        studioUrl: 'https://my-studio.sanity.studio',
+        stega: true,
+      },
+    })
+
+    expect(setServerClient).toHaveBeenCalledOnce()
+    const previewClient = setServerClient.mock.calls[0][0]
+    expect(previewClient.config().stega?.enabled).toBe(true)
   })
 })

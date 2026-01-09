@@ -339,6 +339,17 @@ For users to enter preview mode, they will need to visit a route that performs s
 >
 > By default, `hydrogen-sanity` will enable stega-encoded Content Source Maps when preview mode is enabled.
 >
+> If you need preview mode without stega encoding, you can disable it:
+>
+> ```ts
+> preview: {
+>   token: env.SANITY_API_TOKEN,
+>   studioUrl: 'http://localhost:3333',
+>   session: previewSession,
+>   stega: false, // Disable stega encoding in preview mode
+> }
+> ```
+>
 > You can learn more about Content Source Maps and working with stega-encoded strings in [the documentation](https://www.sanity.io/docs/stega).
 
 Add this route to your project like below, or view the source to copy and modify it in your project.
