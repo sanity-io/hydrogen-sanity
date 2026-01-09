@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.5.0](https://github.com/sanity-io/hydrogen-sanity/compare/v4.4.1...v4.5.0) (2026-01-09)
+
+### Features
+
+- allow stega configuration override in preview mode ([c584120](https://github.com/sanity-io/hydrogen-sanity/commit/c5841209eb78018133dd09f4d7212dae0bc6ec4d))
+
 ## [4.4.1](https://github.com/sanity-io/hydrogen-sanity/compare/v4.4.0...v4.4.1) (2025-08-16)
 
 ### Bug Fixes
