@@ -5,6 +5,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0 (2026-01-16)
+
+- fix(deps): use permissive peer dependency ranges aligned to Hydrogen ([5f96265](https://github.com/sanity-io/hydrogen-sanity/commit/5f96265))
+- chore(deps): upgrade dev dependencies ([6b8e0d6](https://github.com/sanity-io/hydrogen-sanity/commit/6b8e0d6))
+- feat(deps)!: upgrade sanity dependencies to latest majors ([5980d6b](https://github.com/sanity-io/hydrogen-sanity/commit/5980d6b))
+
+### BREAKING CHANGE
+
+- The minimum Node version has been increased from 20 to 20.19 due to upstream dependency requirements.
+
 ## <small>5.1.2 (2025-12-12)</small>
 
 - chore: add manual publishing action ([005b891](https://github.com/sanity-io/hydrogen-sanity/commit/005b891))
