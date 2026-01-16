@@ -18,5 +18,10 @@ export default {
       channel: 'v4',
       range: '4.x.x',
     },
+    {
+      name: 'v5',
+      channel: '5',
+      range: '5.x.x',
+    },
   ],
 }
