@@ -45,7 +45,6 @@
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
     "sanity-plugin-hotspot-array": "^3.0.1",
-    "sanity-plugin-media": "^4.1.0",
     "slug": "^11.0.1"
   },
   "devDependencies": {

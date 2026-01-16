@@ -4,7 +4,7 @@ import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {colorInput} from '@sanity/color-input'
 import {imageHotspotArrayPlugin} from 'sanity-plugin-hotspot-array'
-import {media, mediaAssetSource} from 'sanity-plugin-media'
+import {media} from './plugins/media'
 
 import {schemaTypes} from './schemaTypes'
 import {structure} from './structure'
@@ -41,23 +41,15 @@ export function defineStudioConfig(config: StudioConfig): Config {
       types: schemaTypes,
     },
 
-    form: {
-      file: {
-        assetSources: (previousAssetSources) => {
-          return previousAssetSources.filter((assetSource) => assetSource !== mediaAssetSource)
-        },
-      },
-      image: {
-        assetSources: (previousAssetSources) => {
-          return previousAssetSources.filter((assetSource) => assetSource === mediaAssetSource)
-        },
-      },
-    },
-
     studio: {
       components: {
         navbar: Navbar,
       },
     },
+
+    // Token-based auth recommended for full Media Library functionality
+    auth: {
+      loginMethod: 'token',
+    }
   })
 }
