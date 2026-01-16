@@ -1017,13 +1017,13 @@ export declare const internalGroqTypeReferenceTo: unique symbol;
 // Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          name,          reference->{            _type,            slug          }        },        _type == "linkExternal" => {          name,          url        }      },      content[]{        _type,        _key,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            },            alt          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            name,            reference->{              _type,              slug            }          },          _type == "linkExternal" => {            name,            url          }        }      },      _type == "products" => {        layout,        products[]->{          _id,          store{            title,            slug,            previewImageUrl          }        }      },      _type == "imageWithProductHotspots" => {        image{          asset->{            _id,            url          },          alt        }      }    }  }
 export type HOMEPAGE_QUERYResult =
   | {
-      _id: string;
+      _id: 'home';
       _rev: string;
       hero: null;
       modules: null;
     }
   | {
-      _id: string;
+      _id: 'home';
       _rev: string;
       hero: {
         title: string | null;
@@ -1086,7 +1086,7 @@ export type HOMEPAGE_QUERYResult =
       modules: null;
     }
   | {
-      _id: string;
+      _id: 'home';
       _rev: string;
       hero: {
         title: string | null;
@@ -1217,7 +1217,7 @@ export type HOMEPAGE_QUERYResult =
       > | null;
     }
   | {
-      _id: string;
+      _id: 'home';
       _rev: string;
       hero: {
         title: string | null;
