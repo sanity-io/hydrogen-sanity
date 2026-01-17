@@ -4,10 +4,13 @@ import {
   type ClientPerspective,
   type ClientReturn,
   createClient,
+  type MediaLibraryAssetInstanceIdentifier,
+  type MediaLibraryPlaybackInfoOptions,
   type QueryParams,
   type QueryWithoutParams,
   type ResponseQueryOptions,
   SanityClient,
+  type VideoPlaybackInfo,
 } from '@sanity/client'
 import type {QueryResponseInitial} from '@sanity/react-loader'
 import {type CachingStrategy, createWithCache, type HydrogenSession} from '@shopify/hydrogen'
@@ -18,8 +21,13 @@ import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
-import {getPerspective} from './utils'
-import {hashQuery, supportsPerspectiveStack} from './utils'
+import {
+  getPerspective,
+  hashQuery,
+  sha256,
+  supportsMediaLibraryVideo,
+  supportsPerspectiveStack,
+} from './utils'
 
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
@@ -158,6 +166,37 @@ export interface SanityContext {
     params?: QueryParams | QueryWithoutParams,
     options?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
   ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>>
+
+  /**
+   * Get video playback information for a Sanity Media Library video asset.
+   * Uses Hydrogen caching when available, bypasses cache in preview mode.
+   *
+   * @param asset - Asset identifier (reference, GDR string, or video-prefixed ID)
+   * @param options - Playback options and Hydrogen cache configuration
+   * @returns Video playback info including stream URL, thumbnail, duration, and aspect ratio
+   *
+   * @example
+   * ```ts
+   * // In loader
+   * const videoInfo = await sanity.getVideoPlaybackInfo(product.video.asset)
+   *
+   * // In component with Mux Player
+   * <MuxPlayer
+   *   playbackId={videoInfo.id}
+   *   customDomain="m.sanity-cdn.com"
+   *   style={{ aspectRatio: videoInfo.aspectRatio }}
+   * />
+   * ```
+   */
+  getVideoPlaybackInfo(
+    asset: MediaLibraryAssetInstanceIdentifier,
+    options?: MediaLibraryPlaybackInfoOptions & {
+      hydrogen?: {
+        cache?: CachingStrategy
+        debug?: {displayName: string}
+      }
+    },
+  ): Promise<VideoPlaybackInfo>
 
   /**
    * The Sanity client, automatically configured for preview mode when enabled.
@@ -347,6 +386,48 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       queryOptions?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>> {
       return await (previewEnabled ? this.loadQuery : this.fetch)(query, params, queryOptions)
+    },
+
+    /**
+     * Get video playback information for a Sanity Media Library video asset.
+     * Uses Hydrogen caching when available, bypasses cache in preview mode.
+     */
+    async getVideoPlaybackInfo(
+      asset: MediaLibraryAssetInstanceIdentifier,
+      options?: MediaLibraryPlaybackInfoOptions & {
+        hydrogen?: {
+          cache?: CachingStrategy
+          debug?: {displayName: string}
+        }
+      },
+    ): Promise<VideoPlaybackInfo> {
+      const currentApiVersion = client.config().apiVersion!
+      if (!supportsMediaLibraryVideo(currentApiVersion)) {
+        throw new Error(
+          `API version ${currentApiVersion} does not support Media Library video. Use v2025-03-25 or later.`,
+        )
+      }
+
+      const {hydrogen, ...playbackOptions} = options ?? {}
+
+      // Bypass cache in preview mode for real-time updates
+      if (!withCache || previewEnabled) {
+        return await client.mediaLibrary.video.getPlaybackInfo(asset, playbackOptions)
+      }
+
+      const cacheStrategy = hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
+      // Use asset reference as cache key
+      const assetKey = typeof asset === 'string' ? asset : asset._ref
+      const cacheKey = await sha256(`video-playback:${assetKey}:${JSON.stringify(playbackOptions)}`)
+
+      return await withCache.run(
+        {cacheKey, cacheStrategy, shouldCacheResult: () => true},
+        async ({addDebugData}: CacheActionFunctionParam): Promise<VideoPlaybackInfo> => {
+          const displayName = hydrogen?.debug?.displayName || 'get video playback info'
+          addDebugData({displayName})
+          return await client.mediaLibrary.video.getPlaybackInfo(asset, playbackOptions)
+        },
+      )
     },
 
     /** The configured Sanity client instance */

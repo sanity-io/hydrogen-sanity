@@ -99,6 +99,7 @@
     "watch": "pkg-utils watch --strict"
   },
   "dependencies": {
+    "@sanity/asset-utils": "^2.3.0",
     "@sanity/comlink": "^4.0.1",
     "@sanity/core-loader": "^2.0.5",
     "@sanity/image-url": "^2.0.2",

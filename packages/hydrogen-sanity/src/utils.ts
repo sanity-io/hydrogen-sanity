@@ -125,3 +125,24 @@ export function isHydrogenSession(session: unknown): session is HydrogenSession 
 export function isServer(): boolean {
   return typeof document === 'undefined'
 }
+
+/**
+ * Check if API version supports Media Library video features (v2025-03-25 or later)
+ * Special versions: '1' doesn't support video, 'X' does support video
+ */
+export function supportsMediaLibraryVideo(apiVersion: string): boolean {
+  // Special cases
+  if (apiVersion === '1') return false
+  if (apiVersion === 'X') return true
+
+  // Normalize version by removing 'v' prefix if present
+  const normalizedVersion = `${apiVersion}`.replace(/^v/, '')
+
+  // Parse date format: 2025-03-25
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedVersion)) return false
+
+  const versionDate = new Date(normalizedVersion)
+  const cutoffDate = new Date('2025-03-25')
+
+  return versionDate >= cutoffDate
+}
