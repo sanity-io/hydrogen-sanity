@@ -5,6 +5,11 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.2.0 (2026-01-18)
+
+- feat: add React 19 support ([16d2634](https://github.com/sanity-io/hydrogen-sanity/commit/16d2634))
+- fix: improve React performance in visual editing hooks ([ea904be](https://github.com/sanity-io/hydrogen-sanity/commit/ea904be))
+
 ## <small>5.1.3 (2026-01-16)</small>
 
 - chore(ci): add v5 branch to workflow triggers ([a0e706c](https://github.com/sanity-io/hydrogen-sanity/commit/a0e706c))
