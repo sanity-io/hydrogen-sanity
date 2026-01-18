@@ -6,6 +6,12 @@ export default defineConfig({
   tsconfig: 'tsconfig.dist.json',
   minify: false,
 
+  // Keep typesVersions for backwards compatibility with TypeScript < 4.7 to align with Hydrogen
+  // Modern TypeScript uses exports field, older versions fall back to typesVersions
+  strictOptions: {
+    noPackageJsonTypesVersions: 'off',
+  },
+
   // rollup: {
   //   output: {
   //     format: 'es',
@@ -32,6 +38,9 @@ export default defineConfig({
 
   // Remove this block to enable strict export validation
   extract: {
+    // Disable type checking during dts generation for faster builds
+    // (type checking is done separately via `tsc`)
+    checkTypes: false,
     rules: {
       'ae-incompatible-release-tags': 'off',
       'ae-internal-missing-underscore': 'off',
