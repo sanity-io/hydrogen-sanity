@@ -5,6 +5,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.1.0 (2026-01-18)
+
+- chore(deps): update dependencies ([f0e9a82](https://github.com/sanity-io/hydrogen-sanity/commit/f0e9a82))
+- chore(storefront): sync with skeleton ([8f9b372](https://github.com/sanity-io/hydrogen-sanity/commit/8f9b372))
+- fix: improve React performance in visual editing hooks ([b65b01d](https://github.com/sanity-io/hydrogen-sanity/commit/b65b01d))
+- fix(deps): minor dependencies upgrade ([7dbdfb7](https://github.com/sanity-io/hydrogen-sanity/commit/7dbdfb7))
+- fix(vite): resolve @sanity/react-loader server bundle during SSR ([5f888d4](https://github.com/sanity-io/hydrogen-sanity/commit/5f888d4))
+- feat: add React 19 support ([e1f2740](https://github.com/sanity-io/hydrogen-sanity/commit/e1f2740))
+
 ## 6.0.0 (2026-01-16)
 
 - fix(deps): use permissive peer dependency ranges aligned to Hydrogen ([5f96265](https://github.com/sanity-io/hydrogen-sanity/commit/5f96265))

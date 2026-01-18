@@ -1,6 +1,6 @@
 {
   "name": "hydrogen-sanity",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Sanity.io toolkit for Hydrogen",
   "keywords": [
     "sanity",
@@ -95,11 +95,21 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "preview": ["./dist/preview/index.d.ts"],
-      "preview/route": ["./dist/preview/route.d.ts"],
-      "preview/session": ["./dist/preview/session.d.ts"],
-      "visual-editing": ["./dist/visual-editing/index.d.ts"],
-      "vite": ["./dist/vite/index.d.ts"]
+      "preview": [
+        "./dist/preview/index.d.ts"
+      ],
+      "preview/route": [
+        "./dist/preview/route.d.ts"
+      ],
+      "preview/session": [
+        "./dist/preview/session.d.ts"
+      ],
+      "visual-editing": [
+        "./dist/visual-editing/index.d.ts"
+      ],
+      "vite": [
+        "./dist/vite/index.d.ts"
+      ]
     }
   },
   "files": [
