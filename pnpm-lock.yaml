@@ -21,16 +21,16 @@ importers:
         specifier: ^16.2.7
         version: 16.2.7
       prettier:
-        specifier: ^3.7.4
+        specifier: ^3.8.0
         version: 3.8.0
       prettier-plugin-packagejson:
-        specifier: ^2.5.20
+        specifier: ^2.5.21
         version: 2.5.21(prettier@3.8.0)
       turbo:
-        specifier: ^2.7.3
+        specifier: ^2.7.5
         version: 2.7.5
       vitest:
-        specifier: ^4.0.16
+        specifier: ^4.0.17
         version: 4.0.17(@types/node@25.0.9)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
       vitest-github-actions-reporter:
         specifier: ^0.11.1
@@ -39,7 +39,7 @@ importers:
   examples/storefront:
     dependencies:
       '@sanity/client':
-        specifier: ^7.8.2
+        specifier: ^7.14.0
         version: 7.14.0(debug@4.4.3)
       '@shopify/hydrogen':
         specifier: 2025.7.2
@@ -72,7 +72,7 @@ importers:
         specifier: 7.12.0
         version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       sanity:
-        specifier: ^4.6.1
+        specifier: ^4.22.0
         version: 4.22.0(@emotion/is-prop-valid@1.4.0)(@portabletext/sanity-bridge@1.2.14(@types/react@18.3.27))(@types/node@25.0.9)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(immer@11.1.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
     devDependencies:
       '@eslint/compat':
@@ -184,10 +184,10 @@ importers:
         specifier: ^19.2
         version: 19.2.3(react@19.2.3)
       sanity:
-        specifier: ^4.21.1
+        specifier: ^4.22.0
         version: 4.22.0(@emotion/is-prop-valid@1.4.0)(@portabletext/sanity-bridge@1.2.14(@types/react@19.2.8))(@types/node@25.0.9)(@types/react@19.2.8)(immer@11.1.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       styled-components:
-        specifier: ^6.1.19
+        specifier: ^6.3.8
         version: 6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
       '@sanity/eslint-config-studio':
@@ -197,7 +197,7 @@ importers:
         specifier: ^19.2
         version: 19.2.8
       eslint:
-        specifier: ^9.39.1
+        specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
       typescript:
         specifier: ^5.9.3
@@ -212,7 +212,7 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(@sanity/types@4.22.0(@types/react@18.3.27))(typescript@5.9.3)
       '@sanity/image-url':
-        specifier: ^2.0.2
+        specifier: ^2.0.3
         version: 2.0.3
       '@sanity/presentation-comlink':
         specifier: ^2.0.1
@@ -243,7 +243,7 @@ importers:
         specifier: ^7.14.0
         version: 7.14.0(debug@4.4.3)
       '@sanity/pkg-utils':
-        specifier: ^10.3.0
+        specifier: ^10.3.2
         version: 10.3.2(@types/babel__core@7.20.5)(@types/node@25.0.9)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
       '@sanity/semantic-release-preset':
         specifier: ^6.0.0
@@ -255,13 +255,13 @@ importers:
         specifier: ^16.3.1
         version: 16.3.1(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
-        specifier: ^18.3.24
+        specifier: ^18.3.27
         version: 18.3.27
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.52.0
+        specifier: ^8.53.0
         version: 8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/parser':
-        specifier: ^8.52.0
+        specifier: ^8.53.0
         version: 8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       eslint:
         specifier: ^9.39.2
@@ -273,7 +273,7 @@ importers:
         specifier: ^7.1.4
         version: 7.1.4(@typescript-eslint/eslint-plugin@8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-react@7.37.5(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-prettier:
-        specifier: ^5.5.4
+        specifier: ^5.5.5
         version: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(prettier@3.8.0)
       eslint-plugin-react:
         specifier: ^7.37.5
@@ -285,7 +285,7 @@ importers:
         specifier: ^12.1.1
         version: 12.1.1(eslint@9.39.2(jiti@2.6.1))
       groq:
-        specifier: ^5.2.0
+        specifier: ^5.4.0
         version: 5.4.0
       react:
         specifier: ^18.3.1
@@ -303,10 +303,10 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       vite:
-        specifier: ^6.3.5
+        specifier: ^6.4.1
         version: 6.4.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
       vitest:
-        specifier: ^4.0.16
+        specifier: ^4.0.17
         version: 4.0.17(@types/node@25.0.9)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/sanity-config:
@@ -324,7 +324,7 @@ importers:
         specifier: ^3.1.11
         version: 3.1.11(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.3(react@19.2.3))(react-is@19.2.3)(react@19.2.3)(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@sanity/vision':
-        specifier: ^4.21.1
+        specifier: ^4.22.0
         version: 4.22.0(@babel/runtime@7.28.6)(@codemirror/lint@6.9.2)(@codemirror/theme-one-dark@6.1.3)(@emotion/is-prop-valid@1.4.0)(codemirror@6.0.2)(react-dom@19.2.3(react@19.2.3))(react-is@19.2.3)(react@19.2.3)(sanity@4.22.0(@emotion/is-prop-valid@1.4.0)(@portabletext/sanity-bridge@1.2.14(@types/react@19.2.8))(@types/node@25.0.9)(@types/react@19.2.8)(immer@11.1.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       lodash.get:
         specifier: ^4.4.2
@@ -333,23 +333,23 @@ importers:
         specifier: ^9.0.5
         version: 9.0.5
       sanity-plugin-hotspot-array:
-        specifier: ^3.0.1
+        specifier: ^3.0.2
         version: 3.0.2(@emotion/is-prop-valid@1.4.0)(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react-is@19.2.3)(react@19.2.3)(sanity@4.22.0(@emotion/is-prop-valid@1.4.0)(@portabletext/sanity-bridge@1.2.14(@types/react@19.2.8))(@types/node@25.0.9)(@types/react@19.2.8)(immer@11.1.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       sanity-plugin-media:
-        specifier: ^4.1.0
+        specifier: ^4.1.1
         version: 4.1.1(@emotion/is-prop-valid@1.4.0)(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react-is@19.2.3)(react@19.2.3)(sanity@4.22.0(@emotion/is-prop-valid@1.4.0)(@portabletext/sanity-bridge@1.2.14(@types/react@19.2.8))(@types/node@25.0.9)(@types/react@19.2.8)(immer@11.1.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       slug:
         specifier: ^11.0.1
         version: 11.0.1
     devDependencies:
       '@portabletext/types':
-        specifier: ^4.0.0
+        specifier: ^4.0.1
         version: 4.0.1
       '@sanity/eslint-config-studio':
         specifier: ^5.0.2
         version: 5.0.2(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@sanity/pkg-utils':
-        specifier: ^10.1.2
+        specifier: ^10.3.2
         version: 10.3.2(@types/babel__core@7.20.5)(@types/node@25.0.9)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
       '@types/lodash.get':
         specifier: ^4.4.9
@@ -361,7 +361,7 @@ importers:
         specifier: ^5.0.9
         version: 5.0.9
       eslint:
-        specifier: ^9.39.1
+        specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
       react:
         specifier: ^19.2
@@ -370,10 +370,10 @@ importers:
         specifier: ^19.2
         version: 19.2.3(react@19.2.3)
       sanity:
-        specifier: ^4.21.1
+        specifier: ^4.22.0
         version: 4.22.0(@emotion/is-prop-valid@1.4.0)(@portabletext/sanity-bridge@1.2.14(@types/react@19.2.8))(@types/node@25.0.9)(@types/react@19.2.8)(immer@11.1.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       styled-components:
-        specifier: ^6.1.19
+        specifier: ^6.3.8
         version: 6.3.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       typescript:
         specifier: ^5.9.3
