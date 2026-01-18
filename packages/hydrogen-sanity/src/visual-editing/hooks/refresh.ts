@@ -1,6 +1,7 @@
 import type {HistoryRefresh} from '@sanity/visual-editing'
-import {useCallback, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {useRevalidator} from 'react-router'
+import {useEffectEvent} from 'use-effect-event'
 
 import type {Revalidator} from '../types'
 
@@ -16,14 +17,14 @@ export function useRefresh(): {
       revalidator: Revalidator,
     ) => false | Promise<void>,
   ) => (payload: HistoryRefresh) => false | Promise<void>
-  handleRevalidatorState: () => void
-  revalidatorState: Revalidator['state']
 } {
   const revalidator = useRevalidator()
   const [revalidatorPromise, setRevalidatorPromise] = useState<(() => void) | null>(null)
   const [revalidatorLoading, setRevalidatorLoading] = useState(false)
 
-  const handleRevalidatorState = useCallback(() => {
+  // Handle revalidator state transitions internally
+  // useEffectEvent provides stable identity while reading latest state
+  const handleRevalidatorState = useEffectEvent(() => {
     if (revalidatorPromise && revalidator.state === 'loading') {
       setRevalidatorLoading(true)
     } else if (revalidatorPromise && revalidatorLoading && revalidator.state === 'idle') {
@@ -31,7 +32,12 @@ export function useRefresh(): {
       setRevalidatorPromise(null)
       setRevalidatorLoading(false)
     }
-  }, [revalidatorLoading, revalidator.state, revalidatorPromise])
+  })
+
+  // Automatically handle revalidator state changes
+  useEffect(() => {
+    handleRevalidatorState()
+  }, [revalidator.state])
 
   const createRefreshHandler = useCallback(
     (
@@ -69,7 +75,5 @@ export function useRefresh(): {
 
   return {
     refreshHandler: createRefreshHandler,
-    handleRevalidatorState,
-    revalidatorState: revalidator.state,
   }
 }

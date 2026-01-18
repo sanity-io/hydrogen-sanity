@@ -1,6 +1,6 @@
 import {createClient, type StegaConfig} from '@sanity/client'
 import {useLiveMode} from '@sanity/react-loader'
-import {type ReactNode, useEffect, useMemo} from 'react'
+import {type ReactNode, useMemo} from 'react'
 
 import {useSanityProviderValue} from '../provider'
 import {isServer} from '../utils'
@@ -45,6 +45,14 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
 
   const sanityProvider = useSanityProviderValue()
 
+  // Memoize stegaProps to maintain reference stability when content is unchanged
+  // This prevents unnecessary client recreation when parent component re-renders
+  const stableStegaProps = useMemo(
+    () => stegaProps,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(stegaProps)],
+  )
+
   const client = useMemo(() => {
     const baseClient = createClient({
       projectId: sanityProvider.projectId,
@@ -55,11 +63,11 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
     })
 
     // Apply stega configuration if provided
-    if (sanityProvider.stegaEnabled && Object.keys(stegaProps).length > 0) {
+    if (sanityProvider.stegaEnabled && Object.keys(stableStegaProps).length > 0) {
       return baseClient.withConfig({
         stega: {
           enabled: true,
-          ...stegaProps,
+          ...stableStegaProps,
         },
       })
     }
@@ -71,7 +79,7 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
     sanityProvider.perspective,
     sanityProvider.apiVersion,
     sanityProvider.stegaEnabled,
-    stegaProps,
+    stableStegaProps,
   ])
 
   // Enable live mode for real-time data updates (client loaders only)
@@ -81,11 +89,9 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
     onDisconnect,
   })
 
-  // Automatically handle revalidator state changes
-  const {handleRevalidatorState} = useRefresh()
-  useEffect(() => {
-    handleRevalidatorState()
-  })
+  // Initialize refresh hook to handle revalidator state transitions
+  // The hook internally manages state changes via useEffect
+  useRefresh()
 
   return null
 }
