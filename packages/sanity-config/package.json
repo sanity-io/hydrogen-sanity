@@ -38,10 +38,10 @@
   },
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
-    "@sanity/color-input": "^5.0.4",
+    "@sanity/color-input": "^6.0.3",
     "@sanity/icons": "^3.7.4",
     "@sanity/ui": "^3.1.11",
-    "@sanity/vision": "^4.22.0",
+    "@sanity/vision": "^5.4.0",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
     "sanity-plugin-hotspot-array": "^3.0.2",
@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@portabletext/types": "^4.0.1",
-    "@sanity/eslint-config-studio": "^5.0.2",
+    "@sanity/eslint-config-studio": "^6.0.0",
     "@sanity/pkg-utils": "^10.3.2",
     "@types/lodash.get": "^4.4.9",
     "@types/react": "^19.2",
@@ -58,14 +58,14 @@
     "eslint": "^9.39.2",
     "react": "^19.2",
     "react-dom": "^19.2",
-    "sanity": "^4.22.0",
+    "sanity": "^5.4.0",
     "styled-components": "^6.3.8",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "react": "^19.2",
     "react-dom": "^19.2",
-    "sanity": "^4",
+    "sanity": "^5",
     "styled-components": "^6.1"
   }
 }

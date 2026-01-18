@@ -16,11 +16,11 @@
     "@repo/sanity-config": "workspace:*",
     "react": "^19.2",
     "react-dom": "^19.2",
-    "sanity": "^4.22.0",
+    "sanity": "^5.4.0",
     "styled-components": "^6.3.8"
   },
   "devDependencies": {
-    "@sanity/eslint-config-studio": "^5.0.2",
+    "@sanity/eslint-config-studio": "^6.0.0",
     "@types/react": "^19.2",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3"
