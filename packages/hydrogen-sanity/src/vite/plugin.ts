@@ -7,6 +7,7 @@ import type {Plugin, ResolvedConfig} from 'vite'
 export function sanity(): Plugin {
   return {
     name: 'sanity',
+    enforce: 'pre', // Run before other plugins to intercept @sanity/react-loader resolution
 
     async config() {
       return {
@@ -52,6 +53,25 @@ export function sanity(): Plugin {
         ]
         resolvedConfig.environments.ssr.resolve.conditions = envConditions
       }
+    },
+
+    // Surgically redirect @sanity/react-loader to its server bundle during SSR
+    // The browser bundle doesn't export server-only functions like setServerClient/loadQuery
+    // Without this, Hydrogen/Oxygen's 'browser' condition causes the wrong bundle to load
+    async resolveId(id, importer, options) {
+      if (id === '@sanity/react-loader' && options.ssr) {
+        // Resolve package.json (always exported) to find the package location
+        const pkgResolved = await this.resolve('@sanity/react-loader/package.json', importer, {
+          ...options,
+          skipSelf: true,
+        })
+        if (pkgResolved) {
+          // Construct absolute path to the server bundle, bypassing export conditions
+          const serverBundle = pkgResolved.id.replace('/package.json', '/dist/index.js')
+          return {id: serverBundle}
+        }
+      }
+      return null
     },
   }
 }
