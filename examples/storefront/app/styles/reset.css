@@ -1,5 +1,6 @@
 body {
   font-family:
+    'DM Sans',
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
@@ -11,6 +12,9 @@ body {
     'Open Sans',
     'Helvetica Neue',
     sans-serif;
+  font-weight: 500;
+  color: #2b2e2e;
+  background: #fff;
   margin: 0;
   padding: 0;
 }
@@ -53,7 +57,7 @@ p {
 }
 
 a {
-  color: #000;
+  color: #2b2e2e;
   text-decoration: none;
 }
 
@@ -80,6 +84,13 @@ body {
 
 body > main {
   margin: 0 1rem 1rem 1rem;
+  padding-top: calc(var(--header-height) + 1rem);
+}
+
+@media (min-width: 64em) {
+  body > main {
+    padding-top: calc(var(--header-height-lg) + 1.5rem);
+  }
 }
 
 section {

@@ -62,3 +62,4 @@ dist
 
 # Turbo
 .turbo
+.env
