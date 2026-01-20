@@ -1,11 +1,8 @@
-import type {Route} from './+types/$';
+import {notFound} from '~/lib/utils';
 
-export async function loader({request}: Route.LoaderArgs) {
-  throw new Response(`${new URL(request.url).pathname} not found`, {
-    status: 404,
-  });
+export async function loader() {
+  throw notFound();
 }
-
-export default function CatchAllPage() {
+export default function Component() {
   return null;
 }

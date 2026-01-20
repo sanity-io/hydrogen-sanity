@@ -17,9 +17,31 @@ export default async function handleRequest(
   const {env, sanity} = context;
   const {preview, SanityProvider} = sanity;
   const isPreviewEnabled = preview?.enabled;
+  const projectId = env.SANITY_PROJECT_ID;
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    defaultSrc: ['https://cdn.sanity.io'],
+    defaultSrc: ["'self'", 'https://cdn.sanity.io'],
+    imgSrc: [
+      "'self'",
+      'https://cdn.shopify.com',
+      'https://cdn.sanity.io',
+      'https://lh3.googleusercontent.com',
+    ],
+    styleSrc: [
+      "'self'",
+      "'unsafe-inline'",
+      'https://fonts.googleapis.com',
+      'https://cdn.shopify.com',
+    ],
+    scriptSrc: ["'self'", 'www.instagram.com', 'https://cdn.shopify.com'],
+    fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+    frameSrc: ["'self'", 'https://www.instagram.com'],
+    connectSrc: [
+      "'self'",
+      'https://monorail-edge.shopifysvc.com',
+      `https://${projectId}.api.sanity.io`,
+      `wss://${projectId}.api.sanity.io`,
+    ],
     shop: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: env.PUBLIC_STORE_DOMAIN,

@@ -955,346 +955,965 @@ export type AllSanitySchemaTypes =
   | SanityImageAsset
   | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
-// Source: app/routes/_index.tsx
-// Variable: HOMEPAGE_QUERY
-// Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          name,          reference->{            _id,            _type,            slug          }        },        _type == "linkExternal" => {          name,          url        }      },      content[]{        _type,        _key,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            },            alt          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            name,            reference->{              _id,              _type,              slug            }          },          _type == "linkExternal" => {            name,            url          }        }      },      _type == "products" => {        layout,        products[]->{          _id,          store{            title,            slug,            previewImageUrl          }        }      },      _type == "imageWithProductHotspots" => {        image{          asset->{            _id,            url          },          alt        }      }    }  }
-export type HOMEPAGE_QUERYResult =
+// Source: ./app/queries/sanity/collection.ts
+// Variable: COLLECTION_PAGE_QUERY
+// Query: *[    _type == 'collection'    && store.slug.current == $slug  ] | order(_updatedAt desc) [0]{      _id,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  (showHero == true) => {    hero {        content[0] {    _type,    (_type == 'imageWithProductHotspots') => {        image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  productHotspots[] {    _key,      _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y  }    },    (_type == 'productWithVariant') => {      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  description,  title    },  },  modules[] {      _key,  _type,  (_type == "module.accordion") => {      groups[] {    _key,    body[] {      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    title,  }  },  (_type == "module.callout") => {    	"link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },	text  },  (_type == 'module.callToAction') => {      body,  content[0] {    _type,    (_type == 'image') => {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    (_type == 'productWithVariant') => {      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  layout,  "link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },  title,  },  (_type == "module.collection") => {      collection->{      _id,  _type,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "gid": store.gid,  "slug": "/collections/" + store.slug.current,  "title": store.title,  "vector": vector.asset->url,  },  showBackground  },  (_type == "module.image") => {      image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  (variant == 'callToAction') => {    callToAction {      "link": links[0] {        (_type == 'linkExternal') => {              _key,    _type,    newWindow,    title,    url,        },        (_type == 'linkInternal') => {            _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }        },      },      title,    }  },  (variant == 'caption') => {    caption,  },  (variant == 'productHotspots') => {    productHotspots[] {      _key,        _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y    }  },  (variant == 'productTags') => {    productTags[] {      _key,      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  variant,  },  (_type == "module.instagram") => {      url  },  (_type == "module.product") => {      productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  }  },  },    "seo": {    "description": seo.description,    "image": seo.image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    "title": coalesce(seo.title, store.title),  },  "slug": store.slug.current,  "sortOrder": store.sortOrder,  "title": store.title,  }
+export type COLLECTION_PAGE_QUERYResult =
   | {
-      _id: 'home';
-      _rev: string;
-      hero: null;
-      modules: null;
-    }
-  | {
-      _id: 'home';
-      _rev: string;
+      _id: string;
+      colorTheme: {
+        background: string | null;
+        text: string | null;
+      } | null;
       hero: {
-        title: string | null;
-        description: string | null;
-        link: Array<
-          | {
-              _type: 'linkExternal';
-              name: null;
-              url: string | null;
-            }
-          | {
-              _type: 'linkInternal';
-              name: null;
-              reference:
-                | {
-                    _id: string;
-                    _type: 'collection';
-                    slug: null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'home';
-                    slug: null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'page';
-                    slug: Slug | null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'product';
-                    slug: null;
-                  }
-                | null;
-            }
-        > | null;
-        content: Array<
-          | {
-              _type: 'imageWithProductHotspots';
-              _key: string;
-              image: {
-                asset: {
-                  _id: string;
-                  url: string | null;
-                } | null;
-                alt: null;
-              } | null;
-            }
+        content:
           | {
               _type: 'productWithVariant';
-              _key: string;
-              product: {
-                _id: string;
-                store: {
-                  title: string | null;
-                  slug: Slug | null;
-                  previewImageUrl: string | null;
-                } | null;
-              } | null;
+              _id: string;
+              available: boolean | false | null;
+              gid: string | null;
+              slug: string | null;
+              variantGid: string | null;
             }
-        > | null;
-      } | null;
-      modules: null;
-    }
-  | {
-      _id: 'home';
-      _rev: string;
-      hero: {
-        title: string | null;
-        description: string | null;
-        link: Array<
-          | {
-              _type: 'linkExternal';
-              name: null;
-              url: string | null;
-            }
-          | {
-              _type: 'linkInternal';
-              name: null;
-              reference:
-                | {
-                    _id: string;
-                    _type: 'collection';
-                    slug: null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'home';
-                    slug: null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'page';
-                    slug: Slug | null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'product';
-                    slug: null;
-                  }
-                | null;
-            }
-        > | null;
-        content: Array<
           | {
               _type: 'imageWithProductHotspots';
-              _key: string;
               image: {
-                asset: {
-                  _id: string;
-                  url: string | null;
-                } | null;
-                alt: null;
-              } | null;
-            }
-          | {
-              _type: 'productWithVariant';
-              _key: string;
-              product: {
-                _id: string;
-                store: {
-                  title: string | null;
-                  slug: Slug | null;
-                  previewImageUrl: string | null;
-                } | null;
-              } | null;
-            }
-        > | null;
-      } | null;
-      modules: Array<
-        | {
-            _type: 'accordion';
-            _key: string;
-          }
-        | {
-            _type: 'callout';
-            _key: string;
-            text: string | null;
-            link: Array<
-              | {
-                  _type: 'linkExternal';
-                  name: null;
-                  url: string | null;
-                }
-              | {
-                  _type: 'linkInternal';
-                  name: null;
-                  reference:
-                    | {
-                        _id: string;
-                        _type: 'collection';
-                        slug: null;
-                      }
-                    | {
-                        _id: string;
-                        _type: 'home';
-                        slug: null;
-                      }
-                    | {
-                        _id: string;
-                        _type: 'page';
-                        slug: Slug | null;
-                      }
-                    | {
-                        _id: string;
-                        _type: 'product';
-                        slug: null;
-                      }
-                    | null;
-                }
-            > | null;
-          }
-        | {
-            _type: 'grid';
-            _key: string;
-          }
-        | {
-            _type: 'images';
-            _key: string;
-          }
-        | {
-            _type: 'imageWithProductHotspots';
-            _key: string;
-            image: {
-              asset: {
-                _id: string;
+                asset?: SanityImageAssetReference;
+                media?: unknown;
+                hotspot?: SanityImageHotspot;
+                crop?: SanityImageCrop;
+                _type: 'image';
+                altText: string | null;
+                blurDataURL: string | null;
+                height: number | null;
                 url: string | null;
+                width: number | null;
               } | null;
-              alt: null;
-            } | null;
-          }
-        | {
-            _type: 'instagram';
-            _key: string;
-          }
-        | {
-            _type: 'products';
-            _key: string;
-            layout: 'card' | 'pill' | null;
-            products: Array<null> | null;
-          }
-      > | null;
-    }
-  | {
-      _id: 'home';
-      _rev: string;
-      hero: {
-        title: string | null;
-        description: string | null;
-        link: Array<
-          | {
-              _type: 'linkExternal';
-              name: null;
-              url: string | null;
-            }
-          | {
-              _type: 'linkInternal';
-              name: null;
-              reference:
-                | {
-                    _id: string;
-                    _type: 'collection';
-                    slug: null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'home';
-                    slug: null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'page';
-                    slug: Slug | null;
-                  }
-                | {
-                    _id: string;
-                    _type: 'product';
-                    slug: null;
-                  }
-                | null;
-            }
-        > | null;
-        content: Array<
-          | {
-              _type: 'imageWithProductHotspots';
-              _key: string;
-              image: {
-                asset: {
-                  _id: string;
-                  url: string | null;
-                } | null;
-                alt: null;
-              } | null;
+              productHotspots: Array<{
+                _key: string;
+                product:
+                  | {
+                      _id: string;
+                      _type: 'productWithVariant';
+                      available: boolean | false | null;
+                      gid: string | null;
+                      slug: string | null;
+                      variantGid: string | null;
+                    }
+                  | {}
+                  | null;
+                x: number | null;
+                y: number | null;
+              }> | null;
             }
           | {
               _type: 'productWithVariant';
-              _key: string;
-              product: {
-                _id: string;
-                store: {
-                  title: string | null;
-                  slug: Slug | null;
-                  previewImageUrl: string | null;
-                } | null;
-              } | null;
             }
-        > | null;
+          | null;
+        description: string | null;
+        title: string | null;
       } | null;
       modules: Array<
         | {
+            _key: string;
             _type: 'callout';
-            _key: string;
-            text: string | null;
-            link: Array<
-              | {
-                  _type: 'linkExternal';
-                  name: null;
-                  url: string | null;
-                }
-              | {
-                  _type: 'linkInternal';
-                  name: null;
-                  reference:
-                    | {
-                        _id: string;
-                        _type: 'collection';
-                        slug: null;
-                      }
-                    | {
-                        _id: string;
-                        _type: 'home';
-                        slug: null;
-                      }
-                    | {
-                        _id: string;
-                        _type: 'page';
-                        slug: Slug | null;
-                      }
-                    | {
-                        _id: string;
-                        _type: 'product';
-                        slug: null;
-                      }
-                    | null;
-                }
-            > | null;
           }
         | {
+            _key: string;
             _type: 'callToAction';
-            _key: string;
           }
         | {
+            _key: string;
             _type: 'image';
-            _key: string;
           }
         | {
-            _type: 'instagram';
             _key: string;
+            _type: 'instagram';
           }
       > | null;
+      seo: {
+        description: string | null;
+        image: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          _type: 'image';
+          altText: string | null;
+          blurDataURL: string | null;
+          height: number | null;
+          url: string | null;
+          width: number | null;
+        } | null;
+        title: string | null;
+      };
+      slug: string | null;
+      sortOrder: string | null;
+      title: string | null;
+    }
+  | {
+      _id: string;
+      colorTheme: {
+        background: string | null;
+        text: string | null;
+      } | null;
+      modules: Array<
+        | {
+            _key: string;
+            _type: 'callout';
+          }
+        | {
+            _key: string;
+            _type: 'callToAction';
+          }
+        | {
+            _key: string;
+            _type: 'image';
+          }
+        | {
+            _key: string;
+            _type: 'instagram';
+          }
+      > | null;
+      seo: {
+        description: string | null;
+        image: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          _type: 'image';
+          altText: string | null;
+          blurDataURL: string | null;
+          height: number | null;
+          url: string | null;
+          width: number | null;
+        } | null;
+        title: string | null;
+      };
+      slug: string | null;
+      sortOrder: string | null;
+      title: string | null;
     }
   | null;
+
+// Source: ./app/queries/sanity/home.ts
+// Variable: HOME_PAGE_QUERY
+// Query: *[_type == 'home'] | order(_updatedAt desc) [0]{      hero {      content[0] {    _type,    (_type == 'imageWithProductHotspots') => {        image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  productHotspots[] {    _key,      _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y  }    },    (_type == 'productWithVariant') => {      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  "link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },  title  },  modules[] {      _key,  _type,  (_type == "module.accordion") => {      groups[] {    _key,    body[] {      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    title,  }  },  (_type == "module.callout") => {    	"link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },	text  },  (_type == 'module.callToAction') => {      body,  content[0] {    _type,    (_type == 'image') => {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    (_type == 'productWithVariant') => {      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  layout,  "link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },  title,  },  (_type == "module.collection") => {      collection->{      _id,  _type,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "gid": store.gid,  "slug": "/collections/" + store.slug.current,  "title": store.title,  "vector": vector.asset->url,  },  showBackground  },  (_type == "module.image") => {      image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  (variant == 'callToAction') => {    callToAction {      "link": links[0] {        (_type == 'linkExternal') => {              _key,    _type,    newWindow,    title,    url,        },        (_type == 'linkInternal') => {            _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }        },      },      title,    }  },  (variant == 'caption') => {    caption,  },  (variant == 'productHotspots') => {    productHotspots[] {      _key,        _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y    }  },  (variant == 'productTags') => {    productTags[] {      _key,      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  variant,  },  (_type == "module.instagram") => {      url  },  (_type == "module.product") => {      productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  }  },  },    "seo": {    "description": seo.description,    "image": seo.image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    "title": coalesce(seo.title, title),  }  }
+export type HOME_PAGE_QUERYResult = {
+  hero: {
+    content:
+      | {
+          _type: 'productWithVariant';
+          _id: string;
+          available: boolean | false | null;
+          gid: string | null;
+          slug: string | null;
+          variantGid: string | null;
+        }
+      | {
+          _type: 'imageWithProductHotspots';
+          image: {
+            asset?: SanityImageAssetReference;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
+            _type: 'image';
+            altText: string | null;
+            blurDataURL: string | null;
+            height: number | null;
+            url: string | null;
+            width: number | null;
+          } | null;
+          productHotspots: Array<{
+            _key: string;
+            product:
+              | {
+                  _id: string;
+                  _type: 'productWithVariant';
+                  available: boolean | false | null;
+                  gid: string | null;
+                  slug: string | null;
+                  variantGid: string | null;
+                }
+              | {}
+              | null;
+            x: number | null;
+            y: number | null;
+          }> | null;
+        }
+      | {
+          _type: 'productWithVariant';
+        }
+      | null;
+    link: null;
+    title: string | null;
+  } | null;
+  modules: Array<
+    | {
+        _key: string;
+        _type: 'accordion';
+      }
+    | {
+        _key: string;
+        _type: 'callout';
+      }
+    | {
+        _key: string;
+        _type: 'grid';
+      }
+    | {
+        _key: string;
+        _type: 'images';
+      }
+    | {
+        _key: string;
+        _type: 'imageWithProductHotspots';
+      }
+    | {
+        _key: string;
+        _type: 'instagram';
+      }
+    | {
+        _key: string;
+        _type: 'products';
+      }
+  > | null;
+  seo: {
+    description: string | null;
+    image: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: 'image';
+      altText: string | null;
+      blurDataURL: string | null;
+      height: number | null;
+      url: string | null;
+      width: number | null;
+    } | null;
+    title: string | null;
+  };
+} | null;
+
+// Source: ./app/queries/sanity/layout.ts
+// Variable: LAYOUT_QUERY
+// Query: *[_type == 'settings'] | order(_updatedAt desc) [0] {    seo,    "menuLinks": menu.links[] {        _key,  (_type == 'collectionGroup') => {      _key,  _type,  collectionLinks[]->{    _key,      _id,  _type,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "gid": store.gid,  "slug": "/collections/" + store.slug.current,  "title": store.title,  "vector": vector.asset->url,  },  collectionProducts->{      _id,  _type,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "gid": store.gid,  "slug": "/collections/" + store.slug.current,  "title": store.title,  "vector": vector.asset->url,  },  title,  },  (_type == 'linkGroup') => {    _type,    links[] {      (_type == 'linkExternal') => {            _key,    _type,    newWindow,    title,    url,      },      (_type == 'linkInternal') => {          _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }      },    },    title  },  (_type == 'linkExternal') => {        _key,    _type,    newWindow,    title,    url,  },  (_type == 'linkInternal') => {      _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }  },    },    footer {      links[] {          _key,  (_type == 'collectionGroup') => {      _key,  _type,  collectionLinks[]->{    _key,      _id,  _type,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "gid": store.gid,  "slug": "/collections/" + store.slug.current,  "title": store.title,  "vector": vector.asset->url,  },  collectionProducts->{      _id,  _type,  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "gid": store.gid,  "slug": "/collections/" + store.slug.current,  "title": store.title,  "vector": vector.asset->url,  },  title,  },  (_type == 'linkGroup') => {    _type,    links[] {      (_type == 'linkExternal') => {            _key,    _type,    newWindow,    title,    url,      },      (_type == 'linkInternal') => {          _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }      },    },    title  },  (_type == 'linkExternal') => {        _key,    _type,    newWindow,    title,    url,  },  (_type == 'linkInternal') => {      _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }  },      },      text[]{          ...,  (_type == 'blockAccordion' || _type == 'module.accordion') => {    '_type': 'module.accordion',      groups[] {    _key,    body[] {      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    title,  },  },  (_type == 'blockCallout' || _type == 'module.callout') => {    '_type': 'module.callout',    	"link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },	text  },  (_type == 'blockGrid' || _type == 'module.grid') => {    '_type': 'module.grid',      items[] {    _key,    body[]{      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    title  },  },  (_type == 'blockImages' || _type == 'module.images') => {    '_type': 'module.images',      "fullWidth": select(    count(modules) > 1 => true,    fullWidth,  ),  layout,  modules[] {    _key,      image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  (variant == 'callToAction') => {    callToAction {      "link": links[0] {        (_type == 'linkExternal') => {              _key,    _type,    newWindow,    title,    url,        },        (_type == 'linkInternal') => {            _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }        },      },      title,    }  },  (variant == 'caption') => {    caption,  },  (variant == 'productHotspots') => {    productHotspots[] {      _key,        _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y    }  },  (variant == 'productTags') => {    productTags[] {      _key,      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  variant,  }  },  (_type == 'blockInstagram' || _type == 'module.instagram') => {    '_type': 'module.instagram',      url  },  (_type == 'blockProducts' || _type == 'module.products') => {    '_type': 'module.products',      layout,  modules[] {    _key,      productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  }  }  },  markDefs[] {    	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },  }      },    },    notFoundPage {      body,      "collectionGid": collection->store.gid,      colorTheme->{          'background': background.hex,  'text': text.hex,      },      title    }  }
+export type LAYOUT_QUERYResult = {
+  seo: Seo | null;
+  menuLinks: Array<
+    | {
+        _key: string;
+        _type: 'collectionGroup';
+        collectionLinks: Array<{
+          _key: null;
+          _id: string;
+          _type: 'collection';
+          colorTheme: {
+            background: string | null;
+            text: string | null;
+          } | null;
+          gid: string | null;
+          slug: string | null;
+          title: string | null;
+          vector: string | null;
+        }> | null;
+        collectionProducts: {
+          _id: string;
+          _type: 'collection';
+          colorTheme: {
+            background: string | null;
+            text: string | null;
+          } | null;
+          gid: string | null;
+          slug: string | null;
+          title: string | null;
+          vector: string | null;
+        } | null;
+        title: string | null;
+      }
+    | {
+        _key: string;
+        _type: 'linkExternal';
+        newWindow: boolean | null;
+        title: null;
+        url: string | null;
+      }
+    | {
+        _key: string;
+        _type: 'linkInternal';
+        title: null;
+        documentType: 'collection';
+        slug: string | null;
+      }
+    | {
+        _key: string;
+        _type: 'linkInternal';
+        title: null;
+        documentType: 'home';
+        slug: '/';
+      }
+    | {
+        _key: string;
+        _type: 'linkInternal';
+        title: null;
+        documentType: 'page';
+        slug: string | null;
+      }
+    | {
+        _key: string;
+        _type: 'linkInternal';
+        title: null;
+        documentType: 'product';
+      }
+    | {
+        _key: string;
+        _type: 'linkInternal';
+        title: null;
+      }
+  > | null;
+  footer: {
+    links: Array<
+      | {
+          _key: string;
+          _type: 'linkExternal';
+          newWindow: boolean | null;
+          title: null;
+          url: string | null;
+        }
+      | {
+          _key: string;
+          _type: 'linkInternal';
+          title: null;
+          documentType: 'collection';
+          slug: string | null;
+        }
+      | {
+          _key: string;
+          _type: 'linkInternal';
+          title: null;
+          documentType: 'home';
+          slug: '/';
+        }
+      | {
+          _key: string;
+          _type: 'linkInternal';
+          title: null;
+          documentType: 'page';
+          slug: string | null;
+        }
+      | {
+          _key: string;
+          _type: 'linkInternal';
+          title: null;
+          documentType: 'product';
+        }
+      | {
+          _key: string;
+          _type: 'linkInternal';
+          title: null;
+        }
+    > | null;
+    text: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: 'span';
+        _key: string;
+      }>;
+      style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal';
+      listItem?: 'bullet' | 'number';
+      markDefs: Array<
+        | {
+            _key: string;
+            _type: 'linkEmail';
+            email?: string;
+          }
+        | {
+            _key: string;
+            _type: 'linkExternal';
+            url?: string;
+            newWindow?: boolean;
+          }
+        | {
+            _key: string;
+            _type: 'linkInternal';
+            reference?:
+              | CollectionReference
+              | HomeReference
+              | PageReference
+              | ProductReference;
+          }
+        | {
+            _key: string;
+            _type: 'linkProduct';
+            productWithVariant?: ProductWithVariant;
+            linkAction?: 'addToCart' | 'buyNow' | 'link';
+            quantity?: number;
+          }
+      > | null;
+      level?: number;
+      _type: 'block';
+      _key: string;
+    }> | null;
+  } | null;
+  notFoundPage: {
+    body: string | null;
+    collectionGid: string | null;
+    colorTheme: {
+      background: string | null;
+      text: string | null;
+    } | null;
+    title: string | null;
+  } | null;
+} | null;
+
+// Source: ./app/queries/sanity/page.ts
+// Variable: PAGE_QUERY
+// Query: *[    _type == 'page'    && slug.current == $slug  ] | order(_updatedAt desc) [0]{      body[]{      ...,  (_type == 'blockAccordion' || _type == 'module.accordion') => {    '_type': 'module.accordion',      groups[] {    _key,    body[] {      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    title,  },  },  (_type == 'blockCallout' || _type == 'module.callout') => {    '_type': 'module.callout',    	"link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },	text  },  (_type == 'blockGrid' || _type == 'module.grid') => {    '_type': 'module.grid',      items[] {    _key,    body[]{      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    title  },  },  (_type == 'blockImages' || _type == 'module.images') => {    '_type': 'module.images',      "fullWidth": select(    count(modules) > 1 => true,    fullWidth,  ),  layout,  modules[] {    _key,      image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  (variant == 'callToAction') => {    callToAction {      "link": links[0] {        (_type == 'linkExternal') => {              _key,    _type,    newWindow,    title,    url,        },        (_type == 'linkInternal') => {            _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }        },      },      title,    }  },  (variant == 'caption') => {    caption,  },  (variant == 'productHotspots') => {    productHotspots[] {      _key,        _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y    }  },  (variant == 'productTags') => {    productTags[] {      _key,      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  variant,  }  },  (_type == 'blockInstagram' || _type == 'module.instagram') => {    '_type': 'module.instagram',      url  },  (_type == 'blockProducts' || _type == 'module.products') => {    '_type': 'module.products',      layout,  modules[] {    _key,      productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  }  }  },  markDefs[] {    	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },  }  },  colorTheme->{      'background': background.hex,  'text': text.hex,  },  (showHero == true) => {    hero {        content[0] {    _type,    (_type == 'imageWithProductHotspots') => {        image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  productHotspots[] {    _key,      _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y  }    },    (_type == 'productWithVariant') => {      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  title    },  },    "seo": {    "description": seo.description,    "image": seo.image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    "title": coalesce(seo.title, title),  },  title,  }
+export type PAGE_QUERYResult =
+  | {
+      body: Array<
+        | {
+            _key: string;
+            _type: 'accordion';
+            groups?: Array<
+              {
+                _key: string;
+              } & AccordionGroup
+            >;
+            markDefs: null;
+          }
+        | {
+            children?: Array<{
+              marks?: Array<string>;
+              text?: string;
+              _type: 'span';
+              _key: string;
+            }>;
+            style?:
+              | 'blockquote'
+              | 'h1'
+              | 'h2'
+              | 'h3'
+              | 'h4'
+              | 'h5'
+              | 'h6'
+              | 'normal';
+            listItem?: 'bullet' | 'number';
+            markDefs: Array<
+              | {
+                  _key: string;
+                  _type: 'linkEmail';
+                  email?: string;
+                }
+              | {
+                  _key: string;
+                  _type: 'linkExternal';
+                  url?: string;
+                  newWindow?: boolean;
+                }
+              | {
+                  _key: string;
+                  _type: 'linkInternal';
+                  reference?:
+                    | CollectionReference
+                    | HomeReference
+                    | PageReference
+                    | ProductReference;
+                }
+              | {
+                  _key: string;
+                  _type: 'linkProduct';
+                  productWithVariant?: ProductWithVariant;
+                  linkAction?: 'addToCart' | 'buyNow' | 'link';
+                  quantity?: number;
+                }
+            > | null;
+            level?: number;
+            _type: 'block';
+            _key: string;
+          }
+        | {
+            _key: string;
+            _type: 'callout';
+            text?: string;
+            link?: Array<
+              | ({
+                  _key: string;
+                } & LinkExternal)
+              | ({
+                  _key: string;
+                } & LinkInternal)
+            >;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'grid';
+            items?: Array<
+              {
+                _key: string;
+              } & GridItem
+            >;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'images';
+            imageFeatures?: Array<
+              {
+                _key: string;
+              } & ImageFeature
+            >;
+            fullWidth?: boolean;
+            verticalAlign?: 'bottom' | 'center' | 'top';
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'imageWithProductHotspots';
+            image?: {
+              asset?: SanityImageAssetReference;
+              media?: unknown;
+              hotspot?: SanityImageHotspot;
+              crop?: SanityImageCrop;
+              _type: 'image';
+            };
+            showHotspots?: boolean;
+            productHotspots?: ProductHotspots;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'instagram';
+            url?: string;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'products';
+            products?: Array<
+              {
+                _key: string;
+              } & ProductReference_2
+            >;
+            layout?: 'card' | 'pill';
+            markDefs: null;
+          }
+      > | null;
+      colorTheme: {
+        background: string | null;
+        text: string | null;
+      } | null;
+      hero: {
+        content:
+          | {
+              _type: 'productWithVariant';
+              _id: string;
+              available: boolean | false | null;
+              gid: string | null;
+              slug: string | null;
+              variantGid: string | null;
+            }
+          | {
+              _type: 'imageWithProductHotspots';
+              image: {
+                asset?: SanityImageAssetReference;
+                media?: unknown;
+                hotspot?: SanityImageHotspot;
+                crop?: SanityImageCrop;
+                _type: 'image';
+                altText: string | null;
+                blurDataURL: string | null;
+                height: number | null;
+                url: string | null;
+                width: number | null;
+              } | null;
+              productHotspots: Array<{
+                _key: string;
+                product:
+                  | {
+                      _id: string;
+                      _type: 'productWithVariant';
+                      available: boolean | false | null;
+                      gid: string | null;
+                      slug: string | null;
+                      variantGid: string | null;
+                    }
+                  | {}
+                  | null;
+                x: number | null;
+                y: number | null;
+              }> | null;
+            }
+          | {
+              _type: 'productWithVariant';
+            }
+          | null;
+        title: string | null;
+      } | null;
+      seo: {
+        description: string | null;
+        image: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          _type: 'image';
+          altText: string | null;
+          blurDataURL: string | null;
+          height: number | null;
+          url: string | null;
+          width: number | null;
+        } | null;
+        title: string | null;
+      };
+      title: string | null;
+    }
+  | {
+      body: Array<
+        | {
+            _key: string;
+            _type: 'accordion';
+            groups?: Array<
+              {
+                _key: string;
+              } & AccordionGroup
+            >;
+            markDefs: null;
+          }
+        | {
+            children?: Array<{
+              marks?: Array<string>;
+              text?: string;
+              _type: 'span';
+              _key: string;
+            }>;
+            style?:
+              | 'blockquote'
+              | 'h1'
+              | 'h2'
+              | 'h3'
+              | 'h4'
+              | 'h5'
+              | 'h6'
+              | 'normal';
+            listItem?: 'bullet' | 'number';
+            markDefs: Array<
+              | {
+                  _key: string;
+                  _type: 'linkEmail';
+                  email?: string;
+                }
+              | {
+                  _key: string;
+                  _type: 'linkExternal';
+                  url?: string;
+                  newWindow?: boolean;
+                }
+              | {
+                  _key: string;
+                  _type: 'linkInternal';
+                  reference?:
+                    | CollectionReference
+                    | HomeReference
+                    | PageReference
+                    | ProductReference;
+                }
+              | {
+                  _key: string;
+                  _type: 'linkProduct';
+                  productWithVariant?: ProductWithVariant;
+                  linkAction?: 'addToCart' | 'buyNow' | 'link';
+                  quantity?: number;
+                }
+            > | null;
+            level?: number;
+            _type: 'block';
+            _key: string;
+          }
+        | {
+            _key: string;
+            _type: 'callout';
+            text?: string;
+            link?: Array<
+              | ({
+                  _key: string;
+                } & LinkExternal)
+              | ({
+                  _key: string;
+                } & LinkInternal)
+            >;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'grid';
+            items?: Array<
+              {
+                _key: string;
+              } & GridItem
+            >;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'images';
+            imageFeatures?: Array<
+              {
+                _key: string;
+              } & ImageFeature
+            >;
+            fullWidth?: boolean;
+            verticalAlign?: 'bottom' | 'center' | 'top';
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'imageWithProductHotspots';
+            image?: {
+              asset?: SanityImageAssetReference;
+              media?: unknown;
+              hotspot?: SanityImageHotspot;
+              crop?: SanityImageCrop;
+              _type: 'image';
+            };
+            showHotspots?: boolean;
+            productHotspots?: ProductHotspots;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'instagram';
+            url?: string;
+            markDefs: null;
+          }
+        | {
+            _key: string;
+            _type: 'products';
+            products?: Array<
+              {
+                _key: string;
+              } & ProductReference_2
+            >;
+            layout?: 'card' | 'pill';
+            markDefs: null;
+          }
+      > | null;
+      colorTheme: {
+        background: string | null;
+        text: string | null;
+      } | null;
+      seo: {
+        description: string | null;
+        image: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          _type: 'image';
+          altText: string | null;
+          blurDataURL: string | null;
+          height: number | null;
+          url: string | null;
+          width: number | null;
+        } | null;
+        title: string | null;
+      };
+      title: string | null;
+    }
+  | null;
+
+// Source: ./app/queries/sanity/product.ts
+// Variable: PRODUCT_PAGE_QUERY
+// Query: *[    _type == 'product'    && store.slug.current == $slug  ] | order(_updatedAt desc) [0]{      _id,  "available": !store.isDeleted && store.status == 'active',  body[]{      ...,  (_type == 'blockAccordion' || _type == 'module.accordion') => {    '_type': 'module.accordion',      groups[] {    _key,    body[] {      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    title,  },  },  (_type == 'blockCallout' || _type == 'module.callout') => {    '_type': 'module.callout',    	"link": links[0] {    (_type == 'linkExternal') => {          _key,    _type,    newWindow,    title,    url,    },    (_type == 'linkInternal') => {        _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }    },  },	text  },  (_type == 'blockGrid' || _type == 'module.grid') => {    '_type': 'module.grid',      items[] {    _key,    body[]{      ...,      markDefs[] {        	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },      }    },    image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    title  },  },  (_type == 'blockImages' || _type == 'module.images') => {    '_type': 'module.images',      "fullWidth": select(    count(modules) > 1 => true,    fullWidth,  ),  layout,  modules[] {    _key,      image {      ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,  },  (variant == 'callToAction') => {    callToAction {      "link": links[0] {        (_type == 'linkExternal') => {              _key,    _type,    newWindow,    title,    url,        },        (_type == 'linkInternal') => {            _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }        },      },      title,    }  },  (variant == 'caption') => {    caption,  },  (variant == 'productHotspots') => {    productHotspots[] {      _key,        _key,  "product": productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  },  x,  y    }  },  (variant == 'productTags') => {    productTags[] {      _key,      ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }    },  },  variant,  }  },  (_type == 'blockInstagram' || _type == 'module.instagram') => {    '_type': 'module.instagram',      url  },  (_type == 'blockProducts' || _type == 'module.products') => {    '_type': 'module.products',      layout,  modules[] {    _key,      productWithVariant {    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }  }  }  },  markDefs[] {    	...,	(_type == 'annotationLinkExternal') => {	      _key,    _type,    newWindow,    title,    url,	},	(_type == 'annotationLinkInternal') => {	  _key,  _type,  title,  ...reference-> {    "documentType": _type,    (_type == "collection") => {      "slug": "/collections/" + store.slug.current,    },    (_type == "home") => {      "slug": "/",    },    (_type == "page") => {      "slug": "/pages/" + slug.current,    },    (_type == "product" && store.isEnabled && store.status == "active") => {      "slug": "/products/" + store.slug.current,    },  }	},	(_type == 'annotationProduct') => {	  linkAction,	  productWithVariant {	    ...  product->{    _id,    "_type": "productWithVariant",    "available": !store.isDeleted && store.status == 'active',    "gid": store.gid,    "slug": store.slug.current,    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)  }	  },	  (linkAction != 'link') => {	    quantity	  }  },  }  },  colorTheme->{      'background': background.hex,  'text': text.hex,  },  "customProductOptions": *[_type == 'settings'][0].customProductOptions[title in ^.store.options[].name] {      _key,  _type,  title,  (_type == 'customProductOption.color') => {    colors[] {      "hex": color.hex,      title,    },  },  (_type == 'customProductOption.size') => {    sizes[] {      height,      title,      width    },  },  },  "gid": store.gid,    "seo": {    "description": seo.description,    "image": seo.image {        ...,  "altText": asset->altText,  "blurDataURL": asset->metadata.lqip,  'height': asset->metadata.dimensions.height,  'url': asset->url,  'width': asset->metadata.dimensions.width,    },    "title": coalesce(seo.title, store.title),  },  "slug": store.slug.current,  }
+export type PRODUCT_PAGE_QUERYResult = {
+  _id: string;
+  available: boolean | false | null;
+  body: Array<
+    | {
+        _key: string;
+        _type: 'accordion';
+        groups?: Array<
+          {
+            _key: string;
+          } & AccordionGroup
+        >;
+        markDefs: null;
+      }
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: 'span';
+          _key: string;
+        }>;
+        style?:
+          | 'blockquote'
+          | 'h1'
+          | 'h2'
+          | 'h3'
+          | 'h4'
+          | 'h5'
+          | 'h6'
+          | 'normal';
+        listItem?: 'bullet' | 'number';
+        markDefs: Array<
+          | {
+              _key: string;
+              _type: 'linkEmail';
+              email?: string;
+            }
+          | {
+              _key: string;
+              _type: 'linkExternal';
+              url?: string;
+              newWindow?: boolean;
+            }
+          | {
+              _key: string;
+              _type: 'linkInternal';
+              reference?:
+                | CollectionReference
+                | HomeReference
+                | PageReference
+                | ProductReference;
+            }
+          | {
+              _key: string;
+              _type: 'linkProduct';
+              productWithVariant?: ProductWithVariant;
+              linkAction?: 'addToCart' | 'buyNow' | 'link';
+              quantity?: number;
+            }
+        > | null;
+        level?: number;
+        _type: 'block';
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: 'callout';
+        text?: string;
+        link?: Array<
+          | ({
+              _key: string;
+            } & LinkExternal)
+          | ({
+              _key: string;
+            } & LinkInternal)
+        >;
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: 'grid';
+        items?: Array<
+          {
+            _key: string;
+          } & GridItem
+        >;
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: 'images';
+        imageFeatures?: Array<
+          {
+            _key: string;
+          } & ImageFeature
+        >;
+        fullWidth?: boolean;
+        verticalAlign?: 'bottom' | 'center' | 'top';
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: 'imageWithProductHotspots';
+        image?: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          _type: 'image';
+        };
+        showHotspots?: boolean;
+        productHotspots?: ProductHotspots;
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: 'instagram';
+        url?: string;
+        markDefs: null;
+      }
+    | {
+        _key: string;
+        _type: 'products';
+        products?: Array<
+          {
+            _key: string;
+          } & ProductReference_2
+        >;
+        layout?: 'card' | 'pill';
+        markDefs: null;
+      }
+  > | null;
+  colorTheme: {
+    background: string | null;
+    text: string | null;
+  } | null;
+  customProductOptions: Array<
+    | {
+        _key: string;
+        _type: 'customProductOption.color';
+        title: string | null;
+        colors: Array<{
+          hex: string | null;
+          title: string | null;
+        }> | null;
+      }
+    | {
+        _key: string;
+        _type: 'customProductOption.size';
+        title: string | null;
+        sizes: Array<{
+          height: number | null;
+          title: string | null;
+          width: number | null;
+        }> | null;
+      }
+  > | null;
+  gid: string | null;
+  seo: {
+    description: string | null;
+    image: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: 'image';
+      altText: string | null;
+      blurDataURL: string | null;
+      height: number | null;
+      url: string | null;
+      width: number | null;
+    } | null;
+    title: string | null;
+  };
+  slug: string | null;
+} | null;
 
 // Query TypeMap
 import '@sanity/client';
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_id == "home"][0]{\n    _id,\n    _rev,\n    hero{\n      title,\n      description,\n      link[]{\n        _type,\n        _type == "linkInternal" => {\n          name,\n          reference->{\n            _id,\n            _type,\n            slug\n          }\n        },\n        _type == "linkExternal" => {\n          name,\n          url\n        }\n      },\n      content[]{\n        _type,\n        _key,\n        _type == "productWithVariant" => {\n          product->{\n            _id,\n            store{\n              title,\n              slug,\n              previewImageUrl\n            }\n          }\n        },\n        _type == "imageWithProductHotspots" => {\n          image{\n            asset->{\n              _id,\n              url\n            },\n            alt\n          }\n        }\n      }\n    },\n    modules[]{\n      _type,\n      _key,\n      _type == "callout" => {\n        text,\n        link[]{\n          _type,\n          _type == "linkInternal" => {\n            name,\n            reference->{\n              _id,\n              _type,\n              slug\n            }\n          },\n          _type == "linkExternal" => {\n            name,\n            url\n          }\n        }\n      },\n      _type == "products" => {\n        layout,\n        products[]->{\n          _id,\n          store{\n            title,\n            slug,\n            previewImageUrl\n          }\n        }\n      },\n      _type == "imageWithProductHotspots" => {\n        image{\n          asset->{\n            _id,\n            url\n          },\n          alt\n        }\n      }\n    }\n  }\n': HOMEPAGE_QUERYResult;
+    '\n  *[\n    _type == \'collection\'\n    && store.slug.current == $slug\n  ] | order(_updatedAt desc) [0]{\n    \n  _id,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  (showHero == true) => {\n    hero {\n      \n  content[0] {\n    _type,\n    (_type == \'imageWithProductHotspots\') => {\n      \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  productHotspots[] {\n    _key,\n    \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n  }\n\n    },\n    (_type == \'productWithVariant\') => {\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  description,\n  title\n\n    },\n  },\n  modules[] {\n    \n  _key,\n  _type,\n  (_type == "module.accordion") => {\n    \n  groups[] {\n    _key,\n    body[] {\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    title,\n  }\n\n  },\n  (_type == "module.callout") => {\n    \n\t"link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n\ttext\n\n  },\n  (_type == \'module.callToAction\') => {\n    \n  body,\n  content[0] {\n    _type,\n    (_type == \'image\') => {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    (_type == \'productWithVariant\') => {\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  layout,\n  "link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n  title,\n\n  },\n  (_type == "module.collection") => {\n    \n  collection->{\n    \n  _id,\n  _type,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "gid": store.gid,\n  "slug": "/collections/" + store.slug.current,\n  "title": store.title,\n  "vector": vector.asset->url,\n\n  },\n  showBackground\n\n  },\n  (_type == "module.image") => {\n    \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  (variant == \'callToAction\') => {\n    callToAction {\n      "link": links[0] {\n        (_type == \'linkExternal\') => {\n          \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n        },\n        (_type == \'linkInternal\') => {\n          \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n        },\n      },\n      title,\n    }\n  },\n  (variant == \'caption\') => {\n    caption,\n  },\n  (variant == \'productHotspots\') => {\n    productHotspots[] {\n      _key,\n      \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n    }\n  },\n  (variant == \'productTags\') => {\n    productTags[] {\n      _key,\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  variant,\n\n  },\n  (_type == "module.instagram") => {\n    \n  url\n\n  },\n  (_type == "module.product") => {\n    \n  productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  }\n\n  },\n\n  },\n  \n  "seo": {\n    "description": seo.description,\n    "image": seo.image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    "title": coalesce(seo.title, store.title),\n  }\n,\n  "slug": store.slug.current,\n  "sortOrder": store.sortOrder,\n  "title": store.title,\n\n  }\n': COLLECTION_PAGE_QUERYResult;
+    '\n  *[_type == \'home\'] | order(_updatedAt desc) [0]{\n    \n  hero {\n    \n  content[0] {\n    _type,\n    (_type == \'imageWithProductHotspots\') => {\n      \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  productHotspots[] {\n    _key,\n    \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n  }\n\n    },\n    (_type == \'productWithVariant\') => {\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  "link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n  title\n\n  },\n  modules[] {\n    \n  _key,\n  _type,\n  (_type == "module.accordion") => {\n    \n  groups[] {\n    _key,\n    body[] {\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    title,\n  }\n\n  },\n  (_type == "module.callout") => {\n    \n\t"link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n\ttext\n\n  },\n  (_type == \'module.callToAction\') => {\n    \n  body,\n  content[0] {\n    _type,\n    (_type == \'image\') => {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    (_type == \'productWithVariant\') => {\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  layout,\n  "link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n  title,\n\n  },\n  (_type == "module.collection") => {\n    \n  collection->{\n    \n  _id,\n  _type,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "gid": store.gid,\n  "slug": "/collections/" + store.slug.current,\n  "title": store.title,\n  "vector": vector.asset->url,\n\n  },\n  showBackground\n\n  },\n  (_type == "module.image") => {\n    \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  (variant == \'callToAction\') => {\n    callToAction {\n      "link": links[0] {\n        (_type == \'linkExternal\') => {\n          \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n        },\n        (_type == \'linkInternal\') => {\n          \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n        },\n      },\n      title,\n    }\n  },\n  (variant == \'caption\') => {\n    caption,\n  },\n  (variant == \'productHotspots\') => {\n    productHotspots[] {\n      _key,\n      \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n    }\n  },\n  (variant == \'productTags\') => {\n    productTags[] {\n      _key,\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  variant,\n\n  },\n  (_type == "module.instagram") => {\n    \n  url\n\n  },\n  (_type == "module.product") => {\n    \n  productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  }\n\n  },\n\n  },\n  \n  "seo": {\n    "description": seo.description,\n    "image": seo.image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    "title": coalesce(seo.title, title),\n  }\n\n\n  }\n': HOME_PAGE_QUERYResult;
+    '\n  *[_type == \'settings\'] | order(_updatedAt desc) [0] {\n    seo,\n    "menuLinks": menu.links[] {\n      \n  _key,\n  (_type == \'collectionGroup\') => {\n    \n  _key,\n  _type,\n  collectionLinks[]->{\n    _key,\n    \n  _id,\n  _type,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "gid": store.gid,\n  "slug": "/collections/" + store.slug.current,\n  "title": store.title,\n  "vector": vector.asset->url,\n\n  },\n  collectionProducts->{\n    \n  _id,\n  _type,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "gid": store.gid,\n  "slug": "/collections/" + store.slug.current,\n  "title": store.title,\n  "vector": vector.asset->url,\n\n  },\n  title,\n\n  },\n  (_type == \'linkGroup\') => {\n    _type,\n    links[] {\n      (_type == \'linkExternal\') => {\n        \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n      },\n      (_type == \'linkInternal\') => {\n        \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n      },\n    },\n    title\n  },\n  (_type == \'linkExternal\') => {\n    \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n  },\n  (_type == \'linkInternal\') => {\n    \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n  },\n\n    },\n    footer {\n      links[] {\n        \n  _key,\n  (_type == \'collectionGroup\') => {\n    \n  _key,\n  _type,\n  collectionLinks[]->{\n    _key,\n    \n  _id,\n  _type,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "gid": store.gid,\n  "slug": "/collections/" + store.slug.current,\n  "title": store.title,\n  "vector": vector.asset->url,\n\n  },\n  collectionProducts->{\n    \n  _id,\n  _type,\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "gid": store.gid,\n  "slug": "/collections/" + store.slug.current,\n  "title": store.title,\n  "vector": vector.asset->url,\n\n  },\n  title,\n\n  },\n  (_type == \'linkGroup\') => {\n    _type,\n    links[] {\n      (_type == \'linkExternal\') => {\n        \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n      },\n      (_type == \'linkInternal\') => {\n        \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n      },\n    },\n    title\n  },\n  (_type == \'linkExternal\') => {\n    \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n  },\n  (_type == \'linkInternal\') => {\n    \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n  },\n\n      },\n      text[]{\n        \n  ...,\n  (_type == \'blockAccordion\' || _type == \'module.accordion\') => {\n    \'_type\': \'module.accordion\',\n    \n  groups[] {\n    _key,\n    body[] {\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    title,\n  }\n,\n  },\n  (_type == \'blockCallout\' || _type == \'module.callout\') => {\n    \'_type\': \'module.callout\',\n    \n\t"link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n\ttext\n\n  },\n  (_type == \'blockGrid\' || _type == \'module.grid\') => {\n    \'_type\': \'module.grid\',\n    \n  items[] {\n    _key,\n    body[]{\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    title\n  }\n,\n  },\n  (_type == \'blockImages\' || _type == \'module.images\') => {\n    \'_type\': \'module.images\',\n    \n  "fullWidth": select(\n    count(modules) > 1 => true,\n    fullWidth,\n  ),\n  layout,\n  modules[] {\n    _key,\n    \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  (variant == \'callToAction\') => {\n    callToAction {\n      "link": links[0] {\n        (_type == \'linkExternal\') => {\n          \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n        },\n        (_type == \'linkInternal\') => {\n          \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n        },\n      },\n      title,\n    }\n  },\n  (variant == \'caption\') => {\n    caption,\n  },\n  (variant == \'productHotspots\') => {\n    productHotspots[] {\n      _key,\n      \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n    }\n  },\n  (variant == \'productTags\') => {\n    productTags[] {\n      _key,\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  variant,\n\n  }\n\n  },\n  (_type == \'blockInstagram\' || _type == \'module.instagram\') => {\n    \'_type\': \'module.instagram\',\n    \n  url\n\n  },\n  (_type == \'blockProducts\' || _type == \'module.products\') => {\n    \'_type\': \'module.products\',\n    \n  layout,\n  modules[] {\n    _key,\n    \n  productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  }\n\n  }\n\n  },\n  markDefs[] {\n    \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n  }\n\n      },\n    },\n    notFoundPage {\n      body,\n      "collectionGid": collection->store.gid,\n      colorTheme->{\n        \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n      },\n      title\n    }\n  }\n': LAYOUT_QUERYResult;
+    '\n  *[\n    _type == \'page\'\n    && slug.current == $slug\n  ] | order(_updatedAt desc) [0]{\n    \n  body[]{\n    \n  ...,\n  (_type == \'blockAccordion\' || _type == \'module.accordion\') => {\n    \'_type\': \'module.accordion\',\n    \n  groups[] {\n    _key,\n    body[] {\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    title,\n  }\n,\n  },\n  (_type == \'blockCallout\' || _type == \'module.callout\') => {\n    \'_type\': \'module.callout\',\n    \n\t"link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n\ttext\n\n  },\n  (_type == \'blockGrid\' || _type == \'module.grid\') => {\n    \'_type\': \'module.grid\',\n    \n  items[] {\n    _key,\n    body[]{\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    title\n  }\n,\n  },\n  (_type == \'blockImages\' || _type == \'module.images\') => {\n    \'_type\': \'module.images\',\n    \n  "fullWidth": select(\n    count(modules) > 1 => true,\n    fullWidth,\n  ),\n  layout,\n  modules[] {\n    _key,\n    \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  (variant == \'callToAction\') => {\n    callToAction {\n      "link": links[0] {\n        (_type == \'linkExternal\') => {\n          \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n        },\n        (_type == \'linkInternal\') => {\n          \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n        },\n      },\n      title,\n    }\n  },\n  (variant == \'caption\') => {\n    caption,\n  },\n  (variant == \'productHotspots\') => {\n    productHotspots[] {\n      _key,\n      \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n    }\n  },\n  (variant == \'productTags\') => {\n    productTags[] {\n      _key,\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  variant,\n\n  }\n\n  },\n  (_type == \'blockInstagram\' || _type == \'module.instagram\') => {\n    \'_type\': \'module.instagram\',\n    \n  url\n\n  },\n  (_type == \'blockProducts\' || _type == \'module.products\') => {\n    \'_type\': \'module.products\',\n    \n  layout,\n  modules[] {\n    _key,\n    \n  productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  }\n\n  }\n\n  },\n  markDefs[] {\n    \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n  }\n\n  },\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  (showHero == true) => {\n    hero {\n      \n  content[0] {\n    _type,\n    (_type == \'imageWithProductHotspots\') => {\n      \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  productHotspots[] {\n    _key,\n    \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n  }\n\n    },\n    (_type == \'productWithVariant\') => {\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  title\n\n    },\n  },\n  \n  "seo": {\n    "description": seo.description,\n    "image": seo.image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    "title": coalesce(seo.title, title),\n  }\n,\n  title,\n\n  }\n': PAGE_QUERYResult;
+    '\n  *[\n    _type == \'product\'\n    && store.slug.current == $slug\n  ] | order(_updatedAt desc) [0]{\n    \n  _id,\n  "available": !store.isDeleted && store.status == \'active\',\n  body[]{\n    \n  ...,\n  (_type == \'blockAccordion\' || _type == \'module.accordion\') => {\n    \'_type\': \'module.accordion\',\n    \n  groups[] {\n    _key,\n    body[] {\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    title,\n  }\n,\n  },\n  (_type == \'blockCallout\' || _type == \'module.callout\') => {\n    \'_type\': \'module.callout\',\n    \n\t"link": links[0] {\n    (_type == \'linkExternal\') => {\n      \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n    },\n    (_type == \'linkInternal\') => {\n      \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n    },\n  },\n\ttext\n\n  },\n  (_type == \'blockGrid\' || _type == \'module.grid\') => {\n    \'_type\': \'module.grid\',\n    \n  items[] {\n    _key,\n    body[]{\n      ...,\n      markDefs[] {\n        \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n      }\n    },\n    image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    title\n  }\n,\n  },\n  (_type == \'blockImages\' || _type == \'module.images\') => {\n    \'_type\': \'module.images\',\n    \n  "fullWidth": select(\n    count(modules) > 1 => true,\n    fullWidth,\n  ),\n  layout,\n  modules[] {\n    _key,\n    \n  image {\n    \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n  },\n  (variant == \'callToAction\') => {\n    callToAction {\n      "link": links[0] {\n        (_type == \'linkExternal\') => {\n          \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n        },\n        (_type == \'linkInternal\') => {\n          \n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n        },\n      },\n      title,\n    }\n  },\n  (variant == \'caption\') => {\n    caption,\n  },\n  (variant == \'productHotspots\') => {\n    productHotspots[] {\n      _key,\n      \n  _key,\n  "product": productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  },\n  x,\n  y\n\n    }\n  },\n  (variant == \'productTags\') => {\n    productTags[] {\n      _key,\n      ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n    },\n  },\n  variant,\n\n  }\n\n  },\n  (_type == \'blockInstagram\' || _type == \'module.instagram\') => {\n    \'_type\': \'module.instagram\',\n    \n  url\n\n  },\n  (_type == \'blockProducts\' || _type == \'module.products\') => {\n    \'_type\': \'module.products\',\n    \n  layout,\n  modules[] {\n    _key,\n    \n  productWithVariant {\n    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n  }\n\n  }\n\n  },\n  markDefs[] {\n    \n\t...,\n\t(_type == \'annotationLinkExternal\') => {\n\t  \n    _key,\n    _type,\n    newWindow,\n    title,\n    url,\n\n\t},\n\t(_type == \'annotationLinkInternal\') => {\n\t\n  _key,\n  _type,\n  title,\n  ...reference-> {\n    "documentType": _type,\n    (_type == "collection") => {\n      "slug": "/collections/" + store.slug.current,\n    },\n    (_type == "home") => {\n      "slug": "/",\n    },\n    (_type == "page") => {\n      "slug": "/pages/" + slug.current,\n    },\n    (_type == "product" && store.isEnabled && store.status == "active") => {\n      "slug": "/products/" + store.slug.current,\n    },\n  }\n\n\t},\n\t(_type == \'annotationProduct\') => {\n\t  linkAction,\n\t  productWithVariant {\n\t    ...\n  product->{\n    _id,\n    "_type": "productWithVariant",\n    "available": !store.isDeleted && store.status == \'active\',\n    "gid": store.gid,\n    "slug": store.slug.current,\n    "variantGid": coalesce(^.variant->store.gid, store.variants[0]->store.gid)\n  }\n\n\t  },\n\t  (linkAction != \'link\') => {\n\t    quantity\n\t  }\n  },\n\n  }\n\n  },\n  colorTheme->{\n    \n  \'background\': background.hex,\n  \'text\': text.hex,\n\n  },\n  "customProductOptions": *[_type == \'settings\'][0].customProductOptions[title in ^.store.options[].name] {\n    \n  _key,\n  _type,\n  title,\n  (_type == \'customProductOption.color\') => {\n    colors[] {\n      "hex": color.hex,\n      title,\n    },\n  },\n  (_type == \'customProductOption.size\') => {\n    sizes[] {\n      height,\n      title,\n      width\n    },\n  },\n\n  },\n  "gid": store.gid,\n  \n  "seo": {\n    "description": seo.description,\n    "image": seo.image {\n      \n  ...,\n  "altText": asset->altText,\n  "blurDataURL": asset->metadata.lqip,\n  \'height\': asset->metadata.dimensions.height,\n  \'url\': asset->url,\n  \'width\': asset->metadata.dimensions.width,\n\n    },\n    "title": coalesce(seo.title, store.title),\n  }\n,\n  "slug": store.slug.current,\n\n  }\n': PRODUCT_PAGE_QUERYResult;
   }
 }

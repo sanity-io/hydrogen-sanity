@@ -1,6 +1,6 @@
 // NOTE: https://shopify.dev/docs/api/storefront/latest/queries/cart
 export const CART_QUERY_FRAGMENT = `#graphql
-  fragment Money on MoneyV2 {
+  fragment CartMoney on MoneyV2 {
     currencyCode
     amount
   }
@@ -13,13 +13,13 @@ export const CART_QUERY_FRAGMENT = `#graphql
     }
     cost {
       totalAmount {
-        ...Money
+        ...CartMoney
       }
       amountPerQuantity {
-        ...Money
+        ...CartMoney
       }
       compareAtAmountPerQuantity {
-        ...Money
+        ...CartMoney
       }
     }
     merchandise {
@@ -64,13 +64,13 @@ export const CART_QUERY_FRAGMENT = `#graphql
     }
     cost {
       totalAmount {
-        ...Money
+        ...CartMoney
       }
       amountPerQuantity {
-        ...Money
+        ...CartMoney
       }
       compareAtAmountPerQuantity {
-        ...Money
+        ...CartMoney
       }
     }
     merchandise {
@@ -112,7 +112,7 @@ export const CART_QUERY_FRAGMENT = `#graphql
       id
       lastCharacters
       amountUsed {
-        ...Money
+        ...CartMoney
       }
     }
     checkoutUrl
@@ -139,10 +139,10 @@ export const CART_QUERY_FRAGMENT = `#graphql
     }
     cost {
       subtotalAmount {
-        ...Money
+        ...CartMoney
       }
       totalAmount {
-        ...Money
+        ...CartMoney
       }
       totalDutyAmount {
         ...Money

@@ -1,0 +1,30 @@
+import type {Collection as CollectionType} from '@shopify/hydrogen/storefront-api-types';
+import {json} from 'react-router';
+
+import {validateLocale} from '~/lib/utils';
+import {COLLECTION_QUERY} from '~/queries/shopify/collection';
+import type {Route} from './+types/($lang).api.collections.$handle';
+
+const PAGINATION_SIZE = 12;
+
+export async function loader({params, context, request}: Route.LoaderArgs) {
+  validateLocale({context, params});
+
+  const {handle} = params;
+  const searchParams = new URL(request.url).searchParams;
+  const cursor = searchParams.get('cursor');
+  const count = searchParams.get('count');
+
+  const {collection}: {collection: CollectionType} =
+    await context.storefront.query<any>(COLLECTION_QUERY, {
+      variables: {
+        handle,
+        cursor,
+        count: count ? parseInt(count) : PAGINATION_SIZE,
+      },
+    });
+
+  return json({
+    collection,
+  });
+}
