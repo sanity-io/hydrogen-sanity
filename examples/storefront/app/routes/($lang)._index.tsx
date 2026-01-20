@@ -1,4 +1,4 @@
-import {Await, useLoaderData, defer} from 'react-router';
+import {Await, useLoaderData} from 'react-router';
 import {AnalyticsPageType, type SeoHandleFunction} from '@shopify/hydrogen';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -41,15 +41,15 @@ export async function loader({context, params}: Route.LoaderArgs) {
     throw notFound();
   }
 
-  const gids = fetchGids({page, context});
+  const gids = await fetchGids({page, context});
 
-  return defer({
+  return {
     page,
     gids,
     analytics: {
       pageType: AnalyticsPageType.home,
     },
-  });
+  };
 }
 
 export default function Index() {

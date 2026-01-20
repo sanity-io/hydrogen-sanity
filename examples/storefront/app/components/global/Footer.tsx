@@ -8,8 +8,8 @@ import type {SanityLink} from '~/lib/sanity';
 import {useRootLoaderData} from '~/root';
 
 export default function Footer() {
-  const {layout} = useRootLoaderData();
-  const {footer} = layout || {};
+  const rootData = useRootLoaderData();
+  const {footer} = rootData?.layout || {};
 
   const renderLinks = footer?.links?.map((link: SanityLink) => {
     if (link._type === 'linkExternal') {

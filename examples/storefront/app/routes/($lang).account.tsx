@@ -4,8 +4,6 @@ import {
   useLoaderData,
   useMatches,
   useOutlet,
-  defer,
-  json,
   redirect,
 } from 'react-router';
 import type {SeoHandleFunction} from '@shopify/hydrogen';
@@ -29,8 +27,6 @@ import {usePrefixPathWithLocale} from '~/lib/utils';
 import {doLogout} from './($lang).account.logout';
 import type {Route} from './+types/($lang).account';
 
-type TmpRemixFix = ReturnType<typeof defer<{isAuthenticated: false}>>;
-
 export const headers = routeHeaders;
 
 const seo: SeoHandleFunction<typeof loader> = () => ({
@@ -52,9 +48,9 @@ export async function loader({request, context, params}: Route.LoaderArgs) {
 
   if (!isAuthenticated) {
     if (isAccountPage) {
-      return redirect(loginPath) as unknown as TmpRemixFix;
+      return redirect(loginPath);
     }
-    return json({isAuthenticated: false}) as unknown as TmpRemixFix;
+    return {isAuthenticated: false};
   }
 
   const customer = await getCustomer(context, customerAccessToken);
@@ -67,20 +63,13 @@ export async function loader({request, context, params}: Route.LoaderArgs) {
 
   const orders = flattenConnection(customer.orders) as Order[];
 
-  return defer(
-    {
-      isAuthenticated,
-      customer,
-      heading,
-      orders,
-      addresses: flattenConnection(customer.addresses) as MailingAddress[],
-    },
-    {
-      headers: {
-        'Cache-Control': CACHE_NONE,
-      },
-    },
-  );
+  return {
+    isAuthenticated,
+    customer,
+    heading,
+    orders,
+    addresses: flattenConnection(customer.addresses) as MailingAddress[],
+  };
 }
 
 export default function Authenticated() {

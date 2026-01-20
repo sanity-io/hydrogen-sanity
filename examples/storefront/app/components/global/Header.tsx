@@ -7,8 +7,8 @@ import Navigation from '~/components/global/Navigation';
 import {useRootLoaderData} from '~/root';
 
 export default function Header() {
-  const {layout} = useRootLoaderData();
-  const {menuLinks} = layout || {};
+  const rootData = useRootLoaderData();
+  const {menuLinks} = rootData?.layout || {};
 
   return (
     <header

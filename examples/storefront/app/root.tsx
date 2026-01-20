@@ -31,7 +31,6 @@ import {Sanity} from 'hydrogen-sanity';
 import {usePreviewMode} from 'hydrogen-sanity/preview';
 import {filter} from '~/lib/sanity/stega';
 import type {Collection, Shop} from '@shopify/hydrogen/storefront-api-types';
-import {defer} from 'react-router';
 
 export type RootLoader = typeof loader;
 
@@ -104,32 +103,36 @@ export async function loader({context}: Route.LoaderArgs) {
 
   const selectedLocale = context.storefront.i18n;
 
-  return defer({
+  const cartData = await cart.get();
+  const notFoundCollectionData = layout?.notFoundPage?.collectionGid
+    ? await context.storefront.query<{collection: Collection}>(COLLECTION_QUERY_ID, {
+        variables: {
+          id: layout.notFoundPage.collectionGid,
+          count: 16,
+        },
+      })
+    : undefined;
+
+  return {
     analytics: {
       shopifySalesChannel: ShopifySalesChannel.hydrogen,
       shopId: shop.shop.id,
     },
-    cart: cart.get(),
+    cart: cartData,
     layout,
-    notFoundCollection: layout?.notFoundPage?.collectionGid
-      ? context.storefront.query<{collection: Collection}>(COLLECTION_QUERY_ID, {
-          variables: {
-            id: layout.notFoundPage.collectionGid,
-            count: 16,
-          },
-        })
-      : undefined,
+    notFoundCollection: notFoundCollectionData,
     sanityProjectID: context.env.SANITY_PROJECT_ID,
     sanityDataset: context.env.SANITY_DATASET,
     selectedLocale,
     storeDomain: context.storefront.getShopifyDomain(),
     studioOrigin: context.env.SANITY_STUDIO_ORIGIN,
-  });
+  };
 }
 
 export const useRootLoaderData = () => {
   const [root] = useMatches();
-  return root?.data as Route.ComponentProps['loaderData'];
+  const rootLoaderData = useRouteLoaderData<RootLoader>('root');
+  return (rootLoaderData ?? root?.data) as Route.ComponentProps['loaderData'];
 };
 
 export function Document({children}: {children?: React.ReactNode}) {

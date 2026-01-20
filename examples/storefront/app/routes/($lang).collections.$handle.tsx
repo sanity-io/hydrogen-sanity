@@ -1,4 +1,4 @@
-import {Await, useLoaderData, useSearchParams, defer} from 'react-router';
+import {Await, useLoaderData, useSearchParams} from 'react-router';
 import {AnalyticsPageType, type SeoHandleFunction} from '@shopify/hydrogen';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -77,9 +77,9 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
     throw notFound();
   }
 
-  const gids = fetchGids({page, context});
+  const gids = await fetchGids({page, context});
 
-  return defer({
+  return {
     page,
     collection,
     gids,
@@ -89,7 +89,7 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
       handle,
       resourceId: collection.id,
     },
-  });
+  };
 }
 
 export default function Collection() {

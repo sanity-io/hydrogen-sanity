@@ -6,6 +6,7 @@ import {
 } from 'react-router';
 import {forwardRef} from 'react';
 import {useRootLoaderData} from '~/root';
+import {DEFAULT_LOCALE} from '~/lib/utils';
 
 type LinkProps = Omit<RouterLinkProps, 'className'> & {
   className?: RouterNavLinkProps['className'] | RouterLinkProps['className'];
@@ -15,7 +16,8 @@ const ABSOLUTE_URL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
   const {to, className, ...resOfProps} = props;
-  const {selectedLocale} = useRootLoaderData();
+  const rootData = useRootLoaderData();
+  const selectedLocale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
 
   let toWithLocale = to;
 

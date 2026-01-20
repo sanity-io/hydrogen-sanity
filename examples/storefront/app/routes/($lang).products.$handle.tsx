@@ -1,4 +1,4 @@
-import {Await, useLoaderData, defer, redirect} from 'react-router';
+import {Await, useLoaderData, redirect} from 'react-router';
 import {
   flattenConnection,
   getSelectedProductOptions,
@@ -99,15 +99,15 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
     return redirectToFirstVariant({product, request});
   }
 
-  const gids = fetchGids({page, context});
+  const gids = await fetchGids({page, context});
 
-  const variants = context.storefront.query(VARIANTS_QUERY, {
+  const variants = await context.storefront.query(VARIANTS_QUERY, {
     variables: {
       handle,
     },
   });
 
-  const recommended = context.storefront.query<{
+  const recommended = await context.storefront.query<{
     product: Product & {selectedVariant?: ProductVariant};
   }>(RECOMMENDED_PRODUCTS_QUERY, {
     variables: {
@@ -127,7 +127,7 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
     price: selectedVariant.price.amount,
   };
 
-  return defer({
+  return {
     page,
     product,
     variants,
@@ -140,7 +140,7 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
       products: [productAnalytics],
       totalValue: parseFloat(selectedVariant.price.amount),
     },
-  });
+  };
 }
 
 function redirectToFirstVariant({

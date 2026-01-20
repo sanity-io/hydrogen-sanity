@@ -1,4 +1,4 @@
-import {Await, useLoaderData, defer} from 'react-router';
+import {Await, useLoaderData} from 'react-router';
 import type {SeoHandleFunction} from '@shopify/hydrogen';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -46,9 +46,9 @@ export async function loader({params, context}: Route.LoaderArgs) {
     throw notFound();
   }
 
-  const gids = fetchGids({page, context});
+  const gids = await fetchGids({page, context});
 
-  return defer({page, gids});
+  return {page, gids};
 }
 
 export default function Page() {
