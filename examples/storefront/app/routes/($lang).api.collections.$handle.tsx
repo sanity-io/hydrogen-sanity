@@ -1,6 +1,4 @@
 import type {Collection as CollectionType} from '@shopify/hydrogen/storefront-api-types';
-import {json} from 'react-router';
-
 import {validateLocale} from '~/lib/utils';
 import {COLLECTION_QUERY} from '~/queries/shopify/collection';
 import type {Route} from './+types/($lang).api.collections.$handle';
@@ -24,7 +22,7 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
       },
     });
 
-  return json({
+  return Response.json({
     collection,
   });
 }

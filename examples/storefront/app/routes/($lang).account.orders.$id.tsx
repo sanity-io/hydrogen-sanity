@@ -1,4 +1,4 @@
-import {useLoaderData, json, redirect} from 'react-router';
+import {useLoaderData, redirect} from 'react-router';
 import {
   flattenConnection,
   Image,
@@ -72,12 +72,12 @@ export async function loader({request, context, params}: Route.LoaderArgs) {
     firstDiscount?.__typename === 'PricingPercentageValue' &&
     firstDiscount?.percentage;
 
-  return json({
+  return {
     order,
     lineItems,
     discountValue,
     discountPercentage,
-  });
+  };
 }
 
 export default function OrderRoute() {

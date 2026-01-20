@@ -4,7 +4,6 @@ import {
   type CartQueryData,
   type SeoHandleFunction,
 } from '@shopify/hydrogen';
-import {json} from 'react-router';
 import clsx from 'clsx';
 import {Suspense} from 'react';
 import invariant from 'tiny-invariant';
@@ -80,7 +79,7 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   const {cart: cartResult, errors} = result;
-  return json(
+  return Response.json(
     {
       cart: cartResult,
       errors,

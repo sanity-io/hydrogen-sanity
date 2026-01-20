@@ -8,7 +8,7 @@ import {
   hasMultipleProductOptions,
   useGid,
 } from '~/lib/utils';
-import {ProductWithNodes} from '~/types/shopify';
+import type {ProductWithNodes} from '~/types/shopify';
 
 type Props = {
   storefrontProduct: ProductWithNodes;

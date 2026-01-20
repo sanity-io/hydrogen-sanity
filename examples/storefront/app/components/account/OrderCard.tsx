@@ -3,7 +3,7 @@ import {flattenConnection, Image} from '@shopify/hydrogen';
 import Badge from '~/components/elements/Badge';
 import {Link} from '~/components/Link';
 import {statusMessage} from '~/lib/utils';
-import {OrderWithNodes} from '~/types/shopify';
+import type {OrderWithNodes} from '~/types/shopify';
 
 type Props = {
   order?: OrderWithNodes;

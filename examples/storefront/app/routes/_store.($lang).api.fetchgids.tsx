@@ -3,8 +3,6 @@ import type {
   Product,
   ProductVariant,
 } from '@shopify/hydrogen/storefront-api-types';
-import {json} from 'react-router';
-
 import {extractIds, notFound, validateLocale} from '~/lib/utils';
 import {PRODUCTS_AND_COLLECTIONS} from '~/queries/shopify/product';
 import type {Route} from './+types/_store.($lang).api.fetchgids';
@@ -34,7 +32,7 @@ export async function action({params, context, request}: Route.ActionArgs) {
       },
     );
 
-  return json(extractIds(productsAndCollections));
+  return Response.json(extractIds(productsAndCollections));
 }
 
 export function loader() {

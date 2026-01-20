@@ -5,7 +5,6 @@ import type {
   ProductOption,
   ProductVariant,
 } from '@shopify/hydrogen/storefront-api-types';
-import {json} from 'react-router';
 import pluralize from 'pluralize-esm';
 import {useEffect, useMemo, useRef} from 'react';
 
@@ -298,7 +297,7 @@ export const notFound = (message = 'Not Found') =>
   });
 
 export const badRequest = <T>(data: T) =>
-  json(data, {status: 400, statusText: 'Bad Request'});
+  Response.json(data, {status: 400, statusText: 'Bad Request'});
 
 export function isLocalPath(request: Request, url: string) {
   const currentUrl = new URL(request.url);

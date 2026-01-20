@@ -1,4 +1,4 @@
-import {Form, useActionData, redirect, json} from 'react-router';
+import {Form, useActionData, redirect} from 'react-router';
 import type {SeoHandleFunction} from '@shopify/hydrogen';
 import type {CustomerRecoverPayload} from '@shopify/hydrogen/storefront-api-types';
 import clsx from 'clsx';
@@ -50,7 +50,7 @@ export async function action({request, context}: Route.ActionArgs) {
       variables: {email},
     });
 
-    return json({resetRequested: true});
+    return Response.json({resetRequested: true});
   } catch (error: any) {
     return badRequest<ActionData>({
       formError: 'Something went wrong. Please try again later.',
