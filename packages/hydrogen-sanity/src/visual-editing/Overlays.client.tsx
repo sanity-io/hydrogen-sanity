@@ -9,7 +9,7 @@ import {type ReactNode, useEffect, useState} from 'react'
 import {useRevalidator, useSubmit} from 'react-router'
 import {useEffectEvent} from 'use-effect-event'
 
-import {isServer} from '../utils'
+import {isServer, sanitizePerspective} from '../utils'
 import {useHistory} from './hooks/history'
 import {useRefresh} from './hooks/refresh'
 import {useHasActiveLoaders} from './registry'
@@ -82,8 +82,14 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
 
   // Handle perspective changes from Studio
   const handlePerspectiveChange = useEffectEvent((perspective: ClientPerspective) => {
+    // Sanitize perspective (filters out undefined/empty values from upstream bug)
+    const cleanPerspective = sanitizePerspective(perspective)
+
     const formData = new FormData()
-    formData.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
+    formData.set(
+      'perspective',
+      Array.isArray(cleanPerspective) ? cleanPerspective.join(',') : cleanPerspective,
+    )
     submit(formData, {
       method: 'PUT',
       action,
