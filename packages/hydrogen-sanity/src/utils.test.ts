@@ -17,6 +17,20 @@ describe('sanitizePerspective', () => {
 
     expect(result).toBe('drafts')
   })
+
+  it('should filter out empty strings from perspective array', () => {
+    // This happens when upstream sends [undefined, "releaseId", "drafts"]
+    // which gets serialized as ",releaseId,drafts" and split back
+    const result = sanitizePerspective(',releaseId,drafts')
+
+    expect(result).toEqual(['releaseId', 'drafts'])
+  })
+
+  it('should filter out multiple empty strings', () => {
+    const result = sanitizePerspective('drafts,,published,')
+
+    expect(result).toEqual(['drafts', 'published'])
+  })
 })
 
 describe('supportsPerspectiveStack', () => {
@@ -78,6 +92,16 @@ describe('getPerspective', () => {
 
     expect(result).toEqual(['drafts', 'published'])
     expect(mockSession.get).toHaveBeenCalledWith('perspective')
+  })
+
+  it('should filter out empty strings from perspective array', () => {
+    // This happens when upstream sends [undefined, "releaseId", "drafts"]
+    // which gets serialized as ",releaseId,drafts"
+    mockSession.get.mockReturnValue(',releaseId,drafts')
+
+    const result = getPerspective(mockSession)
+
+    expect(result).toEqual(['releaseId', 'drafts'])
   })
 })
 

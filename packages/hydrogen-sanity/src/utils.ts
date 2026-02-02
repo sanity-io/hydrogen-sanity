@@ -45,10 +45,17 @@ export function hashQuery(
  * Handles both string (comma-separated) and array formats.
  */
 export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspective, 'raw'> {
-  const sanitizedPerspective =
+  let sanitizedPerspective =
     typeof perspective === 'string' && perspective.includes(',')
       ? perspective.split(',')
       : perspective
+
+  // Filter out empty strings and undefined values from perspective array
+  if (Array.isArray(sanitizedPerspective)) {
+    sanitizedPerspective = sanitizedPerspective.filter(
+      (p): p is string => typeof p === 'string' && p.length > 0,
+    )
+  }
 
   validateApiPerspective(sanitizedPerspective)
 
@@ -80,7 +87,10 @@ export function supportsPerspectiveStack(apiVersion: string): boolean {
  * Extracts and validates the perspective from a session.
  */
 export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
-  const perspective = session.get('perspective')?.split(',')
+  const perspective = session
+    .get('perspective')
+    ?.split(',')
+    .filter((p: string) => p.length > 0)
   validateApiPerspective(perspective)
   return perspective
 }
