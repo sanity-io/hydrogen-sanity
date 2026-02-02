@@ -1,5 +1,5 @@
 import type {HistoryRefresh} from '@sanity/visual-editing'
-import {useCallback, useEffect, useState} from 'react'
+import {startTransition, useCallback, useEffect, useState} from 'react'
 import {useRevalidator} from 'react-router'
 import {useEffectEvent} from 'use-effect-event'
 
@@ -23,14 +23,15 @@ export function useRefresh(): {
   const [revalidatorLoading, setRevalidatorLoading] = useState(false)
 
   // Handle revalidator state transitions internally
-  // useEffectEvent provides stable identity while reading latest state
   const handleRevalidatorState = useEffectEvent(() => {
     if (revalidatorPromise && revalidator.state === 'loading') {
-      setRevalidatorLoading(true)
+      startTransition(() => setRevalidatorLoading(true))
     } else if (revalidatorPromise && revalidatorLoading && revalidator.state === 'idle') {
       revalidatorPromise()
-      setRevalidatorPromise(null)
-      setRevalidatorLoading(false)
+      startTransition(() => {
+        setRevalidatorPromise(null)
+        setRevalidatorLoading(false)
+      })
     }
   })
 

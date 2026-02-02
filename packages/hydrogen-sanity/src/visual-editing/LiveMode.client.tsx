@@ -1,6 +1,7 @@
 import {createClient, type StegaConfig} from '@sanity/client'
 import {useLiveMode} from '@sanity/react-loader'
-import {type ReactNode, useMemo} from 'react'
+import isEqual from 'fast-deep-equal'
+import {type ReactNode, useEffect, useMemo, useState} from 'react'
 
 import {useSanityProviderValue} from '../provider'
 import {isServer} from '../utils'
@@ -45,13 +46,17 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
 
   const sanityProvider = useSanityProviderValue()
 
-  // Memoize stegaProps to maintain reference stability when content is unchanged
+  // Maintain reference stability for stegaProps when content is unchanged
   // This prevents unnecessary client recreation when parent component re-renders
-  const stableStegaProps = useMemo(
-    () => stegaProps,
+  const [stableStegaProps, setStableStegaProps] = useState(stegaProps)
+  useEffect(() => {
+    if (!isEqual(stableStegaProps, stegaProps)) {
+      setStableStegaProps(stegaProps)
+    }
+    // Intentionally not including stableStegaProps in deps - we only want to
+    // update when the incoming stegaProps changes, comparing against the stored value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(stegaProps)],
-  )
+  }, [stegaProps])
 
   const client = useMemo(() => {
     const baseClient = createClient({
