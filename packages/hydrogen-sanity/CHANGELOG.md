@@ -5,6 +5,14 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.1](https://github.com/sanity-io/hydrogen-sanity/compare/v6.1.0...v6.1.1) (2026-02-23)
+
+### Bug Fixes
+
+- **deps:** support Hydrogen 2026.1 ([#167](https://github.com/sanity-io/hydrogen-sanity/issues/167)) ([971c673](https://github.com/sanity-io/hydrogen-sanity/commit/971c673a63f7e9a25fd57a0855479a746df4ad12))
+- filter undefined values from perspective arrays ([4664bda](https://github.com/sanity-io/hydrogen-sanity/commit/4664bda7022b741ef93aa3071b551c489112350d))
+- **visual-editing:** optimize memoization and state transitions ([9911edf](https://github.com/sanity-io/hydrogen-sanity/commit/9911edf79a2da2af740bce9e41075a24ed4d3a33))
+
 ## 6.1.0 (2026-01-18)
 
 - chore(deps): update dependencies ([f0e9a82](https://github.com/sanity-io/hydrogen-sanity/commit/f0e9a82))
