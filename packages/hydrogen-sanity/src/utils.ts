@@ -96,6 +96,36 @@ export function getPerspective(session: SanityPreviewSession | HydrogenSession):
 }
 
 /**
+ * Extracts and validates the perspective from the request URL's
+ * `sanity-preview-perspective` search parameter.
+ *
+ * When the Presentation tool switches perspective it simultaneously:
+ * 1. Fires `PUT /api/preview` to update the session cookie (async)
+ * 2. Reloads the preview iframe with an updated `sanity-preview-perspective` URL param
+ *
+ * Reading from the URL param avoids the race condition where the iframe reloads
+ * before the `Set-Cookie` response from the PUT request has been applied by
+ * the browser, causing `getPerspective(session)` to return a stale value.
+ *
+ * Returns `undefined` if the param is absent or invalid, allowing callers to
+ * fall back to the session-based perspective.
+ */
+export function getPerspectiveFromRequest(request: Request): ClientPerspective | undefined {
+  try {
+    const url = new URL(request.url)
+    const param = url.searchParams.get('sanity-preview-perspective')
+    if (!param) return undefined
+    const parsed = param.split(',').filter(Boolean)
+    if (!parsed.length) return undefined
+    validateApiPerspective(parsed)
+    return parsed as unknown as ClientPerspective
+  } catch {
+    return undefined
+  }
+}
+
+
+/**
  * Type guard that checks if a session object is a SanityPreviewSession.
  * Validates presence of required methods: has, destroy (in addition to Hydrogen session methods).
  */

@@ -18,7 +18,7 @@ import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
-import {getPerspective} from './utils'
+import {getPerspective, getPerspectiveFromRequest} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
@@ -213,7 +213,15 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     if (previewEnabled) {
       const apiVersion = client.config().apiVersion
       let perspective: ClientPerspective
-      if (supportsPerspectiveStack(apiVersion)) {
+
+      // URL param is always in sync with the Presentation tool's current state.
+      // Reading it first avoids the race condition where the iframe reloads
+      // before the Set-Cookie from PUT /api/preview has been applied by the browser.
+      const urlPerspective = getPerspectiveFromRequest(request)
+
+      if (urlPerspective !== undefined) {
+        perspective = urlPerspective
+      } else if (supportsPerspectiveStack(apiVersion)) {
         perspective = getPerspective(preview.session)
       } else {
         if (process.env.NODE_ENV === 'development' && !didWarnAboutNoPerspectiveSupport) {
@@ -273,7 +281,16 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       if (!withCache || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
-        return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
+        // In preview mode, always pass the current perspective explicitly.
+        // setServerClient() is a module-level singleton so the @sanity/react-loader
+        // server client may hold a stale perspective from an earlier request on this
+        // worker isolate. Passing it here ensures every preview request uses the
+        // correct perspective regardless of when setServerClient was last called.
+        const resolvedOptions =
+          previewEnabled && !loaderOptions?.perspective
+            ? {...loaderOptions, perspective: client.config().perspective as ClientPerspective}
+            : loaderOptions
+        return await loadQuery<ClientReturn<Query, Result>>(query, params, resolvedOptions)
       }
 
       const cacheStrategy =
