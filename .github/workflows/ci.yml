@@ -52,7 +52,7 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     name: Lint & Build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -103,7 +103,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
