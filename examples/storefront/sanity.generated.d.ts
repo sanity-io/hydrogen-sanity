@@ -957,7 +957,7 @@ export type AllSanitySchemaTypes =
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: app/routes/_index.tsx
 // Variable: HOMEPAGE_QUERY
-// Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          name,          reference->{            _id,            _type,            slug          }        },        _type == "linkExternal" => {          name,          url        }      },      content[]{        _type,        _key,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            },            alt          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            name,            reference->{              _id,              _type,              slug            }          },          _type == "linkExternal" => {            name,            url          }        }      },      _type == "products" => {        layout,        products[]->{          _id,          store{            title,            slug,            previewImageUrl          }        }      },      _type == "imageWithProductHotspots" => {        image{          asset->{            _id,            url          },          alt        }      }    }  }
+// Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          name,          reference->{            _type,            slug          }        },        _type == "linkExternal" => {          name,          url        }      },      content[]{        _type,        _key,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            },            alt          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            name,            reference->{              _type,              slug            }          },          _type == "linkExternal" => {            name,            url          }        }      },      _type == "products" => {        layout,        products[]->{          _id,          store{            title,            slug,            previewImageUrl          }        }      },      _type == "imageWithProductHotspots" => {        image{          asset->{            _id,            url          },          alt        }      }    }  }
 export type HOMEPAGE_QUERYResult =
   | {
       _id: 'home';
@@ -982,22 +982,18 @@ export type HOMEPAGE_QUERYResult =
               name: null;
               reference:
                 | {
-                    _id: string;
                     _type: 'collection';
                     slug: null;
                   }
                 | {
-                    _id: string;
                     _type: 'home';
                     slug: null;
                   }
                 | {
-                    _id: string;
                     _type: 'page';
                     slug: Slug | null;
                   }
                 | {
-                    _id: string;
                     _type: 'product';
                     slug: null;
                   }
@@ -1049,22 +1045,18 @@ export type HOMEPAGE_QUERYResult =
               name: null;
               reference:
                 | {
-                    _id: string;
                     _type: 'collection';
                     slug: null;
                   }
                 | {
-                    _id: string;
                     _type: 'home';
                     slug: null;
                   }
                 | {
-                    _id: string;
                     _type: 'page';
                     slug: Slug | null;
                   }
                 | {
-                    _id: string;
                     _type: 'product';
                     slug: null;
                   }
@@ -1117,22 +1109,18 @@ export type HOMEPAGE_QUERYResult =
                   name: null;
                   reference:
                     | {
-                        _id: string;
                         _type: 'collection';
                         slug: null;
                       }
                     | {
-                        _id: string;
                         _type: 'home';
                         slug: null;
                       }
                     | {
-                        _id: string;
                         _type: 'page';
                         slug: Slug | null;
                       }
                     | {
-                        _id: string;
                         _type: 'product';
                         slug: null;
                       }
@@ -1188,22 +1176,18 @@ export type HOMEPAGE_QUERYResult =
               name: null;
               reference:
                 | {
-                    _id: string;
                     _type: 'collection';
                     slug: null;
                   }
                 | {
-                    _id: string;
                     _type: 'home';
                     slug: null;
                   }
                 | {
-                    _id: string;
                     _type: 'page';
                     slug: Slug | null;
                   }
                 | {
-                    _id: string;
                     _type: 'product';
                     slug: null;
                   }
@@ -1252,22 +1236,18 @@ export type HOMEPAGE_QUERYResult =
                   name: null;
                   reference:
                     | {
-                        _id: string;
                         _type: 'collection';
                         slug: null;
                       }
                     | {
-                        _id: string;
                         _type: 'home';
                         slug: null;
                       }
                     | {
-                        _id: string;
                         _type: 'page';
                         slug: Slug | null;
                       }
                     | {
-                        _id: string;
                         _type: 'product';
                         slug: null;
                       }
@@ -1295,6 +1275,6 @@ export type HOMEPAGE_QUERYResult =
 import '@sanity/client';
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_id == "home"][0]{\n    _id,\n    _rev,\n    hero{\n      title,\n      description,\n      link[]{\n        _type,\n        _type == "linkInternal" => {\n          name,\n          reference->{\n            _id,\n            _type,\n            slug\n          }\n        },\n        _type == "linkExternal" => {\n          name,\n          url\n        }\n      },\n      content[]{\n        _type,\n        _key,\n        _type == "productWithVariant" => {\n          product->{\n            _id,\n            store{\n              title,\n              slug,\n              previewImageUrl\n            }\n          }\n        },\n        _type == "imageWithProductHotspots" => {\n          image{\n            asset->{\n              _id,\n              url\n            },\n            alt\n          }\n        }\n      }\n    },\n    modules[]{\n      _type,\n      _key,\n      _type == "callout" => {\n        text,\n        link[]{\n          _type,\n          _type == "linkInternal" => {\n            name,\n            reference->{\n              _id,\n              _type,\n              slug\n            }\n          },\n          _type == "linkExternal" => {\n            name,\n            url\n          }\n        }\n      },\n      _type == "products" => {\n        layout,\n        products[]->{\n          _id,\n          store{\n            title,\n            slug,\n            previewImageUrl\n          }\n        }\n      },\n      _type == "imageWithProductHotspots" => {\n        image{\n          asset->{\n            _id,\n            url\n          },\n          alt\n        }\n      }\n    }\n  }\n': HOMEPAGE_QUERYResult;
+    '\n  *[_id == "home"][0]{\n    _id,\n    _rev,\n    hero{\n      title,\n      description,\n      link[]{\n        _type,\n        _type == "linkInternal" => {\n          name,\n          reference->{\n            _type,\n            slug\n          }\n        },\n        _type == "linkExternal" => {\n          name,\n          url\n        }\n      },\n      content[]{\n        _type,\n        _key,\n        _type == "productWithVariant" => {\n          product->{\n            _id,\n            store{\n              title,\n              slug,\n              previewImageUrl\n            }\n          }\n        },\n        _type == "imageWithProductHotspots" => {\n          image{\n            asset->{\n              _id,\n              url\n            },\n            alt\n          }\n        }\n      }\n    },\n    modules[]{\n      _type,\n      _key,\n      _type == "callout" => {\n        text,\n        link[]{\n          _type,\n          _type == "linkInternal" => {\n            name,\n            reference->{\n              _type,\n              slug\n            }\n          },\n          _type == "linkExternal" => {\n            name,\n            url\n          }\n        }\n      },\n      _type == "products" => {\n        layout,\n        products[]->{\n          _id,\n          store{\n            title,\n            slug,\n            previewImageUrl\n          }\n        }\n      },\n      _type == "imageWithProductHotspots" => {\n        image{\n          asset->{\n            _id,\n            url\n          },\n          alt\n        }\n      }\n    }\n  }\n': HOMEPAGE_QUERYResult;
   }
 }
