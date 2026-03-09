@@ -439,6 +439,131 @@ describe('stegaEnabled serialization', () => {
   })
 })
 
+describe('perspective resolution priority', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should use URL param perspective over session value', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=releaseId,drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    expect(context.client.config().perspective).toEqual(['releaseId', 'drafts'])
+  })
+
+  it('should fall back to session perspective when URL param is absent', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
+
+    const request = new Request('https://example.com/')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    expect(context.client.config().perspective).toEqual(['drafts'])
+  })
+
+  it('should pass perspective explicitly to loadQuery in preview mode', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=releaseId,drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    await context.loadQuery<boolean>(query, params)
+
+    expect(loadQuery).toHaveBeenCalledWith(
+      query,
+      params,
+      expect.objectContaining({
+        perspective: ['releaseId', 'drafts'],
+      }),
+    )
+  })
+
+  it('should ignore URL param perspective stack when API version is too old', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const oldClient = createClient({
+      projectId,
+      dataset: 'my-dataset',
+      apiVersion: '2024-01-01',
+    })
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=releaseId,drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client: oldClient,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    // Should fall back to previewDrafts since API version doesn't support stacks
+    expect(context.client.config().perspective).toBe('previewDrafts')
+  })
+
+  it('should accept single URL param perspective even with old API version', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const oldClient = createClient({
+      projectId,
+      dataset: 'my-dataset',
+      apiVersion: '2024-01-01',
+    })
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client: oldClient,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    expect(context.client.config().perspective).toBe('drafts')
+  })
+})
+
 describe('lazy-initialize loaders', () => {
   const request = new Request('https://example.com')
 
@@ -456,22 +581,21 @@ describe('lazy-initialize loaders', () => {
     expect(setServerClient).not.toHaveBeenCalled()
   })
 
-  it('should allow `loadQuery` to be called not in preview mode', async () => {
+  it('should call `setServerClient` on every `loadQuery` invocation', async () => {
     const context = await createSanityContext({
       request,
       cache,
       client,
     })
 
-    // loadQuery should work in non-preview mode (backwards compatibility)
-    // The actual loadQuery function will be called from the mocked module
     await context.loadQuery<boolean>(query, params)
+    expect(setServerClient).toHaveBeenCalledTimes(1)
 
-    // Verify the mock was called (actual behavior testing is done in other tests)
-    expect(loadQuery).toHaveBeenCalled()
+    await context.loadQuery<boolean>(query, params)
+    expect(setServerClient).toHaveBeenCalledTimes(2)
   })
 
-  it('should call `setServerClient` on first `loadQuery` invocation in preview mode', async () => {
+  it('should call `setServerClient` with the preview-configured client', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', projectId)
 
@@ -485,17 +609,11 @@ describe('lazy-initialize loaders', () => {
       },
     })
 
-    // First call to `loadQuery`
     await context.loadQuery<boolean>(query, params)
 
-    // Should be called with the preview-configured client
-    // Check the most recent call
-    const latestCall = setServerClient.mock.calls[setServerClient.mock.calls.length - 1]
-    if (latestCall) {
-      const calledWithClient = latestCall[0]
-      expect(calledWithClient.config().useCdn).toBe(false)
-      expect(calledWithClient.config().token).toBe('my-token')
-    }
+    const calledWithClient = setServerClient.mock.calls[0][0]
+    expect(calledWithClient.config().useCdn).toBe(false)
+    expect(calledWithClient.config().token).toBe('my-token')
   })
 
   it('should display warning when `loadQuery` called outside preview mode in development', async () => {

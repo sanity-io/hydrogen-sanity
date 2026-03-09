@@ -2,7 +2,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {PreviewSession} from './fixtures'
 import {isPreviewEnabled} from './preview/utils'
-import {getPerspective} from './utils'
+import {getPerspective, getPerspectiveFromUrl} from './utils'
 import {sanitizePerspective, supportsPerspectiveStack} from './utils'
 
 describe('sanitizePerspective', () => {
@@ -102,6 +102,47 @@ describe('getPerspective', () => {
     const result = getPerspective(mockSession)
 
     expect(result).toEqual(['releaseId', 'drafts'])
+  })
+})
+
+describe('getPerspectiveFromUrl', () => {
+  it('should return parsed perspective when URL param is present and valid', () => {
+    expect(getPerspectiveFromUrl('https://example.com/?sanity-preview-perspective=drafts')).toBe(
+      'drafts',
+    )
+  })
+
+  it('should return undefined when param is absent', () => {
+    expect(getPerspectiveFromUrl('https://example.com/')).toBeUndefined()
+  })
+
+  it('should return undefined when param is empty', () => {
+    expect(
+      getPerspectiveFromUrl('https://example.com/?sanity-preview-perspective='),
+    ).toBeUndefined()
+  })
+
+  it('should handle comma-separated perspective stacks', () => {
+    expect(
+      getPerspectiveFromUrl('https://example.com/?sanity-preview-perspective=releaseId,drafts'),
+    ).toEqual(['releaseId', 'drafts'])
+  })
+
+  it('should filter empty segments from perspective stacks', () => {
+    expect(
+      getPerspectiveFromUrl('https://example.com/?sanity-preview-perspective=,releaseId,drafts'),
+    ).toEqual(['releaseId', 'drafts'])
+  })
+
+  it('should convert raw to drafts', () => {
+    expect(getPerspectiveFromUrl('https://example.com/?sanity-preview-perspective=raw')).toBe(
+      'drafts',
+    )
+  })
+
+  it('should accept a URL object', () => {
+    const url = new URL('https://example.com/?sanity-preview-perspective=drafts')
+    expect(getPerspectiveFromUrl(url)).toBe('drafts')
   })
 })
 

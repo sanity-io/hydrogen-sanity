@@ -18,13 +18,12 @@ import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
-import {getPerspective} from './utils'
+import {getPerspective, getPerspectiveFromUrl} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
 let didWarnAboutLoadQuery = false
-let didInitializeLoader = false
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -213,7 +212,16 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     if (previewEnabled) {
       const apiVersion = client.config().apiVersion
       let perspective: ClientPerspective
-      if (supportsPerspectiveStack(apiVersion)) {
+
+      // Prefer URL param over session — the cookie may lag behind the iframe reload.
+      const urlPerspective = getPerspectiveFromUrl(request.url)
+
+      if (
+        urlPerspective !== undefined &&
+        !(Array.isArray(urlPerspective) && !supportsPerspectiveStack(apiVersion))
+      ) {
+        perspective = urlPerspective
+      } else if (supportsPerspectiveStack(apiVersion)) {
         perspective = getPerspective(preview.session)
       } else {
         if (process.env.NODE_ENV === 'development' && !didWarnAboutNoPerspectiveSupport) {
@@ -256,12 +264,8 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
-      // Lazy initialize the loader on first call with the configured client
-      if (!didInitializeLoader) {
-        const {setServerClient} = await import('@sanity/react-loader')
-        setServerClient(client)
-        didInitializeLoader = true
-      }
+      const {setServerClient} = await import('@sanity/react-loader')
+      setServerClient(client)
 
       // Warn users to migrate to `query` method when using loadQuery outside preview mode
       if (!previewEnabled && process.env.NODE_ENV === 'development' && !didWarnAboutLoadQuery) {
@@ -273,7 +277,12 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       if (!withCache || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
-        return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
+        // Override the singleton's possibly-stale perspective with the per-request value.
+        const resolvedOptions =
+          previewEnabled && !loaderOptions?.perspective
+            ? {...loaderOptions, perspective: client.config().perspective as ClientPerspective}
+            : loaderOptions
+        return await loadQuery<ClientReturn<Query, Result>>(query, params, resolvedOptions)
       }
 
       const cacheStrategy =
