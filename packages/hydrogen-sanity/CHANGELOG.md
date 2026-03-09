@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0](https://github.com/sanity-io/hydrogen-sanity/compare/v6.1.1...v6.2.0) (2026-03-09)
+
+### Features
+
+- **context:** use URL param as authoritative perspective source, fix stale singleton ([#168](https://github.com/sanity-io/hydrogen-sanity/issues/168)) ([b6f112c](https://github.com/sanity-io/hydrogen-sanity/commit/b6f112c6c2acdba569558edfcae0468d60bc6791))
+
 ## [6.1.1](https://github.com/sanity-io/hydrogen-sanity/compare/v6.1.0...v6.1.1) (2026-02-23)
 
 ### Bug Fixes
