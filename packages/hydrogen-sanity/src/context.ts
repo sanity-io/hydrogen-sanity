@@ -18,7 +18,7 @@ import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {CacheActionFunctionParam, WaitUntil} from './types'
-import {getPerspective, getPerspectiveFromRequest} from './utils'
+import {getPerspective, getPerspectiveFromUrl} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
@@ -214,10 +214,8 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       const apiVersion = client.config().apiVersion
       let perspective: ClientPerspective
 
-      // URL param is always in sync with the Presentation tool's current state.
-      // Reading it first avoids the race condition where the iframe reloads
-      // before the Set-Cookie from PUT /api/preview has been applied by the browser.
-      const urlPerspective = getPerspectiveFromRequest(request)
+      // Prefer URL param over session — the cookie may lag behind the iframe reload.
+      const urlPerspective = getPerspectiveFromUrl(request.url)
 
       if (urlPerspective !== undefined) {
         perspective = urlPerspective
@@ -264,7 +262,8 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
-      // Lazy initialize the loader on first call with the configured client
+      // Lazy initialize the loader on first call with the configured client.
+      // TODO(stale-singleton): see TODO-stale-singleton.md
       if (!didInitializeLoader) {
         const {setServerClient} = await import('@sanity/react-loader')
         setServerClient(client)
@@ -281,11 +280,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       if (!withCache || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
-        // In preview mode, always pass the current perspective explicitly.
-        // setServerClient() is a module-level singleton so the @sanity/react-loader
-        // server client may hold a stale perspective from an earlier request on this
-        // worker isolate. Passing it here ensures every preview request uses the
-        // correct perspective regardless of when setServerClient was last called.
+        // Override the singleton's possibly-stale perspective with the per-request value.
         const resolvedOptions =
           previewEnabled && !loaderOptions?.perspective
             ? {...loaderOptions, perspective: client.config().perspective as ClientPerspective}
