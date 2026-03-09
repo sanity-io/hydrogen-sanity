@@ -439,6 +439,80 @@ describe('stegaEnabled serialization', () => {
   })
 })
 
+describe('perspective resolution priority', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should use URL param perspective over session value', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=releaseId,drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    expect(context.client.config().perspective).toEqual(['releaseId', 'drafts'])
+  })
+
+  it('should fall back to session perspective when URL param is absent', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
+
+    const request = new Request('https://example.com/')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    expect(context.client.config().perspective).toEqual(['drafts'])
+  })
+
+  it('should pass perspective explicitly to loadQuery in preview mode', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=releaseId,drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    await context.loadQuery<boolean>(query, params)
+
+    expect(loadQuery).toHaveBeenCalledWith(
+      query,
+      params,
+      expect.objectContaining({
+        perspective: ['releaseId', 'drafts'],
+      }),
+    )
+  })
+})
+
 describe('lazy-initialize loaders', () => {
   const request = new Request('https://example.com')
 
