@@ -216,7 +216,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       // Prefer URL param over session — the cookie may lag behind the iframe reload.
       const urlPerspective = getPerspectiveFromUrl(request.url)
 
-      if (urlPerspective !== undefined) {
+      if (
+        urlPerspective !== undefined &&
+        !(Array.isArray(urlPerspective) && !supportsPerspectiveStack(apiVersion))
+      ) {
         perspective = urlPerspective
       } else if (supportsPerspectiveStack(apiVersion)) {
         perspective = getPerspective(preview.session)
