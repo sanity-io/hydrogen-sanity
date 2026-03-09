@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.3.0 (2026-03-09)
+
+- feat(context): use URL param as authoritative perspective source, fix stale singleton (#174) ([2aa1258](https://github.com/sanity-io/hydrogen-sanity/commit/2aa1258)), closes [#174](https://github.com/sanity-io/hydrogen-sanity/issues/174) [sanity-io/hydrogen-sanity#168](https://github.com/sanity-io/hydrogen-sanity/issues/168)
+- fix: filter undefined values from perspective arrays ([5f2f6c8](https://github.com/sanity-io/hydrogen-sanity/commit/5f2f6c8))
+- fix(visual-editing): optimize memoization and state transitions ([5a23fc7](https://github.com/sanity-io/hydrogen-sanity/commit/5a23fc7))
+
 ## 5.2.0 (2026-01-18)
 
 - feat: add React 19 support ([16d2634](https://github.com/sanity-io/hydrogen-sanity/commit/16d2634))
