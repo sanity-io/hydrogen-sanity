@@ -4,6 +4,7 @@ import {
   type QueryWithoutParams,
   validateApiPerspective,
 } from '@sanity/client'
+import {urlSearchParamPreviewPerspective} from '@sanity/preview-url-secret/constants'
 import type {HydrogenSession} from '@shopify/hydrogen'
 
 import type {SanityPreviewSession} from './preview/session'
@@ -93,6 +94,21 @@ export function getPerspective(session: SanityPreviewSession | HydrogenSession):
     .filter((p: string) => p.length > 0)
   validateApiPerspective(perspective)
   return perspective
+}
+
+/**
+ * Reads the `sanity-preview-perspective` URL search param and validates it.
+ * Returns `undefined` if absent or invalid, so callers can fall back to the session.
+ */
+export function getPerspectiveFromUrl(url: URL | string): ClientPerspective | undefined {
+  try {
+    const parsed = typeof url === 'string' ? new URL(url) : url
+    const param = parsed.searchParams.get(urlSearchParamPreviewPerspective)
+    if (!param) return undefined
+    return sanitizePerspective(param)
+  } catch {
+    return undefined
+  }
 }
 
 /**
