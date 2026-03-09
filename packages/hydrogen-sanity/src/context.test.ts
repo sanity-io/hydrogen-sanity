@@ -511,6 +511,57 @@ describe('perspective resolution priority', () => {
       }),
     )
   })
+
+  it('should ignore URL param perspective stack when API version is too old', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const oldClient = createClient({
+      projectId,
+      dataset: 'my-dataset',
+      apiVersion: '2024-01-01',
+    })
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=releaseId,drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client: oldClient,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    // Should fall back to previewDrafts since API version doesn't support stacks
+    expect(context.client.config().perspective).toBe('previewDrafts')
+  })
+
+  it('should accept single URL param perspective even with old API version', async () => {
+    const previewSession = new PreviewSession()
+    previewSession.set('projectId', projectId)
+
+    const oldClient = createClient({
+      projectId,
+      dataset: 'my-dataset',
+      apiVersion: '2024-01-01',
+    })
+
+    const request = new Request('https://example.com/?sanity-preview-perspective=drafts')
+
+    const context = await createSanityContext({
+      request,
+      cache,
+      client: oldClient,
+      preview: {
+        token: 'my-token',
+        session: previewSession,
+      },
+    })
+
+    expect(context.client.config().perspective).toBe('drafts')
+  })
 })
 
 describe('lazy-initialize loaders', () => {
