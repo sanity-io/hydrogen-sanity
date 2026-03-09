@@ -24,7 +24,6 @@ import {hashQuery, supportsPerspectiveStack} from './utils'
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
 let didWarnAboutLoadQuery = false
-let didInitializeLoader = false
 
 export type CreateSanityContextOptions = {
   request: Request
@@ -262,13 +261,8 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
-      // Lazy initialize the loader on first call with the configured client.
-      // TODO(stale-singleton): see TODO-stale-singleton.md
-      if (!didInitializeLoader) {
-        const {setServerClient} = await import('@sanity/react-loader')
-        setServerClient(client)
-        didInitializeLoader = true
-      }
+      const {setServerClient} = await import('@sanity/react-loader')
+      setServerClient(client)
 
       // Warn users to migrate to `query` method when using loadQuery outside preview mode
       if (!previewEnabled && process.env.NODE_ENV === 'development' && !didWarnAboutLoadQuery) {

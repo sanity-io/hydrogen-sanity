@@ -530,22 +530,21 @@ describe('lazy-initialize loaders', () => {
     expect(setServerClient).not.toHaveBeenCalled()
   })
 
-  it('should allow `loadQuery` to be called not in preview mode', async () => {
+  it('should call `setServerClient` on every `loadQuery` invocation', async () => {
     const context = await createSanityContext({
       request,
       cache,
       client,
     })
 
-    // loadQuery should work in non-preview mode (backwards compatibility)
-    // The actual loadQuery function will be called from the mocked module
     await context.loadQuery<boolean>(query, params)
+    expect(setServerClient).toHaveBeenCalledTimes(1)
 
-    // Verify the mock was called (actual behavior testing is done in other tests)
-    expect(loadQuery).toHaveBeenCalled()
+    await context.loadQuery<boolean>(query, params)
+    expect(setServerClient).toHaveBeenCalledTimes(2)
   })
 
-  it('should call `setServerClient` on first `loadQuery` invocation in preview mode', async () => {
+  it('should call `setServerClient` with the preview-configured client', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', projectId)
 
@@ -559,17 +558,11 @@ describe('lazy-initialize loaders', () => {
       },
     })
 
-    // First call to `loadQuery`
     await context.loadQuery<boolean>(query, params)
 
-    // Should be called with the preview-configured client
-    // Check the most recent call
-    const latestCall = setServerClient.mock.calls[setServerClient.mock.calls.length - 1]
-    if (latestCall) {
-      const calledWithClient = latestCall[0]
-      expect(calledWithClient.config().useCdn).toBe(false)
-      expect(calledWithClient.config().token).toBe('my-token')
-    }
+    const calledWithClient = setServerClient.mock.calls[0][0]
+    expect(calledWithClient.config().useCdn).toBe(false)
+    expect(calledWithClient.config().token).toBe('my-token')
   })
 
   it('should display warning when `loadQuery` called outside preview mode in development', async () => {
