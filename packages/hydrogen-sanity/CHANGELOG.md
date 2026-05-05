@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.3.0](https://github.com/sanity-io/hydrogen-sanity/compare/v6.2.0...v6.3.0) (2026-05-05)
+
+### Features
+
+- **deps:** upgrade to Hydrogen 2026.4.2, Vite 8, and React Router 7.14.0 ([8a2f7ca](https://github.com/sanity-io/hydrogen-sanity/commit/8a2f7caeebb9ca8fde07c8281661740bbb53b438))
+
 ## [6.2.0](https://github.com/sanity-io/hydrogen-sanity/compare/v6.1.1...v6.2.0) (2026-03-09)
 
 ### Features
