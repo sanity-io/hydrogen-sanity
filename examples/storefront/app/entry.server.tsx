@@ -21,13 +21,10 @@ export default async function handleRequest(
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     defaultSrc: ['https://cdn.sanity.io'],
     shop: {
-      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: env.PUBLIC_STORE_DOMAIN,
+      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
+      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
-
-    // When preview is enabled for the current session, allow the Studio to embed the storefront in the Presentation tool
     frameAncestors: [
-      // Allow Dashboard to embed the Studio and Presentation tool
       'https://www.sanity.io',
       ...(isPreviewEnabled ? [env.SANITY_STUDIO_ORIGIN] : []),
     ],
