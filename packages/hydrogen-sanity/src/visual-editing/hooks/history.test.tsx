@@ -29,6 +29,7 @@ describe('useHistory', () => {
     hash: '#section',
     state: null,
     key: 'test-key',
+    unstable_mask: undefined,
   }
 
   const wrapper = ({children}: {children: ReactNode}) => <BrowserRouter>{children}</BrowserRouter>

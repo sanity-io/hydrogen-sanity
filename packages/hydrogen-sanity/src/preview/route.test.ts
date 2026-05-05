@@ -61,7 +61,13 @@ describe('the preview route', () => {
         studioPreviewPerspective: perspective,
       })
 
-      const response = await loader({context, request, params: {}, unstable_pattern: ''})
+      const response = await loader({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(302)
@@ -81,7 +87,13 @@ describe('the preview route', () => {
         sanity,
       }
 
-      const response = await loader({context, request, params: {}, unstable_pattern: ''})
+      const response = await loader({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(403)
@@ -145,7 +157,13 @@ describe('the preview route', () => {
         studioPreviewPerspective: perspective,
       })
 
-      const response = await loader({context, request, params: {}, unstable_pattern: ''})
+      const response = await loader({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(302)
@@ -174,7 +192,13 @@ describe('the preview route', () => {
         isValid: false,
       })
 
-      const response = await loader({context, request, params: {}, unstable_pattern: ''})
+      const response = await loader({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(401)
@@ -201,7 +225,13 @@ describe('the preview route', () => {
         isValid: true,
       })
 
-      const response = await loader({context, request, params: {}, unstable_pattern: ''})
+      const response = await loader({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(302)
@@ -223,7 +253,13 @@ describe('the preview route', () => {
         sanity: {} as any,
       }
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(302)
@@ -244,7 +280,13 @@ describe('the preview route', () => {
         sanity: {} as any,
       }
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(302)
@@ -273,7 +315,13 @@ describe('the preview route', () => {
         sanity,
       }
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(302)
@@ -310,7 +358,13 @@ describe('the preview route', () => {
 
       mockSanitizePerspective.mockReturnValue('published')
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(200)
@@ -346,7 +400,13 @@ describe('the preview route', () => {
 
       mockSanitizePerspective.mockReturnValue(['drafts', 'published'])
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(200)
@@ -365,7 +425,13 @@ describe('the preview route', () => {
         sanity,
       }
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(403)
@@ -393,7 +459,13 @@ describe('the preview route', () => {
         sanity,
       }
 
-      const response = await action({context, request, params: {}, unstable_pattern: ''})
+      const response = await action({
+        context,
+        request,
+        params: {},
+        unstable_pattern: '',
+        unstable_url: new URL('https://example.com'),
+      })
 
       expect(response).toBeInstanceOf(Response)
       expect((response as Response).status).toBe(400)
@@ -409,7 +481,13 @@ describe('the preview route', () => {
       sanity: {} as any,
     }
 
-    const response = await action({context, request, params: {}, unstable_pattern: ''})
+    const response = await action({
+      context,
+      request,
+      params: {},
+      unstable_pattern: '',
+      unstable_url: new URL('https://example.com'),
+    })
 
     expect(response).toBeInstanceOf(Response)
     expect((response as Response).status).toBe(405)
