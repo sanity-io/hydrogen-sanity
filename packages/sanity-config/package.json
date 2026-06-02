@@ -55,7 +55,7 @@
     "@types/lodash.get": "^4.4.9",
     "@types/react": "^19.2",
     "@types/slug": "^5.0.9",
-    "eslint": "^9.39.2",
+    "eslint": "^10.4.1",
     "react": "^19.2",
     "react-dom": "^19.2",
     "sanity": "^5.9.0",
