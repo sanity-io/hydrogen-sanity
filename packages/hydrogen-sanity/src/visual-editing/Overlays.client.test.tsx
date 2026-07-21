@@ -81,6 +81,27 @@ it('should pass components and zIndex to enableVisualEditing', () => {
     zIndex: 999,
     refresh: expect.any(Function),
     history: expect.any(Object),
+    keepStegaOnCopy: undefined,
+    onSuspiciousStega: undefined,
+  })
+})
+
+it('should pass keepStegaOnCopy and onSuspiciousStega to enableVisualEditing', () => {
+  const onSuspiciousStega = vi.fn()
+
+  render(
+    <BrowserRouter>
+      <OverlaysClient keepStegaOnCopy onSuspiciousStega={onSuspiciousStega} />
+    </BrowserRouter>,
+  )
+
+  expect(mockEnableVisualEditing).toHaveBeenCalledWith({
+    components: undefined,
+    zIndex: undefined,
+    refresh: expect.any(Function),
+    history: expect.any(Object),
+    keepStegaOnCopy: true,
+    onSuspiciousStega: expect.any(Function),
   })
 })
 

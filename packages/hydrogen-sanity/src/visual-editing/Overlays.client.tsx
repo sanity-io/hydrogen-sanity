@@ -4,6 +4,7 @@ import {
   enableVisualEditing,
   type HistoryRefresh,
   type OverlayComponentResolver,
+  type SuspiciousStegaReport,
 } from '@sanity/visual-editing'
 import {type ReactNode, useEffect, useState} from 'react'
 import {useRevalidator, useSubmit} from 'react-router'
@@ -36,6 +37,17 @@ export interface OverlaysProps {
    * The action URL path used to submit perspective changes.
    */
   action?: string
+  /**
+   * While Visual Editing is enabled, stega-encoded metadata (invisible characters) is
+   * automatically stripped from clipboard data when content is copied from the page.
+   * Set this option to `true` to opt out and keep stega in copied content.
+   */
+  keepStegaOnCopy?: boolean
+  /**
+   * Reports stega payloads found in places where they always cause bugs or bloat
+   * (e.g. `class`, `href`, `<head>`, scripts). Providing the callback opts in to detection.
+   */
+  onSuspiciousStega?: (reports: SuspiciousStegaReport[]) => void
 }
 
 /**
@@ -61,7 +73,14 @@ if (isServer()) {
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
 function OverlaysClient(props: OverlaysProps): ReactNode {
-  const {components, zIndex, refresh, action = '/api/preview'} = props
+  const {
+    components,
+    zIndex,
+    refresh,
+    action = '/api/preview',
+    keepStegaOnCopy,
+    onSuspiciousStega: onSuspiciousStegaProp,
+  } = props
 
   const submit = useSubmit()
   const revalidator = useRevalidator()
@@ -69,6 +88,7 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
   const refreshFn = refreshHandler(refresh)
   const historyAdapter = useHistory()
   const hasActiveLoaders = useHasActiveLoaders()
+  const hasSuspiciousStegaCallback = typeof onSuspiciousStegaProp === 'function'
 
   // Detect if we're in a Studio presentation context (lazy initialization for SSR safety)
   const [inStudioContext] = useState<boolean | null>(() => {
@@ -124,6 +144,10 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
     }
   })
 
+  const onSuspiciousStega = useEffectEvent((reports: SuspiciousStegaReport[]) => {
+    onSuspiciousStegaProp?.(reports)
+  })
+
   // Listen for presentation events from Studio (only perspective changes needed for server revalidation)
   useEffect(() => {
     if (isServer() || !inStudioContext) return undefined
@@ -151,10 +175,12 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
       zIndex,
       refresh: handleRefresh,
       history: historyAdapter,
+      keepStegaOnCopy,
+      onSuspiciousStega: hasSuspiciousStegaCallback ? onSuspiciousStega : undefined,
     })
 
     return () => disable()
-  }, [components, zIndex, historyAdapter])
+  }, [components, zIndex, historyAdapter, keepStegaOnCopy, hasSuspiciousStegaCallback])
 
   return null
 }

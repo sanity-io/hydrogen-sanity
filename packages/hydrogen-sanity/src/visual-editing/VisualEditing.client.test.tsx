@@ -276,5 +276,26 @@ it('should integrate enableVisualEditing with history and refresh for comlink fu
     zIndex: 1000,
     refresh: expect.any(Function),
     history: expect.any(Object),
+    keepStegaOnCopy: undefined,
+    onSuspiciousStega: undefined,
+  })
+})
+
+it('should forward keepStegaOnCopy and onSuspiciousStega to enableVisualEditing', () => {
+  const onSuspiciousStega = vi.fn()
+
+  render(
+    <BrowserRouter>
+      <VisualEditingClient keepStegaOnCopy onSuspiciousStega={onSuspiciousStega} />
+    </BrowserRouter>,
+  )
+
+  expect(mockEnableVisualEditing).toHaveBeenCalledWith({
+    components: undefined,
+    zIndex: undefined,
+    refresh: expect.any(Function),
+    history: expect.any(Object),
+    keepStegaOnCopy: true,
+    onSuspiciousStega: expect.any(Function),
   })
 })
