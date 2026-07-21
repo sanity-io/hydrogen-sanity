@@ -1,3 +1,4 @@
+export type {SuspiciousStegaReport} from '@sanity/visual-editing'
 export {LiveMode} from './LiveMode'
 export type {LiveModeProps} from './LiveMode.client'
 export {Overlays} from './Overlays'

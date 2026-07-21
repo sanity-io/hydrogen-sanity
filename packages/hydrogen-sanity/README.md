@@ -732,6 +732,19 @@ The component automatically detects when you're using client-side loaders (`Quer
 <VisualEditing action="/api/preview" />
 ```
 
+**Stega clipboard and misuse reporting** (from `@sanity/visual-editing` ≥ 5.5):
+
+```tsx
+<VisualEditing
+  // Opt out of stripping stega from the clipboard on copy (default strips)
+  keepStegaOnCopy
+  // Opt-in: report stega found in unsafe placements (class, href, <head>, etc.)
+  onSuspiciousStega={(reports) => {
+    for (const report of reports) console.warn(`Stega found in ${report.kind}`, report)
+  }}
+/>
+```
+
 > [!NOTE]
 > **Automatic Detection**: Live mode automatically activates when:
 >

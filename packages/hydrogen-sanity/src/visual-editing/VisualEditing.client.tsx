@@ -1,5 +1,9 @@
 import type {StegaConfig} from '@sanity/client'
-import type {HistoryRefresh, OverlayComponentResolver} from '@sanity/visual-editing'
+import type {
+  HistoryRefresh,
+  OverlayComponentResolver,
+  SuspiciousStegaReport,
+} from '@sanity/visual-editing'
 import type {ReactNode} from 'react'
 
 import {isServer} from '../utils'
@@ -37,6 +41,17 @@ export interface VisualEditingProps extends Omit<StegaConfig, 'enabled'> {
    * Fires when a connection to the Studio is lost.
    */
   onDisconnect?: () => void
+  /**
+   * While Visual Editing is enabled, stega-encoded metadata (invisible characters) is
+   * automatically stripped from clipboard data when content is copied from the page.
+   * Set this option to `true` to opt out and keep stega in copied content.
+   */
+  keepStegaOnCopy?: boolean
+  /**
+   * Reports stega payloads found in places where they always cause bugs or bloat
+   * (e.g. `class`, `href`, `<head>`, scripts). Providing the callback opts in to detection.
+   */
+  onSuspiciousStega?: (reports: SuspiciousStegaReport[]) => void
 }
 
 /**
@@ -53,14 +68,31 @@ if (isServer()) {
  * Automatically enables live mode when `Query` components or `useQuery` hooks are detected.
  */
 function VisualEditingClient(props: VisualEditingProps): ReactNode {
-  const {action, components, zIndex, refresh, onConnect, onDisconnect, ...stegaProps} = props
+  const {
+    action,
+    components,
+    zIndex,
+    refresh,
+    onConnect,
+    onDisconnect,
+    keepStegaOnCopy,
+    onSuspiciousStega,
+    ...stegaProps
+  } = props
 
   // Get current loader detection state
   const hasActiveLoaders = useHasActiveLoaders()
 
   return (
     <>
-      <OverlaysClient components={components} zIndex={zIndex} refresh={refresh} action={action} />
+      <OverlaysClient
+        components={components}
+        zIndex={zIndex}
+        refresh={refresh}
+        action={action}
+        keepStegaOnCopy={keepStegaOnCopy}
+        onSuspiciousStega={onSuspiciousStega}
+      />
       {hasActiveLoaders && (
         <LiveModeClient onConnect={onConnect} onDisconnect={onDisconnect} {...stegaProps} />
       )}
