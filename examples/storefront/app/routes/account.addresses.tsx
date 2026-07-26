@@ -32,7 +32,7 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export async function loader({context}: Route.LoaderArgs) {
-  context.customerAccount.handleAuthStatus();
+  await context.customerAccount.handleAuthStatus();
 
   return {};
 }
@@ -264,23 +264,23 @@ export default function Addresses() {
     <div className="account-addresses">
       <h2>Addresses</h2>
       <br />
-      {!addresses.nodes.length ? (
-        <p>You have no addresses saved.</p>
-      ) : (
+      <div>
         <div>
-          <div>
-            <legend>Create address</legend>
-            <NewAddressForm />
-          </div>
-          <br />
-          <hr />
-          <br />
+          <legend>Create address</legend>
+          <NewAddressForm key={addresses.nodes.length} />
+        </div>
+        <br />
+        <hr />
+        <br />
+        {!addresses.nodes.length ? (
+          <p>You have no addresses saved.</p>
+        ) : (
           <ExistingAddresses
             addresses={addresses}
             defaultAddress={defaultAddress}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -468,7 +468,7 @@ export function AddressForm({
         />
         <label htmlFor="territoryCode">Country Code*</label>
         <input
-          aria-label="territoryCode"
+          aria-label="Country code"
           autoComplete="country"
           defaultValue={address?.territoryCode ?? ''}
           id="territoryCode"
