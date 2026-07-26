@@ -1,5 +1,0 @@
-{
-  "schema": "../../packages/sanity-config/schema.json",
-  "path": "./**/*.{ts,tsx,js,jsx}",
-  "generates": "./sanity.generated.d.ts"
-}

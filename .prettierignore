@@ -2,3 +2,10 @@ dist
 pnpm-lock.yaml
 yarn.lock
 package-lock.json
+
+# Generated build output. Present only after a build, so leaving these
+# unignored makes `prettier --check` pass or fail depending on whether one has
+# run yet.
+**/.react-router
+**/.sanity
+**/.turbo
