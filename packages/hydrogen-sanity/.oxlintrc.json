@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "react", "react-perf", "oxc", "import", "promise"],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "error"
+  },
+  "options": {
+    "reportUnusedDisableDirectives": "error"
+  },
+  "rules": {
+    "eslint/no-console": ["error", {"allow": ["warn", "error"]}],
+    "eslint/no-empty-function": "warn",
+    "eslint/no-shadow": "off",
+    "import/no-commonjs": "error",
+    "react/exhaustive-deps": "error",
+    "react/jsx-key": "error",
+    "react/no-danger": "warn",
+    "react/react-in-jsx-scope": "off",
+    "react/rules-of-hooks": "error",
+    "react_perf/jsx-no-jsx-as-prop": "off",
+    "react_perf/jsx-no-new-array-as-prop": "off",
+    "react_perf/jsx-no-new-function-as-prop": "off",
+    "react_perf/jsx-no-new-object-as-prop": "off",
+    "typescript/explicit-module-boundary-types": "warn",
+    "typescript/no-explicit-any": "warn",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-abusive-eslint-disable": "error"
+  },
+  "ignorePatterns": ["dist/**", "**/*.d.ts"]
+}
