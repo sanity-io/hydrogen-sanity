@@ -2,7 +2,8 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "outputs": ["dist"]
+      "outputs": ["dist"],
+      "dependsOn": ["^build"]
     },
     "lint": {
       "cache": false,
@@ -10,7 +11,8 @@
     },
     "typecheck": {
       "cache": false,
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["^build"]
     },
     "dev": {
       "dependsOn": ["@repo/sanity-config#extract"],
@@ -31,6 +33,7 @@
       "persistent": true
     },
     "@repo/sanity-config#extract": {
+      "dependsOn": ["@repo/sanity-config#build"],
       "inputs": ["src/**"],
       "outputs": ["schema.json"]
     },

@@ -12,9 +12,7 @@ export function ProductItem({
   loading,
 }: {
   product:
-    | CollectionItemFragment
-    | ProductItemFragment
-    | RecommendedProductFragment;
+    CollectionItemFragment | ProductItemFragment | RecommendedProductFragment;
   loading?: 'eager' | 'lazy';
 }) {
   const variantUrl = useVariantUrl(product.handle);
