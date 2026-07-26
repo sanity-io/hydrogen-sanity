@@ -144,7 +144,7 @@
     "@sanity/client": "^7.24.0",
     "@sanity/pkg-utils": "^10.3.2",
     "@sanity/semantic-release-preset": "^6.0.0",
-    "@shopify/hydrogen": "~2026.4.0",
+    "@shopify/hydrogen": "~2026.4.4",
     "@testing-library/react": "^16.3.1",
     "@types/react": "^19.2.17",
     "groq": "^5.4.0",
