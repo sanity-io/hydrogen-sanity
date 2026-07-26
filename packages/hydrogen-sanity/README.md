@@ -732,7 +732,7 @@ The component automatically detects when you're using client-side loaders (`Quer
 <VisualEditing action="/api/preview" />
 ```
 
-**Stega clipboard and misuse reporting** (from `@sanity/visual-editing` ≥ 5.5):
+**Stega clipboard and misuse reporting** (requires `hydrogen-sanity` 7.0.0 or later):
 
 ```tsx
 <VisualEditing
