@@ -363,11 +363,7 @@ export type ImageFeature = {
     _type: 'image';
   };
   variant?:
-    | string
-    | 'caption'
-    | 'callToAction'
-    | 'productHotspots'
-    | 'productTags';
+    string | 'caption' | 'callToAction' | 'productHotspots' | 'productTags';
   caption?: string;
   callToAction?: ImageCallToAction;
   productHotspots?: ProductHotspots;
@@ -594,10 +590,7 @@ export type PageReference = {
 export type LinkInternal = {
   _type: 'linkInternal';
   reference?:
-    | CollectionReference
-    | HomeReference
-    | PageReference
-    | ProductReference;
+    CollectionReference | HomeReference | PageReference | ProductReference;
 };
 
 export type Product = {
