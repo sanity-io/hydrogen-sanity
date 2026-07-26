@@ -19,7 +19,8 @@ import {PageLayout} from './components/PageLayout';
 import {VisualEditing} from 'hydrogen-sanity/visual-editing';
 import {Sanity} from 'hydrogen-sanity';
 import {usePreviewMode} from 'hydrogen-sanity/preview';
-import {filter} from '~/lib/sanity/stega';
+// if using other stega options, import them here
+// import {filter} from '~/lib/sanity/stega';
 
 export type RootLoader = typeof loader;
 
@@ -166,7 +167,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {previewMode ? (
           <VisualEditing
             action="/api/preview"
-            filter={filter}
+            // filter={filter}
             studioUrl={data?.studioOrigin}
           />
         ) : null}

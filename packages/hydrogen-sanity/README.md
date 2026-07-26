@@ -404,6 +404,8 @@ export default function HomePage({loaderData}: {loaderData: {initial: any}}) {
 
 > [!NOTE]
 > The `encodeDataAttribute` function enables click-to-edit functionality in Sanity Studio's Presentation tool. It's only available when Sanity preview mode is active (managed via preview session) and returns `undefined` otherwise.
+>
+> It also requires `studioUrl` configured **on the client**, via the `studioUrl` prop on `<VisualEditing>` (or `<LiveMode>`) — see [Add Visual Editing component](#add-visual-editing-component). A missing client-side `studioUrl` is the most common reason it returns `undefined`.
 
 **Advanced Options**
 
@@ -635,6 +637,9 @@ export async function createHydrogenRouterContext(
 +     // Enable stega encoding only when in preview mode
 +     stega: {
 +       enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
++       // Where the Studio is hosted — required for click-to-edit / `encodeDataAttribute`.
++       // Full URL (`https://my.sanity.studio`) or base path if embedded (`/studio`).
++       studioUrl: env.SANITY_STUDIO_ORIGIN,
 +     },
     },
 
@@ -661,6 +666,14 @@ Set up your root route to enable Visual Editing across the entire application wh
 + import {usePreviewMode} from 'hydrogen-sanity/preview'
 + import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 
+export async function loader(args: Route.LoaderArgs) {
+  // ...rest of loader
++ return {
++   // ...rest of loader data
++   studioOrigin: args.context.env.SANITY_STUDIO_ORIGIN,
++ }
+}
+
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce()
   const data = useRouteLoaderData<RootLoader>('root')
@@ -678,7 +691,12 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ...rest of the root layout */}
 
 +       {/* Conditionally render `VisualEditing` component only when in preview mode */}
-+       {previewMode ? <VisualEditing action="/api/preview" /> : null}
++       {previewMode ? (
++         <VisualEditing
++           action="/api/preview"
++           studioUrl={data?.studioOrigin}
++         />
++       ) : null}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
@@ -686,6 +704,14 @@ export function Layout({children}: {children?: React.ReactNode}) {
   )
 }
 ```
+
+> [!IMPORTANT]
+> **`studioUrl` and `filter` must be set on both the server and the client.** Visual Editing runs a separate Sanity client in the browser, so its stega config comes from `<VisualEditing>` (or `<LiveMode>`) props, not your server context. A missing client-side `studioUrl` is the most common reason `encodeDataAttribute` returns `undefined`.
+>
+> - **Server**: `env.SANITY_STUDIO_ORIGIN` directly.
+> - **Client**: return `studioOrigin` from the root `loader` and read it with `useRouteLoaderData`, as shown above.
+>
+> `filter` is a function, so it can't go through the loader — define it once in a shared module, like the example storefront's [`stega.ts`](../../examples/storefront/app/lib/sanity/stega.ts), and import it into both `context.ts` and `root.tsx`. A function-valued `studioUrl` needs the same treatment.
 
 #### Visual Editing configuration options
 
