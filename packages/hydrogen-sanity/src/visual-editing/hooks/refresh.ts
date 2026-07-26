@@ -1,7 +1,6 @@
 import type {HistoryRefresh} from '@sanity/visual-editing'
-import {startTransition, useCallback, useEffect, useState} from 'react'
+import {startTransition, useCallback, useEffect, useEffectEvent, useState} from 'react'
 import {useRevalidator} from 'react-router'
-import {useEffectEvent} from 'use-effect-event'
 
 import type {Revalidator} from '../types'
 

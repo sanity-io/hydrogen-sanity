@@ -6,9 +6,8 @@ import {
   type OverlayComponentResolver,
   type SuspiciousStegaReport,
 } from '@sanity/visual-editing'
-import {type ReactNode, useEffect, useState} from 'react'
+import {type ReactNode, useEffect, useEffectEvent, useState} from 'react'
 import {useRevalidator, useSubmit} from 'react-router'
-import {useEffectEvent} from 'use-effect-event'
 
 import {isServer, sanitizePerspective} from '../utils'
 import {useHistory} from './hooks/history'
