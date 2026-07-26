@@ -65,8 +65,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -91,8 +91,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -161,8 +161,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -196,8 +196,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -229,8 +229,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -257,8 +257,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -284,8 +284,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -319,8 +319,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -362,8 +362,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -404,8 +404,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -429,8 +429,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -463,8 +463,8 @@ describe('the preview route', () => {
         context,
         request,
         params: {},
-        unstable_pattern: '',
-        unstable_url: new URL('https://example.com'),
+        pattern: '',
+        url: new URL('https://example.com'),
       })
 
       expect(response).toBeInstanceOf(Response)
@@ -485,8 +485,8 @@ describe('the preview route', () => {
       context,
       request,
       params: {},
-      unstable_pattern: '',
-      unstable_url: new URL('https://example.com'),
+      pattern: '',
+      url: new URL('https://example.com'),
     })
 
     expect(response).toBeInstanceOf(Response)
