@@ -10,8 +10,10 @@ export default defineConfig({
     // Modern TypeScript uses exports field, older versions fall back to typesVersions
     noPackageJsonTypesVersions: 'off',
 
-    // @sanity/client is a real peer dependency (consumers bring their own client
-    // instance)
+    // `@sanity/client` has to stay a peer dependency. The consumer configures the client and
+    // passes it to `createSanityContext`, and `@sanity/react-loader` resolves stega and live
+    // mode against that same instance. Moving it to `dependencies` would allow a second copy
+    // to be installed, which silently breaks stega encoding and loader identity.
     noSanityClientPeerDependency: 'off',
   },
 
