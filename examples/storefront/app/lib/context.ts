@@ -41,6 +41,7 @@ export async function createHydrogenRouterContext(
     client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET,
+      apiVersion: '2025-02-19',
       useCdn: false,
       stega: {
         enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),

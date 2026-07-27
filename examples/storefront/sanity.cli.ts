@@ -1,8 +1,7 @@
-import {defineCliConfig} from 'sanity/cli';
+import {defineCliConfig} from '@sanity/cli';
 
 /**
  * This app is not a Studio — the config exists so `sanity typegen generate` can find its settings.
- * `@sanity/cli` v6 deprecated the standalone `sanity-typegen.json` in favour of this `typegen` key.
  *
  * The schema is produced by `@repo/sanity-config`'s `extract` task, which is why it is read from
  * outside this workspace rather than generated here.

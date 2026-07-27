@@ -14,7 +14,7 @@ import {
   Query,
   useImageUrlBuilder,
 } from 'hydrogen-sanity';
-import type {HOMEPAGE_QUERYResult} from 'sanity.generated';
+import type {HOMEPAGE_QUERY_RESULT} from 'sanity.generated';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -117,7 +117,7 @@ export default function Homepage() {
 }
 
 type HomepageLink = NonNullable<
-  NonNullable<NonNullable<HOMEPAGE_QUERYResult>['hero']>['link']
+  NonNullable<NonNullable<HOMEPAGE_QUERY_RESULT>['hero']>['link']
 >[number];
 
 type InternalLinkReference = NonNullable<
@@ -153,11 +153,45 @@ function internalLinkLabel(reference: InternalLinkReference) {
   }
 }
 
+/**
+ * `linkInternal` and `linkExternal` carry no label of their own, so internal
+ * links borrow the title of whatever they reference and external links show
+ * their URL.
+ */
+function ContentLink({
+  link,
+  className,
+}: {
+  link: HomepageLink;
+  className: string;
+}) {
+  if (link._type === 'linkInternal') {
+    if (!link.reference) return null;
+
+    return (
+      <Link to={internalLinkPath(link.reference)} className={className}>
+        {internalLinkLabel(link.reference)}
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      href={link.url ?? undefined}
+      className={className}
+      target={link.newWindow ? '_blank' : undefined}
+      rel={link.newWindow ? 'noopener noreferrer' : undefined}
+    >
+      {link.url}
+    </a>
+  );
+}
+
 function HeroSection({
   hero,
   encodeDataAttribute,
 }: {
-  hero: NonNullable<NonNullable<HOMEPAGE_QUERYResult>['hero']>;
+  hero: NonNullable<NonNullable<HOMEPAGE_QUERY_RESULT>['hero']>;
   encodeDataAttribute: EncodeDataAttributeFunction;
 }) {
   const imageUrlBuilder = useImageUrlBuilder();
@@ -170,25 +204,7 @@ function HeroSection({
       )}
       {hero.link?.[0] && (
         <div className="hero-link">
-          {hero.link[0]._type === 'linkInternal' ? (
-            hero.link[0].reference && (
-              <Link
-                to={internalLinkPath(hero.link[0].reference)}
-                className="hero-button"
-              >
-                {internalLinkLabel(hero.link[0].reference)}
-              </Link>
-            )
-          ) : (
-            <a
-              href={hero.link[0].url ?? undefined}
-              className="hero-button"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {hero.link[0].url}
-            </a>
-          )}
+          <ContentLink link={hero.link[0]} className="hero-button" />
         </div>
       )}
       {hero.content && (
@@ -239,7 +255,9 @@ function HeroSection({
                             'content',
                             {
                               _key: contentItem._key,
-                              // @ts-expect-error without this it throw a runtime error
+                              // `_index` is absent from `KeyedSegment` but required at runtime:
+                              // resolving the source map throws on a keyed segment left at -1
+                              // @ts-expect-error -- see above
                               _index: index,
                             },
                             '_type',
@@ -264,7 +282,7 @@ function ModulesSection({
   modules,
   encodeDataAttribute,
 }: {
-  modules: NonNullable<NonNullable<HOMEPAGE_QUERYResult>['modules']>;
+  modules: NonNullable<NonNullable<HOMEPAGE_QUERY_RESULT>['modules']>;
   encodeDataAttribute: EncodeDataAttributeFunction;
 }) {
   const imageUrlBuilder = useImageUrlBuilder();
@@ -283,25 +301,10 @@ function ModulesSection({
                   <p className="callout-text">{module.text}</p>
                   {module.link?.[0] && (
                     <div className="callout-link">
-                      {module.link[0]._type === 'linkInternal' ? (
-                        module.link[0].reference && (
-                          <Link
-                            to={internalLinkPath(module.link[0].reference)}
-                            className="callout-button"
-                          >
-                            {internalLinkLabel(module.link[0].reference)}
-                          </Link>
-                        )
-                      ) : (
-                        <a
-                          href={module.link[0].url ?? undefined}
-                          className="callout-button"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {module.link[0].url}
-                        </a>
-                      )}
+                      <ContentLink
+                        link={module.link[0]}
+                        className="callout-button"
+                      />
                     </div>
                   )}
                 </div>
@@ -378,10 +381,11 @@ function ModulesSection({
                         borderRadius: '8px',
                       }}
                       data-sanity={encodeDataAttribute([
-                        'modules',
                         {
                           _key: module._key,
-                          // @ts-expect-error without this it throw a runtime error
+                          // `_index` is absent from `KeyedSegment` but required at runtime:
+                          // resolving the source map throws on a keyed segment left at -1
+                          // @ts-expect-error -- see above
                           _index: index,
                         },
                         '_type',
@@ -538,7 +542,8 @@ const HOMEPAGE_QUERY = defineQuery(`
           }
         },
         _type == "linkExternal" => {
-          url
+          url,
+          newWindow
         }
       },
       content[]{
@@ -556,6 +561,8 @@ const HOMEPAGE_QUERY = defineQuery(`
         },
         _type == "imageWithProductHotspots" => {
           image{
+            hotspot,
+            crop,
             asset->{
               _id,
               url
@@ -593,7 +600,8 @@ const HOMEPAGE_QUERY = defineQuery(`
             }
           },
           _type == "linkExternal" => {
-            url
+            url,
+            newWindow
           }
         }
       },
@@ -615,6 +623,8 @@ const HOMEPAGE_QUERY = defineQuery(`
       },
       _type == "imageWithProductHotspots" => {
         image{
+          hotspot,
+          crop,
           asset->{
             _id,
             url
