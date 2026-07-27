@@ -17,13 +17,6 @@
     "./schema.json": "./schema.json",
     "./package.json": "./package.json"
   },
-  "typesVersions": {
-    "*": {
-      ".": [
-        "./dist/index.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "src"
@@ -33,7 +26,7 @@
     "typecheck": "tsc",
     "lint": "eslint --cache --config eslint.config.mjs .",
     "watch": "pkg-utils watch --strict",
-    "extract": "sanity schema extract",
+    "extract": "sanity schema extract --force",
     "extract:watch": "turbo watch --filter=\"@repo/sanity-config\" extract"
   },
   "dependencies": {
@@ -41,11 +34,11 @@
     "@sanity/color-input": "^6.0.8",
     "@sanity/icons": "^3.7.4",
     "@sanity/ui": "^3.2.0",
-    "@sanity/vision": "^5.31.1",
+    "@sanity/vision": "^6.6.0",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
-    "sanity-plugin-hotspot-array": "^3.0.2",
-    "sanity-plugin-media": "^4.3.6",
+    "sanity-plugin-hotspot-array": "^5.0.11",
+    "sanity-plugin-media": "^6.0.7",
     "slug": "^11.0.1"
   },
   "devDependencies": {
@@ -58,14 +51,17 @@
     "eslint": "^9.39.4",
     "react": "^19.2",
     "react-dom": "^19.2",
-    "sanity": "^5.31.1",
+    "sanity": "^6.6.0",
     "styled-components": "^6.4.3",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "react": "^19.2",
     "react-dom": "^19.2",
-    "sanity": "^5",
+    "sanity": "^6",
     "styled-components": "^6.1"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

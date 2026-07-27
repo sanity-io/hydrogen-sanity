@@ -16,7 +16,7 @@
     "@repo/sanity-config": "workspace:*",
     "react": "^19.2",
     "react-dom": "^19.2",
-    "sanity": "^5.31.1",
+    "sanity": "^6.6.0",
     "styled-components": "^6.4.3"
   },
   "devDependencies": {
@@ -24,5 +24,8 @@
     "@types/react": "^19.2",
     "eslint": "^9.39.4",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }
