@@ -24,16 +24,16 @@
     "isbot": "^5.2.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-router": "7.16.0",
-    "react-router-dom": "7.16.0"
+    "react-router": "7.18.1",
+    "react-router-dom": "7.18.1"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^9.39.5",
     "@graphql-codegen/cli": "5.0.2",
-    "@react-router/dev": "7.16.0",
-    "@react-router/fs-routes": "7.16.0",
+    "@react-router/dev": "7.18.1",
+    "@react-router/fs-routes": "7.18.1",
     "@sanity/cli": "^7.13.0",
     "@shopify/cli": "3.93.2",
     "@shopify/hydrogen-codegen": "^0.3.3",
