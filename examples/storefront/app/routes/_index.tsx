@@ -116,6 +116,43 @@ export default function Homepage() {
   );
 }
 
+type HomepageLink = NonNullable<
+  NonNullable<NonNullable<HOMEPAGE_QUERYResult>['hero']>['link']
+>[number];
+
+type InternalLinkReference = NonNullable<
+  Extract<HomepageLink, {_type: 'linkInternal'}>['reference']
+>;
+
+function internalLinkPath(reference: InternalLinkReference) {
+  switch (reference._type) {
+    case 'page':
+      return reference.slug?.current ? `/pages/${reference.slug.current}` : '/';
+    case 'product':
+      return reference.store?.slug?.current
+        ? `/products/${reference.store.slug.current}`
+        : '/';
+    case 'collection':
+      return reference.store?.slug?.current
+        ? `/collections/${reference.store.slug.current}`
+        : '/';
+    default:
+      return '/';
+  }
+}
+
+function internalLinkLabel(reference: InternalLinkReference) {
+  switch (reference._type) {
+    case 'page':
+      return reference.title ?? 'Untitled';
+    case 'product':
+    case 'collection':
+      return reference.store?.title ?? 'Untitled';
+    default:
+      return 'Home';
+  }
+}
+
 function HeroSection({
   hero,
   encodeDataAttribute,
@@ -134,12 +171,14 @@ function HeroSection({
       {hero.link?.[0] && (
         <div className="hero-link">
           {hero.link[0]._type === 'linkInternal' ? (
-            <Link
-              to={`/${hero.link[0].reference?.slug || ''}`}
-              className="hero-button"
-            >
-              {hero.link[0].name}
-            </Link>
+            hero.link[0].reference && (
+              <Link
+                to={internalLinkPath(hero.link[0].reference)}
+                className="hero-button"
+              >
+                {internalLinkLabel(hero.link[0].reference)}
+              </Link>
+            )
           ) : (
             <a
               href={hero.link[0].url ?? undefined}
@@ -147,7 +186,7 @@ function HeroSection({
               target="_blank"
               rel="noopener noreferrer"
             >
-              {hero.link[0].name}
+              {hero.link[0].url}
             </a>
           )}
         </div>
@@ -170,9 +209,9 @@ function HeroSection({
                           />
                         )}
                         <p>{contentItem.product.store?.title}</p>
-                        {contentItem.product.store?.slug && (
+                        {contentItem.product.store?.slug?.current && (
                           <Link
-                            to={`/products/${contentItem.product.store.slug}`}
+                            to={`/products/${contentItem.product.store.slug.current}`}
                           >
                             View Product
                           </Link>
@@ -194,7 +233,7 @@ function HeroSection({
                             .height(600)
                             .auto('format')
                             .url()}
-                          alt={contentItem.image.alt || 'Hero image'}
+                          alt=""
                           style={{maxWidth: '100%', height: 'auto'}}
                           data-sanity={encodeDataAttribute([
                             'content',
@@ -245,12 +284,14 @@ function ModulesSection({
                   {module.link?.[0] && (
                     <div className="callout-link">
                       {module.link[0]._type === 'linkInternal' ? (
-                        <Link
-                          to={`/${module.link[0].reference?.slug || ''}`}
-                          className="callout-button"
-                        >
-                          {module.link[0].name}
-                        </Link>
+                        module.link[0].reference && (
+                          <Link
+                            to={internalLinkPath(module.link[0].reference)}
+                            className="callout-button"
+                          >
+                            {internalLinkLabel(module.link[0].reference)}
+                          </Link>
+                        )
                       ) : (
                         <a
                           href={module.link[0].url ?? undefined}
@@ -258,7 +299,7 @@ function ModulesSection({
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          {module.link[0].name}
+                          {module.link[0].url}
                         </a>
                       )}
                     </div>
@@ -279,27 +320,35 @@ function ModulesSection({
                     <div
                       className={`products-grid layout-${module.layout || 'card'}`}
                     >
-                      {module.products.map((product: any) => (
-                        <div key={product._id} className="product-card">
-                          {product.store?.previewImageUrl && (
-                            <img
-                              src={product.store.previewImageUrl}
-                              alt={product.store?.title || 'Product'}
-                              style={{
-                                width: '100%',
-                                aspectRatio: '1',
-                                objectFit: 'cover',
-                              }}
-                            />
-                          )}
-                          <h3>{product.store?.title}</h3>
-                          {product.store?.slug && (
-                            <Link to={`/products/${product.store.slug}`}>
-                              View Product
-                            </Link>
-                          )}
-                        </div>
-                      ))}
+                      {module.products.map(({_key, productWithVariant}) => {
+                        const product = productWithVariant?.product;
+
+                        if (!product) return null;
+
+                        return (
+                          <div key={_key} className="product-card">
+                            {product.store?.previewImageUrl && (
+                              <img
+                                src={product.store.previewImageUrl}
+                                alt={product.store?.title || 'Product'}
+                                style={{
+                                  width: '100%',
+                                  aspectRatio: '1',
+                                  objectFit: 'cover',
+                                }}
+                              />
+                            )}
+                            <h3>{product.store?.title}</h3>
+                            {product.store?.slug?.current && (
+                              <Link
+                                to={`/products/${product.store.slug.current}`}
+                              >
+                                View Product
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -322,7 +371,7 @@ function ModulesSection({
                         .height(400)
                         .auto('format')
                         .url()}
-                      alt={module.image.alt || 'Module image'}
+                      alt=""
                       style={{
                         maxWidth: '100%',
                         height: 'auto',
@@ -468,14 +517,27 @@ const HOMEPAGE_QUERY = defineQuery(`
       link[]{
         _type,
         _type == "linkInternal" => {
-          name,
           reference->{
             _type,
-            slug
+            _type == "page" => {
+              title,
+              slug
+            },
+            _type == "product" => {
+              store{
+                title,
+                slug
+              }
+            },
+            _type == "collection" => {
+              store{
+                title,
+                slug
+              }
+            }
           }
         },
         _type == "linkExternal" => {
-          name,
           url
         }
       },
@@ -497,8 +559,7 @@ const HOMEPAGE_QUERY = defineQuery(`
             asset->{
               _id,
               url
-            },
-            alt
+            }
           }
         }
       }
@@ -511,26 +572,44 @@ const HOMEPAGE_QUERY = defineQuery(`
         link[]{
           _type,
           _type == "linkInternal" => {
-            name,
             reference->{
               _type,
-              slug
+              _type == "page" => {
+                title,
+                slug
+              },
+              _type == "product" => {
+                store{
+                  title,
+                  slug
+                }
+              },
+              _type == "collection" => {
+                store{
+                  title,
+                  slug
+                }
+              }
             }
           },
           _type == "linkExternal" => {
-            name,
             url
           }
         }
       },
       _type == "products" => {
         layout,
-        products[]->{
-          _id,
-          store{
-            title,
-            slug,
-            previewImageUrl
+        products[]{
+          _key,
+          productWithVariant{
+            product->{
+              _id,
+              store{
+                title,
+                slug,
+                previewImageUrl
+              }
+            }
           }
         }
       },
@@ -539,8 +618,7 @@ const HOMEPAGE_QUERY = defineQuery(`
           asset->{
             _id,
             url
-          },
-          alt
+          }
         }
       }
     }

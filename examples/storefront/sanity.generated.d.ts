@@ -950,7 +950,7 @@ export type AllSanitySchemaTypes =
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: app/routes/_index.tsx
 // Variable: HOMEPAGE_QUERY
-// Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          name,          reference->{            _type,            slug          }        },        _type == "linkExternal" => {          name,          url        }      },      content[]{        _type,        _key,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            },            alt          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            name,            reference->{              _type,              slug            }          },          _type == "linkExternal" => {            name,            url          }        }      },      _type == "products" => {        layout,        products[]->{          _id,          store{            title,            slug,            previewImageUrl          }        }      },      _type == "imageWithProductHotspots" => {        image{          asset->{            _id,            url          },          alt        }      }    }  }
+// Query: *[_id == "home"][0]{    _id,    _rev,    hero{      title,      description,      link[]{        _type,        _type == "linkInternal" => {          reference->{            _type,            _type == "page" => {              title,              slug            },            _type == "product" => {              store{                title,                slug              }            },            _type == "collection" => {              store{                title,                slug              }            }          }        },        _type == "linkExternal" => {          url        }      },      content[]{        _type,        _key,        _type == "productWithVariant" => {          product->{            _id,            store{              title,              slug,              previewImageUrl            }          }        },        _type == "imageWithProductHotspots" => {          image{            asset->{              _id,              url            }          }        }      }    },    modules[]{      _type,      _key,      _type == "callout" => {        text,        link[]{          _type,          _type == "linkInternal" => {            reference->{              _type,              _type == "page" => {                title,                slug              },              _type == "product" => {                store{                  title,                  slug                }              },              _type == "collection" => {                store{                  title,                  slug                }              }            }          },          _type == "linkExternal" => {            url          }        }      },      _type == "products" => {        layout,        products[]{          _key,          productWithVariant{            product->{              _id,              store{                title,                slug,                previewImageUrl              }            }          }        }      },      _type == "imageWithProductHotspots" => {        image{          asset->{            _id,            url          }        }      }    }  }
 export type HOMEPAGE_QUERYResult =
   | {
       _id: 'home';
@@ -967,28 +967,32 @@ export type HOMEPAGE_QUERYResult =
         link: Array<
           | {
               _type: 'linkExternal';
-              name: null;
               url: string | null;
             }
           | {
               _type: 'linkInternal';
-              name: null;
               reference:
                 | {
                     _type: 'collection';
-                    slug: null;
+                    store: {
+                      title: string | null;
+                      slug: Slug | null;
+                    } | null;
                   }
                 | {
                     _type: 'home';
-                    slug: null;
                   }
                 | {
                     _type: 'page';
+                    title: string | null;
                     slug: Slug | null;
                   }
                 | {
                     _type: 'product';
-                    slug: null;
+                    store: {
+                      title: string | null;
+                      slug: Slug | null;
+                    } | null;
                   }
                 | null;
             }
@@ -1002,7 +1006,6 @@ export type HOMEPAGE_QUERYResult =
                   _id: string;
                   url: string | null;
                 } | null;
-                alt: null;
               } | null;
             }
           | {
@@ -1030,28 +1033,32 @@ export type HOMEPAGE_QUERYResult =
         link: Array<
           | {
               _type: 'linkExternal';
-              name: null;
               url: string | null;
             }
           | {
               _type: 'linkInternal';
-              name: null;
               reference:
                 | {
                     _type: 'collection';
-                    slug: null;
+                    store: {
+                      title: string | null;
+                      slug: Slug | null;
+                    } | null;
                   }
                 | {
                     _type: 'home';
-                    slug: null;
                   }
                 | {
                     _type: 'page';
+                    title: string | null;
                     slug: Slug | null;
                   }
                 | {
                     _type: 'product';
-                    slug: null;
+                    store: {
+                      title: string | null;
+                      slug: Slug | null;
+                    } | null;
                   }
                 | null;
             }
@@ -1065,7 +1072,6 @@ export type HOMEPAGE_QUERYResult =
                   _id: string;
                   url: string | null;
                 } | null;
-                alt: null;
               } | null;
             }
           | {
@@ -1094,28 +1100,32 @@ export type HOMEPAGE_QUERYResult =
             link: Array<
               | {
                   _type: 'linkExternal';
-                  name: null;
                   url: string | null;
                 }
               | {
                   _type: 'linkInternal';
-                  name: null;
                   reference:
                     | {
                         _type: 'collection';
-                        slug: null;
+                        store: {
+                          title: string | null;
+                          slug: Slug | null;
+                        } | null;
                       }
                     | {
                         _type: 'home';
-                        slug: null;
                       }
                     | {
                         _type: 'page';
+                        title: string | null;
                         slug: Slug | null;
                       }
                     | {
                         _type: 'product';
-                        slug: null;
+                        store: {
+                          title: string | null;
+                          slug: Slug | null;
+                        } | null;
                       }
                     | null;
                 }
@@ -1137,7 +1147,6 @@ export type HOMEPAGE_QUERYResult =
                 _id: string;
                 url: string | null;
               } | null;
-              alt: null;
             } | null;
           }
         | {
@@ -1148,7 +1157,19 @@ export type HOMEPAGE_QUERYResult =
             _type: 'products';
             _key: string;
             layout: 'card' | 'pill' | null;
-            products: Array<null> | null;
+            products: Array<{
+              _key: string;
+              productWithVariant: {
+                product: {
+                  _id: string;
+                  store: {
+                    title: string | null;
+                    slug: Slug | null;
+                    previewImageUrl: string | null;
+                  } | null;
+                } | null;
+              } | null;
+            }> | null;
           }
       > | null;
     }
@@ -1161,28 +1182,32 @@ export type HOMEPAGE_QUERYResult =
         link: Array<
           | {
               _type: 'linkExternal';
-              name: null;
               url: string | null;
             }
           | {
               _type: 'linkInternal';
-              name: null;
               reference:
                 | {
                     _type: 'collection';
-                    slug: null;
+                    store: {
+                      title: string | null;
+                      slug: Slug | null;
+                    } | null;
                   }
                 | {
                     _type: 'home';
-                    slug: null;
                   }
                 | {
                     _type: 'page';
+                    title: string | null;
                     slug: Slug | null;
                   }
                 | {
                     _type: 'product';
-                    slug: null;
+                    store: {
+                      title: string | null;
+                      slug: Slug | null;
+                    } | null;
                   }
                 | null;
             }
@@ -1196,7 +1221,6 @@ export type HOMEPAGE_QUERYResult =
                   _id: string;
                   url: string | null;
                 } | null;
-                alt: null;
               } | null;
             }
           | {
@@ -1221,28 +1245,32 @@ export type HOMEPAGE_QUERYResult =
             link: Array<
               | {
                   _type: 'linkExternal';
-                  name: null;
                   url: string | null;
                 }
               | {
                   _type: 'linkInternal';
-                  name: null;
                   reference:
                     | {
                         _type: 'collection';
-                        slug: null;
+                        store: {
+                          title: string | null;
+                          slug: Slug | null;
+                        } | null;
                       }
                     | {
                         _type: 'home';
-                        slug: null;
                       }
                     | {
                         _type: 'page';
+                        title: string | null;
                         slug: Slug | null;
                       }
                     | {
                         _type: 'product';
-                        slug: null;
+                        store: {
+                          title: string | null;
+                          slug: Slug | null;
+                        } | null;
                       }
                     | null;
                 }
@@ -1268,6 +1296,6 @@ export type HOMEPAGE_QUERYResult =
 import '@sanity/client';
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_id == "home"][0]{\n    _id,\n    _rev,\n    hero{\n      title,\n      description,\n      link[]{\n        _type,\n        _type == "linkInternal" => {\n          name,\n          reference->{\n            _type,\n            slug\n          }\n        },\n        _type == "linkExternal" => {\n          name,\n          url\n        }\n      },\n      content[]{\n        _type,\n        _key,\n        _type == "productWithVariant" => {\n          product->{\n            _id,\n            store{\n              title,\n              slug,\n              previewImageUrl\n            }\n          }\n        },\n        _type == "imageWithProductHotspots" => {\n          image{\n            asset->{\n              _id,\n              url\n            },\n            alt\n          }\n        }\n      }\n    },\n    modules[]{\n      _type,\n      _key,\n      _type == "callout" => {\n        text,\n        link[]{\n          _type,\n          _type == "linkInternal" => {\n            name,\n            reference->{\n              _type,\n              slug\n            }\n          },\n          _type == "linkExternal" => {\n            name,\n            url\n          }\n        }\n      },\n      _type == "products" => {\n        layout,\n        products[]->{\n          _id,\n          store{\n            title,\n            slug,\n            previewImageUrl\n          }\n        }\n      },\n      _type == "imageWithProductHotspots" => {\n        image{\n          asset->{\n            _id,\n            url\n          },\n          alt\n        }\n      }\n    }\n  }\n': HOMEPAGE_QUERYResult;
+    '\n  *[_id == "home"][0]{\n    _id,\n    _rev,\n    hero{\n      title,\n      description,\n      link[]{\n        _type,\n        _type == "linkInternal" => {\n          reference->{\n            _type,\n            _type == "page" => {\n              title,\n              slug\n            },\n            _type == "product" => {\n              store{\n                title,\n                slug\n              }\n            },\n            _type == "collection" => {\n              store{\n                title,\n                slug\n              }\n            }\n          }\n        },\n        _type == "linkExternal" => {\n          url\n        }\n      },\n      content[]{\n        _type,\n        _key,\n        _type == "productWithVariant" => {\n          product->{\n            _id,\n            store{\n              title,\n              slug,\n              previewImageUrl\n            }\n          }\n        },\n        _type == "imageWithProductHotspots" => {\n          image{\n            asset->{\n              _id,\n              url\n            }\n          }\n        }\n      }\n    },\n    modules[]{\n      _type,\n      _key,\n      _type == "callout" => {\n        text,\n        link[]{\n          _type,\n          _type == "linkInternal" => {\n            reference->{\n              _type,\n              _type == "page" => {\n                title,\n                slug\n              },\n              _type == "product" => {\n                store{\n                  title,\n                  slug\n                }\n              },\n              _type == "collection" => {\n                store{\n                  title,\n                  slug\n                }\n              }\n            }\n          },\n          _type == "linkExternal" => {\n            url\n          }\n        }\n      },\n      _type == "products" => {\n        layout,\n        products[]{\n          _key,\n          productWithVariant{\n            product->{\n              _id,\n              store{\n                title,\n                slug,\n                previewImageUrl\n              }\n            }\n          }\n        }\n      },\n      _type == "imageWithProductHotspots" => {\n        image{\n          asset->{\n            _id,\n            url\n          }\n        }\n      }\n    }\n  }\n': HOMEPAGE_QUERYResult;
   }
 }
