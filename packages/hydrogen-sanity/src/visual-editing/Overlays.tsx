@@ -30,10 +30,6 @@ const OverlaysComponent = isServer()
  * Provides interactive overlays that highlight content elements and enable
  * click-to-edit functionality. Does not include live data synchronization.
  *
- * @param props.components - Custom overlay components via OverlayComponentResolver
- * @param props.zIndex - CSS z-index for overlay positioning
- * @param props.refresh - Custom refresh logic for content changes
- *
  * @example
  * ```tsx
  * // Basic overlays

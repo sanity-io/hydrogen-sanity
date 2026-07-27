@@ -30,12 +30,6 @@ const LiveModeComponent = isServer()
  * Enables real-time data updates and perspective changes between Sanity Studio
  * and your application. Only use when you have client-side loaders (`useQuery`).
  *
- * @param props.action - URL path for perspective change submissions
- * @param props.onConnect - Callback when Studio connection established
- * @param props.onDisconnect - Callback when Studio connection lost
- * @param props.filter - Stega filter for content encoding
- * @param props.studioUrl - Studio URL for stega configuration
- *
  * @example
  * ```tsx
  * // Basic live mode

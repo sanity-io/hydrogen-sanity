@@ -41,13 +41,6 @@ const VisualEditingComponent = isServer()
  * Live mode automatically activates when `Query` components or `useQuery` hooks are detected,
  * providing zero-configuration setup for most users while offering advanced control when needed.
  *
- * @param props.action - The action URL path used to submit perspective changes
- * @param props.components - Custom overlay components for visual editing
- * @param props.zIndex - The CSS z-index for visual editing overlays
- * @param props.refresh - Custom refresh logic. Called when content changes
- * @param props.onConnect - Fires when a connection is established to the Studio
- * @param props.onDisconnect - Fires when a connection to the Studio is lost
- *
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
 export function VisualEditing(props: VisualEditingProps): ReactElement {

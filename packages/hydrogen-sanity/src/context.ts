@@ -96,7 +96,7 @@ export type LoadQueryOptions<T> = Pick<
 
     /**
      * Whether to cache the result of the query or not.
-     * @defaultValue () => true
+     * @defaultValue `() => true`
      */
     shouldCacheResult?: (value: QueryResponseInitial<T>) => boolean
   }
@@ -120,7 +120,7 @@ export type FetchOptions<T> = HydrogenResponseQueryOptions & {
 
     /**
      * Whether to cache the result of the query or not.
-     * @defaultValue () => true
+     * @defaultValue `() => true`
      */
     shouldCacheResult?: (value: QueryResponseInitial<T>) => boolean
   }
@@ -150,7 +150,7 @@ export interface SanityContext {
 
   /**
    * Conditionally query Sanity using either loadQuery (for preview mode) or fetch (for static mode).
-   * This optimizes bundle size by only loading @sanity/react-loader dependencies when in preview mode.
+   * This optimizes bundle size by only loading `@sanity/react-loader` dependencies when in preview mode.
    */
   query<Result = Any, Query extends string = string>(
     query: Query,
