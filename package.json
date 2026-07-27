@@ -11,7 +11,8 @@
     "typecheck": "turbo typecheck",
     "lint": "turbo lint",
     "test": "vitest",
-    "format": "prettier --cache --write --ignore-unknown ."
+    "format": "prettier --cache --write --ignore-unknown .",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.1.0",

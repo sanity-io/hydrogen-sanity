@@ -9,3 +9,7 @@ package-lock.json
 **/.react-router
 **/.sanity
 **/.turbo
+**/.shopify
+
+# Sanity TypeGen output; @sanity/cli formats it with its own prettier settings
+**/sanity.generated.d.ts
