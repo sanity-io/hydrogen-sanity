@@ -1,4 +1,4 @@
-import {ListItemBuilder, type StructureResolver} from 'sanity/structure'
+import type {ListItemBuilder, StructureResolver} from 'sanity/structure'
 import collections from './collectionStructure'
 import colorThemes from './colorThemeStructure'
 import home from './homeStructure'
