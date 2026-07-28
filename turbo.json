@@ -6,8 +6,7 @@
       "dependsOn": ["^build"]
     },
     "lint": {
-      "cache": false,
-      "outputs": [".eslintcache"]
+      "cache": false
     },
     "typecheck": {
       "cache": false,

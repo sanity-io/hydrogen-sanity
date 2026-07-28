@@ -104,7 +104,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*
-      - run: pnpm install --filter="@workspace:." --filter="studio" --filter="repo/sanity-config"
+      - run: pnpm install --filter="@workspace:." --filter="studio" --filter="@repo/sanity-config"
 
       - name: Cleanup PR preview
         run: |
@@ -112,4 +112,4 @@ jobs:
           pnpx sanity undeploy --yes
           popd
         env:
-          SANITY_STUDIO_HOSTNAME: ${STUDIO_HOSTNAME}-pr-${{ github.event.pull_request.number }}
+          SANITY_STUDIO_HOSTNAME: ${{ vars.STUDIO_HOSTNAME }}-pr-${{ github.event.pull_request.number }}

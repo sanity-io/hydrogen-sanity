@@ -15,11 +15,13 @@ on:
   pull_request:
     paths:
       - 'packages/hydrogen-sanity/**'
+      - 'pnpm-lock.yaml'
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
-    branches: [main, beta, v4, v5, next]
+    branches: [main, beta, v4, v5, v6, next]
     paths:
       - 'packages/hydrogen-sanity/**'
+      - 'pnpm-lock.yaml'
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch:
     inputs:
@@ -64,6 +66,9 @@ jobs:
       - run: npm audit signatures
         # Linting can be skipped
       - run: pnpm --filter="hydrogen-sanity" run lint
+        if: github.event.inputs.test != 'false'
+        # oxfmt owns formatting inside the package; the pre-commit hook only covers local commits
+      - run: pnpm --filter="hydrogen-sanity" run check:format
         if: github.event.inputs.test != 'false'
         # Typechecking can be skipped
       - run: pnpm --filter="hydrogen-sanity" run typecheck
