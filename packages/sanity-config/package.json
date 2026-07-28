@@ -32,27 +32,25 @@
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/color-input": "^6.0.20",
-    "@sanity/icons": "^3.8.0",
+    "@sanity/icons": "^5.2.1",
     "@sanity/ui": "^3.2.0",
     "@sanity/vision": "^6.6.0",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.5",
     "sanity-plugin-hotspot-array": "^5.0.11",
-    "sanity-plugin-media": "^6.0.7",
-    "slug": "^11.0.1"
+    "sanity-plugin-media": "^6.0.7"
   },
   "devDependencies": {
     "@portabletext/types": "^4.0.2",
     "@sanity/eslint-config-studio": "^6.0.0",
     "@sanity/pkg-utils": "^10.7.0",
     "@types/lodash.get": "^4.4.9",
-    "@types/react": "^19.2",
-    "@types/slug": "^5.0.9",
+    "@types/react": "^19.2.17",
     "eslint": "^9.39.4",
-    "react": "^19.2",
-    "react-dom": "^19.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "sanity": "^6.6.0",
-    "styled-components": "^6.4.3",
+    "styled-components": "^6.4.4",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {

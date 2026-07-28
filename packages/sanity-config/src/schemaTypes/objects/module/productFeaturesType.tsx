@@ -1,4 +1,4 @@
-import {TagIcon} from '@sanity/icons'
+import {TagIcon} from '@sanity/icons/Tag'
 import pluralize from 'pluralize-esm'
 import {defineField} from 'sanity'
 

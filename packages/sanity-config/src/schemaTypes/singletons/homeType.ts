@@ -1,4 +1,4 @@
-import {HomeIcon} from '@sanity/icons'
+import {HomeIcon} from '@sanity/icons/Home'
 import {defineArrayMember, defineField} from 'sanity'
 import {GROUPS} from '../../constants'
 

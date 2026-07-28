@@ -1,4 +1,5 @@
-import {BlockElementIcon, ImageIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
+import {ImageIcon} from '@sanity/icons/Image'
 import {defineArrayMember, defineField} from 'sanity'
 
 export const callToActionType = defineField({

@@ -1,4 +1,8 @@
-import {CogIcon, ControlsIcon, ErrorOutlineIcon, MenuIcon, SearchIcon} from '@sanity/icons'
+import {CogIcon} from '@sanity/icons/Cog'
+import {ControlsIcon} from '@sanity/icons/Controls'
+import {ErrorOutlineIcon} from '@sanity/icons/ErrorOutline'
+import {MenuIcon} from '@sanity/icons/Menu'
+import {SearchIcon} from '@sanity/icons/Search'
 import {defineType, defineField} from 'sanity'
 
 const TITLE = 'Settings'

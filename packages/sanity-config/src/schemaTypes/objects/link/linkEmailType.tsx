@@ -1,4 +1,4 @@
-import {EnvelopeIcon} from '@sanity/icons'
+import {EnvelopeIcon} from '@sanity/icons/Envelope'
 import {defineField} from 'sanity'
 
 export const linkEmailType = defineField({

@@ -1,4 +1,4 @@
-import {WarningOutlineIcon} from '@sanity/icons'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
 import {Box, Card, Flex, Stack, Text} from '@sanity/ui'
 
 export default function ProductVariantHiddenInput() {
