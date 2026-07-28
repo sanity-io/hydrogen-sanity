@@ -45,10 +45,10 @@ importers:
         specifier: 2026.4.4
         version: 2026.4.4(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(react-dom@19.2.8(react@19.2.8))(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(three@0.183.2)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
       graphql:
-        specifier: ^16.14.2
+        specifier: ^16.10.0
         version: 16.14.2
       graphql-tag:
-        specifier: ^2.12.7
+        specifier: ^2.12.6
         version: 2.12.7(graphql@16.14.2)
       groq:
         specifier: ^6.6.0
@@ -57,7 +57,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/hydrogen-sanity
       isbot:
-        specifier: ^5.2.1
+        specifier: ^5.1.22
         version: 5.2.1
       react:
         specifier: 19.2.8
@@ -73,23 +73,23 @@ importers:
         version: 7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@eslint/compat':
-        specifier: ^1.4.1
+        specifier: ^1.2.5
         version: 1.4.1(eslint@9.39.5(jiti@2.7.0))
       '@eslint/eslintrc':
-        specifier: ^3.3.6
+        specifier: ^3.2.0
         version: 3.3.6
       '@eslint/js':
-        specifier: ^9.39.5
+        specifier: ^9.18.0
         version: 9.39.5
       '@graphql-codegen/cli':
         specifier: 5.0.2
         version: 5.0.2(@types/node@26.1.1)(graphql@16.14.2)(supports-color@8.1.1)(typescript@5.9.3)
       '@react-router/dev':
         specifier: 7.18.1
-        version: 7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
+        version: 7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
       '@react-router/fs-routes':
         specifier: 7.18.1
-        version: 7.18.1(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(typescript@5.9.3)
+        version: 7.18.1(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(typescript@5.9.3)
       '@sanity/cli':
         specifier: ^7.13.0
         version: 7.13.0(@babel/core@7.29.7)(@babel/runtime@8.0.0)(@noble/hashes@2.2.0)(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.7)(@babel/runtime@8.0.0)(rolldown@1.1.5)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0)))(@types/node@26.1.1)(@types/react@19.2.17)(esbuild@0.28.1)(jiti@2.7.0)(oxfmt@0.60.0)(rolldown@1.1.5)(supports-color@8.1.1)(terser@5.49.0)(typescript@5.9.3)(xstate@5.32.5)
@@ -103,7 +103,7 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
       '@shopify/oxygen-workers-types':
-        specifier: ^4.2.0
+        specifier: ^4.1.6
         version: 4.2.0
       '@shopify/prettier-config':
         specifier: ^1.1.4
@@ -121,49 +121,49 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.65.0
+        specifier: ^8.21.0
         version: 8.65.0(@typescript-eslint/parser@8.65.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/parser':
-        specifier: ^8.65.0
+        specifier: ^8.21.0
         version: 8.65.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       eslint:
-        specifier: ^9.39.5
+        specifier: ^9.18.0
         version: 9.39.5(jiti@2.7.0)
       eslint-config-prettier:
-        specifier: ^10.1.8
+        specifier: ^10.0.1
         version: 10.1.8(eslint@9.39.5(jiti@2.7.0))
       eslint-import-resolver-typescript:
-        specifier: ^3.10.1
+        specifier: ^3.7.0
         version: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.5(jiti@2.7.0))
       eslint-plugin-eslint-comments:
         specifier: ^3.2.0
         version: 3.2.0(eslint@9.39.5(jiti@2.7.0))
       eslint-plugin-import:
-        specifier: ^2.32.0
+        specifier: ^2.31.0
         version: 2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.5(jiti@2.7.0))
       eslint-plugin-jest:
-        specifier: ^28.14.0
+        specifier: ^28.11.0
         version: 28.14.0(@typescript-eslint/eslint-plugin@8.65.0(@typescript-eslint/parser@8.65.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       eslint-plugin-jsx-a11y:
         specifier: ^6.10.2
         version: 6.10.2(eslint@9.39.5(jiti@2.7.0))
       eslint-plugin-react:
-        specifier: ^7.37.5
+        specifier: ^7.37.4
         version: 7.37.5(eslint@9.39.5(jiti@2.7.0))
       eslint-plugin-react-hooks:
-        specifier: ^5.2.0
+        specifier: ^5.1.0
         version: 5.2.0(eslint@9.39.5(jiti@2.7.0))
       globals:
-        specifier: ^15.15.0
+        specifier: ^15.14.0
         version: 15.15.0
       graphql-config:
-        specifier: ^5.1.6
+        specifier: ^5.0.3
         version: 5.1.6(@types/node@26.1.1)(graphql@16.14.2)(typescript@5.9.3)
       prettier:
-        specifier: ^3.9.6
+        specifier: ^3.4.2
         version: 3.9.6
       typescript:
-        specifier: ^5.9.3
+        specifier: ^5.9.2
         version: 5.9.3
       vite:
         specifier: ^8.1.5
@@ -175,23 +175,23 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sanity-config
       react:
-        specifier: ^19.2
+        specifier: ^19.2.8
         version: 19.2.8
       react-dom:
-        specifier: ^19.2
+        specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
       sanity:
         specifier: ^6.6.0
         version: 6.6.0(@emotion/is-prop-valid@1.4.0)(@noble/hashes@2.2.0)(@types/node@26.1.1)(@types/react@19.2.17)(esbuild@0.28.1)(immer@11.1.15)(jiti@2.7.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(typescript@5.9.3)
       styled-components:
-        specifier: ^6.4.3
+        specifier: ^6.4.4
         version: 6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@sanity/eslint-config-studio':
         specifier: ^6.0.0
         version: 6.0.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       '@types/react':
-        specifier: ^19.2
+        specifier: ^19.2.17
         version: 19.2.17
       eslint:
         specifier: ^9.39.4
@@ -235,10 +235,10 @@ importers:
         version: 7.25.0
       '@sanity/pkg-utils':
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(supports-color@8.1.1)(typescript@5.9.3)
       '@sanity/semantic-release-preset':
         specifier: ^6.0.0
-        version: 6.0.0(semantic-release@25.0.8(typescript@5.9.3))(supports-color@8.1.1)
+        version: 6.0.0(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)
       '@shopify/hydrogen':
         specifier: ~2026.4.4
         version: 2026.4.4(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(react-dom@19.2.8(react@19.2.8))(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(three@0.183.2)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
@@ -249,8 +249,8 @@ importers:
         specifier: ^19.2.17
         version: 19.2.17
       groq:
-        specifier: ^5.31.1
-        version: 5.31.1
+        specifier: ^6.6.0
+        version: 6.6.0
       oxfmt:
         specifier: ^0.60.0
         version: 0.60.0
@@ -268,7 +268,7 @@ importers:
         version: 7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       semantic-release:
         specifier: ^25.0.8
-        version: 25.0.8(typescript@5.9.3)
+        version: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -288,8 +288,8 @@ importers:
         specifier: ^6.0.20
         version: 6.0.20(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sanity@6.6.0(@babel/core@7.29.7)(@babel/runtime@8.0.0)(@emotion/is-prop-valid@1.4.0)(@noble/hashes@2.2.0)(@types/node@26.1.1)(@types/react@19.2.17)(esbuild@0.28.1)(immer@11.1.15)(jiti@2.7.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(typescript@5.9.3))(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
       '@sanity/icons':
-        specifier: ^3.8.0
-        version: 3.8.0(react@19.2.8)
+        specifier: ^5.2.1
+        version: 5.2.1(react@19.2.8)
       '@sanity/ui':
         specifier: ^3.2.0
         version: 3.4.5(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
@@ -308,9 +308,6 @@ importers:
       sanity-plugin-media:
         specifier: ^6.0.7
         version: 6.0.7(@emotion/is-prop-valid@1.4.0)(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sanity@6.6.0(@babel/core@7.29.7)(@babel/runtime@8.0.0)(@emotion/is-prop-valid@1.4.0)(@noble/hashes@2.2.0)(@types/node@26.1.1)(@types/react@19.2.17)(esbuild@0.28.1)(immer@11.1.15)(jiti@2.7.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(typescript@5.9.3))(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
-      slug:
-        specifier: ^11.0.1
-        version: 11.0.1
     devDependencies:
       '@portabletext/types':
         specifier: ^4.0.2
@@ -320,30 +317,27 @@ importers:
         version: 6.0.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       '@sanity/pkg-utils':
         specifier: ^10.7.0
-        version: 10.9.2(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
+        version: 10.9.2(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(supports-color@8.1.1)(typescript@5.9.3)
       '@types/lodash.get':
         specifier: ^4.4.9
         version: 4.4.9
       '@types/react':
-        specifier: ^19.2
+        specifier: ^19.2.17
         version: 19.2.17
-      '@types/slug':
-        specifier: ^5.0.9
-        version: 5.0.9
       eslint:
         specifier: ^9.39.4
         version: 9.39.5(jiti@2.7.0)
       react:
-        specifier: ^19.2
+        specifier: ^19.2.8
         version: 19.2.8
       react-dom:
-        specifier: ^19.2
+        specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
       sanity:
         specifier: ^6.6.0
         version: 6.6.0(@babel/core@7.29.7)(@babel/runtime@8.0.0)(@emotion/is-prop-valid@1.4.0)(@noble/hashes@2.2.0)(@types/node@26.1.1)(@types/react@19.2.17)(esbuild@0.28.1)(immer@11.1.15)(jiti@2.7.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(styled-components@6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(typescript@5.9.3)
       styled-components:
-        specifier: ^6.4.3
+        specifier: ^6.4.4
         version: 6.4.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       typescript:
         specifier: ^5.9.3
@@ -3647,12 +3641,6 @@ packages:
   '@sanity/generate-help-url@4.0.0':
     resolution: {integrity: sha512-Ooa4xkLT3TLaX+mw/13fq3IeGdnAkx4rbpVASvRVixzBBvvcL6jPqj50fjlCd+EhgB5GRXBCNNAy/hWXwjZEUA==}
 
-  '@sanity/icons@3.8.0':
-    resolution: {integrity: sha512-LXa8eoE6U2e46L/9Pk6VU1aOWNxEqEG1osTb2YWItPIAa8MyXkICRwdNRWwW3kr5gmf+Sh2ZmfKol/Q+oGKSqw==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: ^18.3 || ^19.0.0-0
-
   '@sanity/icons@5.2.1':
     resolution: {integrity: sha512-P5gY1HRungh4RgCcypdIpu/SKoTwRBTttpbHntZjdW1MO3MK6xEOs+pbAzSARyhh22OcN9PkBBEYk2FL34BvfQ==}
     engines: {node: '>=20.19 <22 || >=22.12'}
@@ -4203,9 +4191,6 @@ packages:
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
-
-  '@types/slug@5.0.9':
-    resolution: {integrity: sha512-6Yp8BSplP35Esa/wOG1wLNKiqXevpQTEF/RcL/NV6BBQaMmZh4YlDwCgrrFSoUE4xAGvnKd5c+lkQJmPrBAzfQ==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -6417,10 +6402,6 @@ packages:
   groq@3.88.1-typegen-experimental.0:
     resolution: {integrity: sha512-6TZD6H1y3P7zk0BQharjFa7BOivV9nFL6KKVZbRZRH0yOSSyu2xHglTO48b1/2mCEdYoBQpvE7rjCDUf6XmQYQ==}
     engines: {node: '>=18'}
-
-  groq@5.31.1:
-    resolution: {integrity: sha512-Gr/0LosgbleFl98iv3eaY7jkfEIc+fubAqg8Bhg2InK1ZRttExNk6OACKVacB3pEaOoOAs2if+gLt9TWX0SmAQ==}
-    engines: {node: '>=20.19 <22 || >=22.12'}
 
   groq@6.6.0:
     resolution: {integrity: sha512-fZwReb3ZSnIaQou9z9ft6MqByOHTSkJmRotgK7hInPpm0istlYRfEr76IwOlB5j9a03MVCgoclQJdfdH225hWA==}
@@ -8801,10 +8782,6 @@ packages:
   slice-ansi@4.0.0:
     resolution: {integrity: sha512-qMCMfhY040cVHT43K9BFygqYbUPFZKHOg7K73mtTWJRb8pyP3fzf4Ixd5SzdEJQ6MRUg/WBnOLxghZtKKurENQ==}
     engines: {node: '>=10'}
-
-  slug@11.0.1:
-    resolution: {integrity: sha512-VrM060OM/E7rdLQSnp6JHrzFfJFmqQBp0+TMhZStnEB8PfNliaZ9UWYjTHGHLUFVJorZ8TjVd/aKvIxHWU2O7g==}
-    hasBin: true
 
   smob@1.6.2:
     resolution: {integrity: sha512-RQsvleCbF8cVHEv+xuDGaA4pOizFqJ0GgjtMSRo6oP8pnN7WsigHgVGey6aILRBKv4W2YOMHLqbKdnB6hpB9fw==}
@@ -12922,7 +12899,7 @@ snapshots:
 
   '@portabletext/types@4.0.2': {}
 
-  '@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)':
+  '@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/generator': 7.29.7
@@ -12953,7 +12930,7 @@ snapshots:
       tinyglobby: 0.2.17
       valibot: 1.4.2(typescript@5.9.3)
       vite: 8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0)
-      vite-node: 3.2.4(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0)
+      vite-node: 3.2.4(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.33.0)(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -12971,9 +12948,9 @@ snapshots:
       - tsx
       - yaml
 
-  '@react-router/fs-routes@7.18.1(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(typescript@5.9.3)':
+  '@react-router/fs-routes@7.18.1(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(typescript@5.9.3)':
     dependencies:
-      '@react-router/dev': 7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
+      '@react-router/dev': 7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
       minimatch: 9.0.9
     optionalDependencies:
       typescript: 5.9.3
@@ -13875,10 +13852,6 @@ snapshots:
 
   '@sanity/generate-help-url@4.0.0': {}
 
-  '@sanity/icons@3.8.0(react@19.2.8)':
-    dependencies:
-      react: 19.2.8
-
   '@sanity/icons@5.2.1(react@19.2.8)':
     dependencies:
       react: 19.2.8
@@ -13977,7 +13950,7 @@ snapshots:
     dependencies:
       zod: 4.4.3
 
-  '@sanity/pkg-utils@10.9.2(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(typescript@5.9.3)':
+  '@sanity/pkg-utils@10.9.2(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(supports-color@8.1.1)(typescript@5.9.3)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
@@ -14015,7 +13988,7 @@ snapshots:
       rolldown: 1.1.4
       rolldown-plugin-dts: 0.27.1(rolldown@1.1.4)(typescript@5.9.3)
       rollup: 4.62.3
-      rollup-plugin-esbuild: 6.2.1(esbuild@0.28.1)(rollup@4.62.3)
+      rollup-plugin-esbuild: 6.2.1(esbuild@0.28.1)(rollup@4.62.3)(supports-color@8.1.1)
       rxjs: 7.8.2
       treeify: 1.1.0
       tsx: 4.23.1
@@ -14145,13 +14118,13 @@ snapshots:
       - use-sync-external-store
       - xstate
 
-  '@sanity/semantic-release-preset@6.0.0(semantic-release@25.0.8(typescript@5.9.3))(supports-color@8.1.1)':
+  '@sanity/semantic-release-preset@6.0.0(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)':
     dependencies:
-      '@semantic-release/changelog': 6.0.3(semantic-release@25.0.8(typescript@5.9.3))
-      '@semantic-release/exec': 6.0.3(semantic-release@25.0.8(typescript@5.9.3))(supports-color@8.1.1)
-      '@semantic-release/git': 10.0.1(semantic-release@25.0.8(typescript@5.9.3))(supports-color@8.1.1)
+      '@semantic-release/changelog': 6.0.3(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))
+      '@semantic-release/exec': 6.0.3(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)
+      '@semantic-release/git': 10.0.1(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)
       conventional-changelog-conventionalcommits: 8.0.0
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
       semantic-release-license: 1.0.3
     transitivePeerDependencies:
       - supports-color
@@ -14385,15 +14358,15 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
-  '@semantic-release/changelog@6.0.3(semantic-release@25.0.8(typescript@5.9.3))':
+  '@semantic-release/changelog@6.0.3(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))':
     dependencies:
       '@semantic-release/error': 3.0.0
       aggregate-error: 3.1.0
       fs-extra: 11.4.0
       lodash: 4.18.1
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
 
-  '@semantic-release/commit-analyzer@13.0.1(semantic-release@25.0.8(typescript@5.9.3))':
+  '@semantic-release/commit-analyzer@13.0.1(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)':
     dependencies:
       conventional-changelog-angular: 8.3.1
       conventional-changelog-writer: 8.4.0
@@ -14403,7 +14376,7 @@ snapshots:
       import-from-esm: 2.0.0
       lodash-es: 4.18.1
       micromatch: 4.0.8
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -14411,7 +14384,7 @@ snapshots:
 
   '@semantic-release/error@4.0.0': {}
 
-  '@semantic-release/exec@6.0.3(semantic-release@25.0.8(typescript@5.9.3))(supports-color@8.1.1)':
+  '@semantic-release/exec@6.0.3(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)':
     dependencies:
       '@semantic-release/error': 3.0.0
       aggregate-error: 3.1.0
@@ -14419,11 +14392,11 @@ snapshots:
       execa: 5.1.1
       lodash: 4.18.1
       parse-json: 5.2.0
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@semantic-release/git@10.0.1(semantic-release@25.0.8(typescript@5.9.3))(supports-color@8.1.1)':
+  '@semantic-release/git@10.0.1(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)':
     dependencies:
       '@semantic-release/error': 3.0.0
       aggregate-error: 3.1.0
@@ -14433,11 +14406,11 @@ snapshots:
       lodash: 4.18.1
       micromatch: 4.0.8
       p-reduce: 2.1.0
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@semantic-release/github@12.0.9(semantic-release@25.0.8(typescript@5.9.3))':
+  '@semantic-release/github@12.0.9(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)':
     dependencies:
       '@octokit/core': 7.0.6
       '@octokit/plugin-paginate-rest': 14.0.0(@octokit/core@7.0.6)
@@ -14447,13 +14420,13 @@ snapshots:
       aggregate-error: 5.0.0
       debug: 4.4.3(supports-color@8.1.1)
       dir-glob: 3.0.1
-      http-proxy-agent: 9.1.0
-      https-proxy-agent: 9.1.0
+      http-proxy-agent: 9.1.0(supports-color@8.1.1)
+      https-proxy-agent: 9.1.0(supports-color@8.1.1)
       issue-parser: 7.0.2
       lodash-es: 4.18.1
       mime: 4.1.0
       p-filter: 4.1.0
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
       tinyglobby: 0.2.17
       undici: 7.29.0
       url-join: 5.0.0
@@ -14461,7 +14434,7 @@ snapshots:
       - kerberos
       - supports-color
 
-  '@semantic-release/npm@13.1.5(semantic-release@25.0.8(typescript@5.9.3))':
+  '@semantic-release/npm@13.1.5(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))':
     dependencies:
       '@actions/core': 3.0.1
       '@semantic-release/error': 4.0.0
@@ -14476,11 +14449,11 @@ snapshots:
       rc: 1.2.8
       read-pkg: 10.1.0
       registry-auth-token: 5.1.1
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
       semver: 7.8.5
       tempy: 3.2.0
 
-  '@semantic-release/release-notes-generator@14.1.1(semantic-release@25.0.8(typescript@5.9.3))':
+  '@semantic-release/release-notes-generator@14.1.1(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)':
     dependencies:
       conventional-changelog-angular: 8.3.1
       conventional-changelog-writer: 8.4.0
@@ -14490,7 +14463,7 @@ snapshots:
       import-from-esm: 2.0.0
       lodash-es: 4.18.1
       read-package-up: 11.0.0
-      semantic-release: 25.0.8(typescript@5.9.3)
+      semantic-release: 25.0.8(supports-color@8.1.1)(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -14576,7 +14549,7 @@ snapshots:
 
   '@shopify/hydrogen@2026.4.4(@react-router/dev@7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0))(react-dom@19.2.8(react@19.2.8))(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(three@0.183.2)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
-      '@react-router/dev': 7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
+      '@react-router/dev': 7.18.1(@types/node@26.1.1)(babel-plugin-macros@3.1.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
       '@shopify/graphql-client': 1.4.1
       '@shopify/hydrogen-react': 2026.4.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.183.2)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
       content-security-policy-builder: 2.3.0
@@ -14779,8 +14752,6 @@ snapshots:
       csstype: 3.2.3
 
   '@types/resolve@1.20.2': {}
-
-  '@types/slug@5.0.9': {}
 
   '@types/trusted-types@2.0.7': {}
 
@@ -17197,8 +17168,6 @@ snapshots:
 
   groq@3.88.1-typegen-experimental.0: {}
 
-  groq@5.31.1: {}
-
   groq@6.6.0: {}
 
   gunzip-maybe@1.4.2:
@@ -17315,7 +17284,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy-agent@9.1.0:
+  http-proxy-agent@9.1.0(supports-color@8.1.1):
     dependencies:
       agent-base: 9.0.0
       debug: 4.4.3(supports-color@8.1.1)
@@ -17331,7 +17300,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  https-proxy-agent@9.1.0:
+  https-proxy-agent@9.1.0(supports-color@8.1.1):
     dependencies:
       agent-base: 9.0.0
       debug: 4.4.3(supports-color@8.1.1)
@@ -19268,7 +19237,7 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.1.5
       '@rolldown/binding-win32-x64-msvc': 1.1.5
 
-  rollup-plugin-esbuild@6.2.1(esbuild@0.28.1)(rollup@4.62.3):
+  rollup-plugin-esbuild@6.2.1(esbuild@0.28.1)(rollup@4.62.3)(supports-color@8.1.1):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       es-module-lexer: 1.7.0
@@ -19715,13 +19684,13 @@ snapshots:
 
   semantic-release-license@1.0.3: {}
 
-  semantic-release@25.0.8(typescript@5.9.3):
+  semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3):
     dependencies:
-      '@semantic-release/commit-analyzer': 13.0.1(semantic-release@25.0.8(typescript@5.9.3))
+      '@semantic-release/commit-analyzer': 13.0.1(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)
       '@semantic-release/error': 4.0.0
-      '@semantic-release/github': 12.0.9(semantic-release@25.0.8(typescript@5.9.3))
-      '@semantic-release/npm': 13.1.5(semantic-release@25.0.8(typescript@5.9.3))
-      '@semantic-release/release-notes-generator': 14.1.1(semantic-release@25.0.8(typescript@5.9.3))
+      '@semantic-release/github': 12.0.9(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)
+      '@semantic-release/npm': 13.1.5(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))
+      '@semantic-release/release-notes-generator': 14.1.1(semantic-release@25.0.8(supports-color@8.1.1)(typescript@5.9.3))(supports-color@8.1.1)
       aggregate-error: 5.0.0
       cosmiconfig: 9.0.2(typescript@5.9.3)
       debug: 4.4.3(supports-color@8.1.1)
@@ -19887,8 +19856,6 @@ snapshots:
       ansi-styles: 4.3.0
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
-
-  slug@11.0.1: {}
 
   smob@1.6.2: {}
 
@@ -20631,7 +20598,7 @@ snapshots:
 
   verkit@0.1.2: {}
 
-  vite-node@3.2.4(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0):
+  vite-node@3.2.4(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.33.0)(supports-color@8.1.1)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3(supports-color@8.1.1)
