@@ -1,4 +1,4 @@
-import {DocumentIcon} from '@sanity/icons'
+import {DocumentIcon} from '@sanity/icons/Document'
 import {defineField} from 'sanity'
 
 import {validateSlug} from '../../utils/validateSlug'

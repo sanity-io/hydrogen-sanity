@@ -1,4 +1,4 @@
-import {BulbOutlineIcon} from '@sanity/icons'
+import {BulbOutlineIcon} from '@sanity/icons/BulbOutline'
 import {defineField} from 'sanity'
 
 export const calloutType = defineField({

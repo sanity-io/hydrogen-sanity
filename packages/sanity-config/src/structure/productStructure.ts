@@ -1,4 +1,4 @@
-import {InfoOutlineIcon} from '@sanity/icons'
+import {InfoOutlineIcon} from '@sanity/icons/InfoOutline'
 import type {ListItemBuilder} from 'sanity/structure'
 import defineStructure from '../utils/defineStructure'
 

@@ -1,4 +1,4 @@
-import {DocumentsIcon} from '@sanity/icons'
+import {DocumentsIcon} from '@sanity/icons/Documents'
 import type {ListItemBuilder} from 'sanity/structure'
 import defineStructure from '../utils/defineStructure'
 

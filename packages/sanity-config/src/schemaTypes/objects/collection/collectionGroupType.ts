@@ -1,4 +1,4 @@
-import {PackageIcon} from '@sanity/icons'
+import {PackageIcon} from '@sanity/icons/Package'
 import {defineField} from 'sanity'
 
 export const collectionGroupType = defineField({

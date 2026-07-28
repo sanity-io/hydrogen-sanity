@@ -1,4 +1,4 @@
-import {ThLargeIcon} from '@sanity/icons'
+import {ThLargeIcon} from '@sanity/icons/ThLarge'
 import pluralize from 'pluralize-esm'
 import {defineArrayMember, defineField} from 'sanity'
 

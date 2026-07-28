@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {PackageIcon} from '@sanity/icons'
+import {PackageIcon} from '@sanity/icons/Package'
 import {getExtension} from '@sanity/asset-utils'
 import pluralize from 'pluralize-esm'
 import CollectionHiddenInput from '../../components/inputs/CollectionHidden'

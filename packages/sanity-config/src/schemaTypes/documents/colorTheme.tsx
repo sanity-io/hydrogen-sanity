@@ -1,4 +1,4 @@
-import {IceCreamIcon} from '@sanity/icons'
+import {IceCreamIcon} from '@sanity/icons/IceCream'
 import {defineField, defineType} from 'sanity'
 
 import ColorTheme from '../../components/media/ColorTheme'

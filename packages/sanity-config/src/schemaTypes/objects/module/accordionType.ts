@@ -1,4 +1,4 @@
-import {StackCompactIcon} from '@sanity/icons'
+import {StackCompactIcon} from '@sanity/icons/StackCompact'
 import pluralize from 'pluralize-esm'
 import {defineField} from 'sanity'
 

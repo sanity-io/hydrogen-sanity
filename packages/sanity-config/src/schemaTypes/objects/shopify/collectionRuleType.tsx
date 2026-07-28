@@ -1,4 +1,4 @@
-import {FilterIcon} from '@sanity/icons'
+import {FilterIcon} from '@sanity/icons/Filter'
 import {defineField} from 'sanity'
 
 export const collectionRuleType = defineField({
