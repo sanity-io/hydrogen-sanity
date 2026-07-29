@@ -18,7 +18,7 @@ on:
       - 'pnpm-lock.yaml'
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
-    branches: [main, beta, v4, v5, v6, next]
+    branches: [main, v4, v5, v6, next]
     paths:
       - 'packages/hydrogen-sanity/**'
       - 'pnpm-lock.yaml'

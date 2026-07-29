@@ -6,16 +6,12 @@ export default {
       channel: 'latest',
     },
     {
-      name: 'beta',
-      prerelease: true,
-    },
-    {
       name: 'next',
       prerelease: true,
     },
     {
       name: 'v4',
-      channel: 'v4',
+      channel: '4',
       range: '4.x.x',
     },
     {
