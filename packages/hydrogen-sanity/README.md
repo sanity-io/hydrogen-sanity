@@ -1,9 +1,9 @@
 # hydrogen-sanity
 
 > [!TIP]
-> **Upgrading from v4?** See the [migration guide](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v4-to-v5.md) for breaking changes and new features. 🎉
+> **Upgrading from v6?** See the [migration guide](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v6-to-v7.md) for breaking changes and new features. 🎉
 
-[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires `@shopify/hydrogen >= 2025.5.0`.
+[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires React `^19.2.3` and `@shopify/hydrogen` `>=2025.7.3`.
 
 Learn more about [getting started with Sanity](https://www.sanity.io/docs/getting-started).
 
@@ -87,7 +87,7 @@ export default defineConfig({
 Create the Sanity context and pass it through to your application, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 > [!NOTE]
-> The examples below are up-to-date as of `npm create @shopify/hydrogen@2025.7.0`
+> The examples below are up-to-date as of `npm create @shopify/hydrogen@2026.4.4`
 
 ```diff
 // ./lib/context.ts
@@ -996,8 +996,14 @@ To cache your query responses in Hydrogen, use the [`withCache` utility](https:/
 export async function loader({context, params}: LoaderArgs) {
   const {withCache, sanity} = context
 
-  const homepage = await withCache('home', CacheLong(), () =>
-    sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'}),
+  const homepage = await withCache.run(
+    {
+      cacheKey: 'home',
+      cacheStrategy: CacheLong(),
+      // Avoid caching a miss
+      shouldCacheResult: (result) => Boolean(result),
+    },
+    () => sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'}),
   )
 
   return {homepage}
@@ -1008,6 +1014,7 @@ export async function loader({context, params}: LoaderArgs) {
 
 - [From `v3` to `v4`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v3-to-v4.md)
 - [From `v4` to `v5`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v4-to-v5.md)
+- [From `v6` to `v7`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v6-to-v7.md)
 
 ## License
 
@@ -1020,7 +1027,7 @@ with default configuration for build & watch scripts.
 
 ### Release new version
 
-Run ["CI & Release" workflow](https://github.com/sanity-io/hydrogen-sanity/actions/workflows/main.yml).
+Run ["CI & Release" workflow](https://github.com/sanity-io/hydrogen-sanity/actions/workflows/ci.yml).
 Make sure to select the main branch and check "Release new version".
 
 Semantic release will only release on configured branches, so it is safe to run release on any branch.
