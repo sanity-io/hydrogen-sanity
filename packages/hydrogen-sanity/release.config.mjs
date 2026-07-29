@@ -6,22 +6,23 @@ export default {
       channel: 'latest',
     },
     {
-      name: 'beta',
-      prerelease: true,
-    },
-    {
       name: 'next',
       prerelease: true,
     },
     {
       name: 'v4',
-      channel: 'v4',
+      channel: '4',
       range: '4.x.x',
     },
     {
       name: 'v5',
       channel: '5',
       range: '5.x.x',
+    },
+    {
+      name: 'v6',
+      channel: '6',
+      range: '6.x.x',
     },
   ],
 }
