@@ -7,7 +7,29 @@ All notable changes to this project will be documented in this file. See
 
 ## [7.0.0](https://github.com/sanity-io/hydrogen-sanity/compare/v6.3.1...v7.0.0) (2026-07-29)
 
+### ⚠ BREAKING CHANGES
+
+- `@sanity/visual-editing` v5 requires React 19.2 and imports `react/compiler-runtime`, which React 18 does not export, so React 18 fails at build rather than degrading. See [MIGRATE-v6-to-v7.md](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v6-to-v7.md).
+- Requires `react` and `react-dom` >=19.2.3 and `@sanity/client` >=7.24.0. The `@shopify/hydrogen` range becomes `~2025.7.3 || ~2025.10.0 || ~2026.1.0 || ~2026.4.0` — scoped to React 19.2 support, which Hydrogen added in 2025.7.3. `react-router` stays at `^7.6.0`.
+
+### Features
+
+- bump `@sanity/visual-editing` to v5 and expose `keepStegaOnCopy`, `onSuspiciousStega` ([dcb35d5](https://github.com/sanity-io/hydrogen-sanity/commit/dcb35d500dbea458fd1b970e52785218bcdd6367))
+
+### Bug Fixes
+
+- align peer dependencies with visual-editing v5 requirements ([30af488](https://github.com/sanity-io/hydrogen-sanity/commit/30af488ea9b91f256fd1de285d12e45988d77ee6))
+- mark `vite` as an optional peer dependency ([6ab9e23](https://github.com/sanity-io/hydrogen-sanity/commit/6ab9e238496331547b3e196bb8496d5e3f9f1ce7))
+
 ## [6.3.1](https://github.com/sanity-io/hydrogen-sanity/compare/v6.3.0...v6.3.1) (2026-07-27)
+
+### Bug Fixes
+
+- **deps:** bump pnpm, Hydrogen, Sanity Studio, and React Router ([6f2d5fd](https://github.com/sanity-io/hydrogen-sanity/commit/6f2d5fd6e995201f147ab8e3254a1bce7c7d03ce))
+
+### Performance Improvements
+
+- **visual-editing:** adjust stegaProps during render instead of in an effect ([0cb5c37](https://github.com/sanity-io/hydrogen-sanity/commit/0cb5c37946f7bdab04ceb032e283ee182e4428dc))
 
 ## [6.3.0](https://github.com/sanity-io/hydrogen-sanity/compare/v6.2.0...v6.3.0) (2026-05-05)
 
