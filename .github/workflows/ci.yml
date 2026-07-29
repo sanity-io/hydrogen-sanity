@@ -127,7 +127,7 @@ jobs:
       pull-requests: write # to be able to comment on released pull requests
       id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         id: app-token
         with:
           app-id: ${{ secrets.ECOSPARK_APP_ID }}
