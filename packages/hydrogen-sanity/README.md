@@ -891,6 +891,22 @@ You should now be able to view your Hydrogen app in the Presentation Tool, click
 >
 > Since Presentation displays your site in an iframe, the session cookie by default won't be sent through. You can learn more about session cookie configuation in [MDN's documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value).
 
+#### Third-party cookie restrictions
+
+`sameSite: 'none'` and `secure: true` are not enough on their own when the browser blocks unpartitioned third-party cookies — Safari blocks them outright, and Chromium does in Incognito or when the user has opted in. Because Studio and your storefront are on different sites, the preview cookie is treated as third-party and silently dropped, so preview mode never enables.
+
+`PreviewSession` handles this for you: when it sees the request that enters preview mode arrive as a cross-site iframe navigation, it writes the cookie with the [`Partitioned` attribute](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Third-party_cookies/Partitioned_cookies) (CHIPS) so the browser stores it under Studio's partition. Top-level requests — such as opening a preview link in a new tab — keep an unpartitioned cookie.
+
+If you manage the preview cookie yourself instead of using `PreviewSession`, set `partitioned: true` alongside `sameSite: 'none'` and `secure: true`. To override what `PreviewSession` decides, or to set any other cookie attribute, pass cookie options as its third argument:
+
+```ts
+PreviewSession.init(request, [env.SESSION_SECRET], {partitioned: true})
+```
+
+> [!NOTE]
+>
+> Safari supports partitioned cookies in 18.4 and in 26.2 or later. Support was [disabled in 18.5](https://bugs.webkit.org/show_bug.cgi?id=292975) and restored in 26.2, so Presentation cannot connect from Safari 18.5 through 26.1 regardless of this setting.
+
 ### Troubleshooting
 
 Are you getting the following error when trying to load your storefront in the Presentation Tool?
@@ -904,6 +920,7 @@ Presentation will throw this error if it can't establish a connection to your st
 3. If you've followed the instructions above, the `VisualEditing` component will be conditionally rendered if the app has been successfully put into preview mode.
 4. If you're using a session cookie, check your browser devtools and confirm that the cookie has been set as expected.
 5. Since Presentation loads your storefront in an `iframe`, double check your cookie and CSP configuration.
+6. If `/api/preview` responds with a `Set-Cookie` header but the browser doesn't keep the cookie, it's being blocked as a third-party cookie — see [Third-party cookie restrictions](#third-party-cookie-restrictions).
 
 ## Using `@sanity/client` directly
 
