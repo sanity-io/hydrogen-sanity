@@ -130,4 +130,33 @@ describe('PreviewSession', () => {
       expect(setCookie).toContain('Expires=Thu, 01 Jan 1970 00:00:00 GMT')
     })
   })
+
+  describe('cookie option overrides', () => {
+    it('honours an explicit opt in for a top-level request', async () => {
+      const session = await PreviewSession.init(createRequest(topLevelHeaders), secrets, {
+        partitioned: true,
+      })
+      session.set('perspective', 'drafts')
+
+      expect(await session.commit()).toContain('Partitioned')
+    })
+
+    it('honours an explicit opt out for a cross-site iframe request', async () => {
+      const session = await PreviewSession.init(createRequest(crossSiteIframeHeaders), secrets, {
+        partitioned: false,
+      })
+      session.set('perspective', 'drafts')
+
+      expect(await session.commit()).not.toContain('Partitioned')
+    })
+
+    it('applies other cookie attributes without letting the name be changed', async () => {
+      const session = await PreviewSession.init(createRequest(), secrets, {maxAge: 60})
+      session.set('perspective', 'drafts')
+      const setCookie = await session.commit()
+
+      expect(setCookie).toContain(`${perspectiveCookieName}=`)
+      expect(setCookie).toContain('Max-Age=60')
+    })
+  })
 })

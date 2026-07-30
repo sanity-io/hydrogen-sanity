@@ -1,5 +1,10 @@
 import {perspectiveCookieName} from '@sanity/preview-url-secret/constants'
-import {createCookieSessionStorage, type Session, type SessionStorage} from 'react-router'
+import {
+  type CookieOptions,
+  createCookieSessionStorage,
+  type Session,
+  type SessionStorage,
+} from 'react-router'
 
 interface PreviewSessionData {
   perspective: string
@@ -10,6 +15,12 @@ interface PreviewSessionData {
    */
   partitioned: boolean
 }
+
+/**
+ * Cookie attributes callers may override when initialising the preview session.
+ * `name` and `secrets` are owned by the package and cannot be changed.
+ */
+export type PreviewCookieOptions = Omit<CookieOptions, 'name' | 'secrets'>
 
 /**
  * Detects whether a request is a cross-site iframe navigation, which is how
@@ -54,14 +65,19 @@ export class PreviewSession implements SanityPreviewSession {
     this.#partitioned = partitioned
   }
 
-  static async init(request: Request, secrets: string[]): Promise<PreviewSession> {
+  static async init(
+    request: Request,
+    secrets: string[],
+    cookieOptions?: PreviewCookieOptions,
+  ): Promise<PreviewSession> {
     const storage = createCookieSessionStorage<PreviewSessionData>({
       cookie: {
-        name: perspectiveCookieName,
         httpOnly: true,
         path: '/',
         sameSite: 'none',
         secure: true,
+        ...cookieOptions,
+        name: perspectiveCookieName,
         secrets,
       },
     })
@@ -75,7 +91,8 @@ export class PreviewSession implements SanityPreviewSession {
     // preview mode never enables. Opt into CHIPS for that case only: partitioning
     // top-level requests would needlessly change the cookie's identity for the
     // already-working "open preview in a new tab" flow.
-    const partitioned = session.get('partitioned') || isCrossSiteIframe(request)
+    const partitioned =
+      cookieOptions?.partitioned ?? (session.get('partitioned') || isCrossSiteIframe(request))
 
     if (partitioned) {
       session.set('partitioned', true)

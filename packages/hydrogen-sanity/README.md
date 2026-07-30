@@ -897,7 +897,11 @@ You should now be able to view your Hydrogen app in the Presentation Tool, click
 
 `PreviewSession` handles this for you: when it sees the request that enters preview mode arrive as a cross-site iframe navigation, it writes the cookie with the [`Partitioned` attribute](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Third-party_cookies/Partitioned_cookies) (CHIPS) so the browser stores it under Studio's partition. Top-level requests — such as opening a preview link in a new tab — keep an unpartitioned cookie.
 
-If you manage the preview cookie yourself instead of using `PreviewSession`, set `partitioned: true` alongside `sameSite: 'none'` and `secure: true`.
+If you manage the preview cookie yourself instead of using `PreviewSession`, set `partitioned: true` alongside `sameSite: 'none'` and `secure: true`. To override what `PreviewSession` decides, or to set any other cookie attribute, pass cookie options as its third argument:
+
+```ts
+PreviewSession.init(request, [env.SESSION_SECRET], {partitioned: true})
+```
 
 > [!NOTE]
 >
