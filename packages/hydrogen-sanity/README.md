@@ -565,6 +565,65 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 }
 ```
 
+#### Typed `.groq` file imports (experimental)
+
+[`@sanity-labs/groq-content-mapper`](https://github.com/sanity-labs/groq-content-mapper) lets you keep each query in its own `.groq` file and import it as a string that carries its result and params types, inferred from your schema. `query`, `loadQuery`, `fetch`, `<Query>` and `useQuery` pick both up, so there's no generic to pass and no `SanityQueries` entry to generate:
+
+```ts
+import post from './post.groq' with {type: 'text'}
+
+export async function loader({context, params}: LoaderFunctionArgs) {
+  // Typed from `post.groq`, and `{slug}` is checked against its `$slug` placeholder
+  const initial = await context.sanity.query(post, {slug: params.handle})
+
+  return {initial}
+}
+```
+
+It needs `@sanity/client` 7.28.0 or later, TypeScript 7.1 or later, and type checking with `tsc --runExternalCode`. The mapper reads the `schema.json` that `sanity schema extract` writes:
+
+```ts
+// sanity.cli.ts
+export default defineCliConfig({
+  api: {projectId: 'your-project-id', dataset: 'production'},
+  schemaExtraction: {
+    path: './schema.json', // default
+    enforceRequiredFields: false, // default
+    // workspace: 'production', // required if sanity.config.ts exports an array of named workspaces
+  },
+})
+```
+
+Register the mapper in `tsconfig.json`, and add its Vite plugin next to the Hydrogen and Sanity plugins so `.groq` imports also load at runtime:
+
+```jsonc
+// tsconfig.json
+{
+  "contentMappers": [
+    {
+      "package": "@sanity-labs/groq-content-mapper",
+      "extensions": [".groq"],
+      "options": {
+        "schema": "./schema.json",
+        // "schemas": [{"include": "app/queries/blog", "schema": "./blog.schema.json"}], // required if queries in different folders target different projects or datasets
+      },
+    },
+  ],
+}
+```
+
+```ts
+// vite.config.ts
+import groqFiles from '@sanity-labs/groq-content-mapper/vite'
+
+export default defineConfig({
+  plugins: [hydrogen(), sanity(), groqFiles() /* ... */],
+})
+```
+
+> [!WARNING]
+> Reading types from `.groq` imports is experimental in both `@sanity/client` and `@sanity-labs/groq-content-mapper`, and may change in a minor release. See the [`@sanity-labs/groq-content-mapper` setup guide](https://github.com/sanity-labs/groq-content-mapper/tree/main/packages/groq-content-mapper#readme) for editor support, multiple schemas and other runtimes.
+
 ## Working with images
 
 The `useImageUrl` hook provides a convenient way to generate optimized image URLs from Sanity image assets with the [image URL builder](https://www.sanity.io/docs/image-url).
