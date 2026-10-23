@@ -1,4 +1,4 @@
-import type {Any, ClientReturn, QueryParams, QueryWithoutParams} from '@sanity/client'
+import type {Any, ClientParams, ClientReturn, QueryParams, QueryWithoutParams} from '@sanity/client'
 import type {EncodeDataAttributeFunction} from '@sanity/core-loader/encode-data-attribute'
 import type {UseQueryOptionsDefinedInitial} from '@sanity/react-loader'
 import type {ReactNode} from 'react'
@@ -18,7 +18,7 @@ if (isServer()) {
 
 export interface QueryClientProps<Result = Any, Query extends string = string> {
   query: Query
-  params?: QueryParams | QueryWithoutParams
+  params?: ClientParams<Query, QueryParams | QueryWithoutParams>
   options: UseQueryOptionsDefinedInitial<ClientReturn<Query, Result>> &
     LoadQueryOptions<ClientReturn<Query, Result>>
   children: (

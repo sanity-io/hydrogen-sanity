@@ -1,4 +1,4 @@
-import type {Any, ClientReturn, QueryParams, QueryWithoutParams} from '@sanity/client'
+import type {Any, ClientParams, ClientReturn, QueryParams, QueryWithoutParams} from '@sanity/client'
 import type {EncodeDataAttributeFunction} from '@sanity/core-loader/encode-data-attribute'
 import type {QueryResponseInitial} from '@sanity/react-loader'
 import {lazy, type ReactNode, Suspense, type SuspenseProps, useSyncExternalStore} from 'react'
@@ -50,7 +50,7 @@ export interface QueryProps<Result = Any, Query extends string = string> extends
   'options'
 > {
   query: Query
-  params?: QueryParams | QueryWithoutParams
+  params?: ClientParams<Query, QueryParams | QueryWithoutParams>
   options: {
     initial: ClientReturn<Query, Result> | QueryResponseInitial<ClientReturn<Query, Result>>
   } & LoadQueryOptions<ClientReturn<Query, Result>>

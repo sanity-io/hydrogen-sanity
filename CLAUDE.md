@@ -104,7 +104,7 @@ This project uses React Router 7, NOT Remix. Always use React Router imports:
 
 The package requires these peer dependencies:
 
-- `@sanity/client ^7`
+- `@sanity/client ^7.28.0`
 - `@shopify/hydrogen ~2025.5.0`
 - `react ^18.2.0`
 - `react-router 7.6.0`
