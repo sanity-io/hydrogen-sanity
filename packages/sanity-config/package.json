@@ -46,7 +46,7 @@
     "@sanity/pkg-utils": "^10.7.0",
     "@types/lodash.get": "^4.4.9",
     "@types/react": "^19.2.17",
-    "eslint": "^9.39.4",
+    "eslint": "^10.14.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "sanity": "^6.6.0",
