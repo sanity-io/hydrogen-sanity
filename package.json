@@ -15,13 +15,13 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.1.0",
-    "@commitlint/config-conventional": "^21.1.0",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.8",
-    "prettier": "^3.8.4",
-    "prettier-plugin-packagejson": "^3.0.2",
-    "turbo": "^2.10.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-packagejson": "^3.1.0",
+    "turbo": "^2.11.10",
     "vitest": "^4.1.10",
     "vitest-github-actions-reporter": "^0.11.1"
   },
