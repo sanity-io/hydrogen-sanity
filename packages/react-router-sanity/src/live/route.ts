@@ -40,16 +40,20 @@ function readTags(body: string): string[] | undefined {
   }
 }
 
+/** Limits the body size. A sync tag list of 1,000 tags fits in well under 64 KB. */
+const MAX_BODY_BYTES = 64 * 1024
+
 /**
  * Purges the app cache for a set of sync tags.
  *
  * The action accepts only a `POST` with a valid HMAC signature in the
- * `X-Sanity-Invalidate-Signature` header. The signature includes a timestamp, so the action
- * rejects replayed calls after 5 minutes. After the purge, the action calls `live.onInvalidate`
- * for CDN purges.
+ * `X-Sanity-Invalidate-Signature` header. The signature includes a timestamp. The action rejects a
+ * signature older or newer than 5 minutes. Inside that window, a captured call can be sent again;
+ * a purge is idempotent, so a replay only purges again. After the purge, the action calls
+ * `live.onInvalidate` for CDN purges.
  *
  * @param args - The request and the router context.
- * @returns JSON with the number of purged tags, or 400, 401 or 405.
+ * @returns JSON with the tag count and whether the store purged, or 400, 401, 405 or 413.
  * @throws RRS030 when the config has no `live.secret`.
  * @public
  */
@@ -59,16 +63,22 @@ export async function action({request, context}: LiveRouteArgs): Promise<Respons
   const secret = config.live?.secret
   if (!secret) throw new SanityRouterError('RRS030')
 
+  const declared = Number(request.headers.get('Content-Length') ?? 0)
+  if (declared > MAX_BODY_BYTES) return new Response(null, {status: 413, headers: NO_STORE})
   const body = await request.text()
+  if (new TextEncoder().encode(body).byteLength > MAX_BODY_BYTES) {
+    return new Response(null, {status: 413, headers: NO_STORE})
+  }
   if (!(await verifyInvalidation(secret, body, request.headers.get(SIGNATURE_HEADER)))) {
     return new Response(null, {status: 401, headers: NO_STORE})
   }
   const tags = readTags(body)
   if (!tags) return Response.json({error: 'Expected {"tags": string[]}'}, {status: 400, headers: NO_STORE})
 
-  await config.cache?.store.invalidateTags?.(tags)
+  const store = config.cache?.store
+  await store?.invalidateTags?.(tags)
   await config.live?.onInvalidate?.(tags)
-  return Response.json({invalidated: tags.length}, {headers: NO_STORE})
+  return Response.json({tags: tags.length, purged: Boolean(store?.invalidateTags)}, {headers: NO_STORE})
 }
 
 export {signInvalidation} from './signature'

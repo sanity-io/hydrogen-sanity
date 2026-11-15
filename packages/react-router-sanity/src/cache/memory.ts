@@ -52,6 +52,8 @@ export function memoryCache(options: MemoryCacheOptions = {}): SanityCache {
   }
 
   return {
+    // Each process has its own entries, so a purge reaches only this process.
+    invalidation: 'local',
     async get(key) {
       const stored = entries.get(key)
       if (!stored) return undefined
@@ -62,11 +64,12 @@ export function memoryCache(options: MemoryCacheOptions = {}): SanityCache {
       // Move the key to the end, so the map order is the LRU order.
       entries.delete(key)
       entries.set(key, stored)
-      return stored.entry
+      // Return a copy: a loader that mutates its data must not change the cache for other requests.
+      return structuredClone(stored.entry)
     },
     async set(key, entry, {ttl, tags}: CacheSetOptions) {
       remove(key)
-      entries.set(key, {entry, expiresAt: Date.now() + ttl * 1000, tags})
+      entries.set(key, {entry: structuredClone(entry), expiresAt: Date.now() + ttl * 1000, tags})
       for (const tag of tags) {
         const keys = tagIndex.get(tag) ?? new Set<string>()
         keys.add(key)

@@ -266,6 +266,41 @@ describe('getRootData', () => {
   })
 })
 
+describe('review fixes', () => {
+  it('ignores a malformed or oversized live event cookie instead of failing the request', async () => {
+    const store = memoryCache()
+    const middleware = createSanityMiddleware(baseConfig({cache: {store}}))
+    const run = (cookie: string) =>
+      runMiddleware(middleware, new Request('https://shop.example.com/', {headers: {Cookie: cookie}}), async (context) => {
+        await context.get(sanityContext).fetch({query: QUERY, params: {slug: 'cookie'}})
+        return new Response('ok')
+      })
+    expect((await run('__sanity_live_event=%')).status).toBe(200)
+    expect((await run(`__sanity_live_event=${'a'.repeat(500)}`)).status).toBe(200)
+    // Neither cookie skipped the cache: one API call, then a hit.
+    expect(lake.requests).toHaveLength(1)
+    expect(lake.requests[0]?.params.has('lastLiveEventId')).toBe(false)
+  })
+
+  it('appends the CDN tag header to tags that the route wrote', async () => {
+    const middleware = createSanityMiddleware(baseConfig({cdnTags: {header: 'Cache-Tag'}}))
+    const response = await runMiddleware(middleware, new Request('https://shop.example.com/'), async (context) => {
+      await context.get(sanityContext).fetch({query: QUERY, params: {slug: 'a'}})
+      return new Response('ok', {headers: {'Cache-Tag': 'product-42'}})
+    })
+    expect(response.headers.get('Cache-Tag')).toBe('product-42, sanity-p1-production,s1:page')
+  })
+
+  it('uses the short default TTL for a per-process store, and the long one for a global store', async () => {
+    const {defaultStrategy} = await import('../src/server/request-context')
+    const {kvCache} = await import('../src/cache')
+    const kv = kvCache({store: {get: async () => null, put: async () => {}, delete: async () => {}}})
+    expect(defaultStrategy(baseConfig({cache: {store: memoryCache()}, live: {secret: 's'}})).maxAge).toBe(10)
+    expect(defaultStrategy(baseConfig({cache: {store: kv}, live: {secret: 's'}})).maxAge).toBe(3600)
+    expect(defaultStrategy(baseConfig({cache: {store: kv}})).maxAge).toBe(10)
+  })
+})
+
 describe('errors', () => {
   it('throws RRS010 when a loader reads the context without the middleware', async () => {
     const {RouterContextProvider} = await import('react-router')

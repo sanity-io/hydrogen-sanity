@@ -98,7 +98,7 @@ export interface CacheConfig {
    * Sets the default strategy. A `fetch` call can override it.
    *
    * @defaultValue `{maxAge: 3600, staleWhileRevalidate: 86400}` when `live.secret` is set and the
-   * store supports tags; `{maxAge: 10, staleWhileRevalidate: 50}` otherwise
+   * store has global tag invalidation (`kvCache`); `{maxAge: 10, staleWhileRevalidate: 50}` otherwise
    */
   strategy?: CacheStrategy
 }

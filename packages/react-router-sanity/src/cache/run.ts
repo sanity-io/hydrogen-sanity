@@ -23,8 +23,9 @@ export interface RunWithCacheOptions {
  * Reads an entry from the app cache, or loads and stores it.
  *
  * A fresh entry returns at once. A stale entry inside the `staleWhileRevalidate` window returns
- * at once, and a background load replaces it. The background load runs in `waitUntil` when the
- * platform has it, and inline otherwise.
+ * at once, and a background load replaces it. Background work runs in `waitUntil` when the
+ * platform has it. Without `waitUntil`, background work runs detached: a long-lived server
+ * finishes it, and a platform that stops early only loses a cache write.
  *
  * @internal
  */
@@ -33,14 +34,21 @@ export async function runWithCache(
 ): Promise<{entry: CacheEntry; status: CacheStatus}> {
   const {cache, key, strategy, waitUntil, load} = options
   const ttl = strategy.maxAge + strategy.staleWhileRevalidate
-  const report = options.onError ?? (() => {})
 
-  const store = async (entry: CacheEntry) => {
+  // A store error, or an error in the app's `onError`, must never fail the request.
+  const report = (error: unknown) => {
     try {
-      await cache.set(key, entry, {ttl, tags: [...new Set([...entry.syncTags, ...options.tags])]})
-    } catch (error) {
-      report(error)
+      options.onError?.(error)
+    } catch {
+      // Ignore: the app error handler failed.
     }
+  }
+  const background = (promise: Promise<unknown>) => {
+    const safe = promise.catch(report)
+    if (waitUntil) waitUntil(safe)
+  }
+  const store = async (entry: CacheEntry) => {
+    await cache.set(key, entry, {ttl, tags: [...new Set([...entry.syncTags, ...options.tags])]})
   }
 
   let cached: CacheEntry | undefined
@@ -51,19 +59,16 @@ export async function runWithCache(
   }
 
   if (cached) {
-    const age = (Date.now() - cached.fetchedAt) / 1000
+    // Clamp: a store written by another machine can have a later clock.
+    const age = Math.max(0, (Date.now() - cached.fetchedAt) / 1000)
     if (age <= strategy.maxAge) return {entry: cached, status: 'HIT'}
     if (age <= ttl) {
-      const refresh = load().then(store, report)
-      if (waitUntil) waitUntil(refresh)
-      else await refresh
+      background(load().then(store))
       return {entry: cached, status: 'STALE'}
     }
   }
 
   const entry = await load()
-  const write = store(entry)
-  if (waitUntil) waitUntil(write)
-  else await write
+  background(store(entry))
   return {entry, status: 'MISS'}
 }

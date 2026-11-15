@@ -75,12 +75,15 @@ export default function SanityLiveClient({includeDrafts = false, onError}: Sanit
   const previewEnabled = root?.preview.enabled ?? false
   const browserToken = root?.browserToken
   const waitFor = root?.live.waitFor
+  // Live drafts apply only in preview. Outside preview, `includeDrafts` falls back to published
+  // events, so public visitors keep live updates.
+  const drafts = includeDrafts && previewEnabled
 
   useEffect(() => {
     if (!projectId || !dataset || !apiVersion) return
     // In preview, Presentation refresh events revalidate the page. Live drafts are opt-in.
-    if (previewEnabled && !includeDrafts) return
-    if (includeDrafts && !browserToken) {
+    if (previewEnabled && !drafts) return
+    if (drafts && !browserToken) {
       console.warn(
         '[react-router-sanity] <SanityLive includeDrafts> needs `preview.browserToken` in the middleware config. Live drafts are off.',
       )
@@ -92,33 +95,54 @@ export default function SanityLiveClient({includeDrafts = false, onError}: Sanit
       dataset,
       apiVersion,
       useCdn: true,
-      ...(includeDrafts && browserToken ? {token: browserToken, ignoreBrowserTokenWarning: true} : {}),
+      ...(drafts && browserToken ? {token: browserToken, ignoreBrowserTokenWarning: true} : {}),
     })
 
+    let closed = false
+    let attempt = 0
     let poll: ReturnType<typeof setInterval> | undefined
+    let retry: ReturnType<typeof setTimeout> | undefined
+    let subscription: {unsubscribe(): void} | undefined
+
     const stopPolling = () => {
       if (poll) clearInterval(poll)
       poll = undefined
     }
     const startPolling = () => {
-      if (!poll) poll = setInterval(() => void revalidate(), FALLBACK_POLL_MS)
+      // Poll only while the tab is visible. A hidden tab revalidates when it becomes visible.
+      poll ??= setInterval(() => {
+        if (document.visibilityState === 'visible') void revalidate()
+      }, FALLBACK_POLL_MS)
     }
-
-    const subscription = client.live
-      .events({includeDrafts, tag: 'react-router-sanity.live', ...(waitFor ? {waitFor} : {})})
-      .subscribe({
-        next: (event) => handleEvent(event, stopPolling, startPolling),
-        error: (error: unknown) => {
-          handleError(error)
-          startPolling()
-        },
-      })
+    const connect = () => {
+      subscription = client.live
+        .events({includeDrafts: drafts, tag: 'react-router-sanity.live', ...(waitFor ? {waitFor} : {})})
+        .subscribe({
+          next: (event) => {
+            if (event.type === 'welcome') attempt = 0
+            handleEvent(event, stopPolling, startPolling)
+          },
+          error: (error: unknown) => {
+            handleError(error)
+            // The stream is closed after an error. Poll as a fallback, and reconnect with backoff:
+            // 1 s, 2 s, 4 s … up to 60 s. A `welcome` event on the new stream stops the polling.
+            startPolling()
+            if (closed) return
+            const delay = Math.min(60_000, 1_000 * 2 ** attempt)
+            attempt += 1
+            retry = setTimeout(connect, delay)
+          },
+        })
+    }
+    connect()
 
     return () => {
-      subscription.unsubscribe()
+      closed = true
+      subscription?.unsubscribe()
+      if (retry) clearTimeout(retry)
       stopPolling()
     }
-  }, [projectId, dataset, apiVersion, previewEnabled, includeDrafts, browserToken, waitFor])
+  }, [projectId, dataset, apiVersion, previewEnabled, drafts, browserToken, waitFor])
 
   return null
 }

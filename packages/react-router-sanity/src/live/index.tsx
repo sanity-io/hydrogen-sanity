@@ -15,7 +15,8 @@ import {lazy, Suspense, useSyncExternalStore, type JSX} from 'react'
 export interface SanityLiveProps {
   /**
    * Revalidates on draft changes in preview. Needs `preview.browserToken` in the middleware
-   * config, because the browser needs a Viewer token to read draft events.
+   * config, because the browser needs a Viewer token to read draft events. Outside preview, the
+   * component ignores this prop and follows published changes.
    *
    * @defaultValue `false`
    */

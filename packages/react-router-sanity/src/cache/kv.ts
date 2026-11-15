@@ -58,6 +58,8 @@ export function kvCache(options: KvCacheOptions): SanityCache {
   const tagKey = (tag: string) => `${prefix}tag:${tag}`
 
   return {
+    // Every instance reads the same store, so a purge reaches all of them.
+    invalidation: 'global',
     async get(key) {
       const value = parseJson(await store.get(entryKey(key)))
       return isCacheEntry(value) ? value : undefined

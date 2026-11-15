@@ -95,17 +95,46 @@ for (const {subpath, serverOnly, client} of SUBPATHS) {
     if (/^["']use client["'];?$/.test(first)) console.log(`ok    ${specifier} keeps 'use client'`)
     else fail(`${specifier} lost its 'use client' directive (${file})`)
   } else {
-    const file = resolve(root, resolveFile(subpath, 'react-server'))
+    const problems = reactServerProblems(resolve(root, resolveFile(subpath, 'react-server')))
+    for (const problem of problems) fail(`${specifier} ${problem} under react-server`)
+    if (problems.length === 0) console.log(`ok    ${specifier} reaches no hooks under react-server`)
+  }
+}
+
+/**
+ * Walks the static graph of a file, shared chunks included, and returns every hook import from
+ * `react` or `react-router`, and every `react-dom/client` import.
+ */
+function reactServerProblems(entryFile) {
+  const problems = []
+  const seen = new Set()
+  const stack = [entryFile]
+  while (stack.length > 0) {
+    const file = stack.pop()
+    if (seen.has(file)) continue
+    seen.add(file)
     const source = readFileSync(file, 'utf8')
     const [imports] = parse(source)
     for (const entry of imports) {
-      if (entry.specifier === 'react-dom/client') fail(`${specifier} imports react-dom/client under react-server`)
-      if (entry.type !== 'static' || !['react', 'react-router'].includes(entry.specifier)) continue
-      const statement = source.slice(entry.importStart, entry.importEnd)
-      const hooks = statement.match(/\buse[A-Z]\w*/g)
-      if (hooks) fail(`${specifier} imports ${hooks.join(', ')} under react-server`)
+      if (entry.type !== 'static' || !entry.specifier) continue
+      if (entry.specifier.startsWith('.')) {
+        stack.push(resolve(dirname(file), entry.specifier))
+        continue
+      }
+      if (entry.specifier === 'react-dom/client') problems.push('imports react-dom/client')
+      if (!['react', 'react-router'].includes(entry.specifier)) continue
+      const hooks = source.slice(entry.importStart, entry.importEnd).match(/\buse[A-Z]\w*/g)
+      if (hooks) problems.push(`imports ${hooks.join(', ')} (in ${file.split('/dist/')[1]})`)
     }
   }
+  return problems
+}
+
+// Positive control: the default `preview` entry uses `useRouteLoaderData`. The walker must find it.
+if (reactServerProblems(resolve(root, 'dist/preview/index.js')).some((p) => p.includes('useRouteLoaderData'))) {
+  console.log('ok    control: the hook walker finds useRouteLoaderData in preview/index.js')
+} else {
+  fail('control: the hook walker must find useRouteLoaderData in preview/index.js. The walker is broken.')
 }
 
 if (failures > 0) {

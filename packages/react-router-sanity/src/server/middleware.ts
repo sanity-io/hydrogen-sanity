@@ -50,11 +50,27 @@ function readPreviewState(
   }
 }
 
-function readLiveEventId(request: Request): string | undefined {
+/** Matches a live event id. The value comes from a cookie, so the SDK accepts only a short token. */
+const LIVE_EVENT_ID = /^[A-Za-z0-9._:=+/-]{1,128}$/
+
+/**
+ * Reads the live event id from the request cookie. A malformed or oversized value is ignored, so a
+ * bad cookie can never fail the request.
+ *
+ * @internal
+ */
+export function readLiveEventId(request: Request): string | undefined {
   const header = request.headers.get('Cookie') ?? ''
   for (const part of header.split(';')) {
     const [name, ...rest] = part.trim().split('=')
-    if (name === LIVE_EVENT_COOKIE) return decodeURIComponent(rest.join('=')) || undefined
+    if (name !== LIVE_EVENT_COOKIE) continue
+    let value: string
+    try {
+      value = decodeURIComponent(rest.join('='))
+    } catch {
+      return undefined
+    }
+    return LIVE_EVENT_ID.test(value) ? value : undefined
   }
   return undefined
 }
@@ -120,7 +136,8 @@ export function createSanityMiddleware(
       if (resolved.cdnTags) response.headers.delete(resolved.cdnTags.header)
     } else if (resolved.cdnTags) {
       const {projectId = '', dataset = ''} = resolved.client.config()
-      response.headers.set(
+      // Append: the route or another middleware can also write tags to this header.
+      response.headers.append(
         resolved.cdnTags.header,
         cdnTagHeaderValue(sanity.syncTags(), {...resolved.cdnTags, projectId, dataset}),
       )

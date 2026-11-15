@@ -42,6 +42,14 @@ export interface CacheSetOptions {
  * @public
  */
 export interface SanityCache {
+  /**
+   * Tells where `invalidateTags` purges. `'global'` purges every instance that reads the store.
+   * `'local'` purges only the process or data center that receives the call. The SDK uses a long
+   * default TTL only for a `'global'` store.
+   *
+   * @defaultValue `'local'`
+   */
+  readonly invalidation?: 'global' | 'local'
   /** Returns the entry for a key, or `undefined` when the store has no live entry. */
   get(key: string): Promise<CacheEntry | undefined>
   /** Stores an entry for a key. */

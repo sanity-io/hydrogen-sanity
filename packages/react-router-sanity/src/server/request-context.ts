@@ -17,14 +17,17 @@ const LONG_STRATEGY: CacheStrategy = {maxAge: 3600, staleWhileRevalidate: 86400}
 const SHORT_STRATEGY: CacheStrategy = {maxAge: 10, staleWhileRevalidate: 50}
 
 /**
- * Returns the default cache strategy. A long TTL is safe only when an invalidation path exists:
- * a live secret for the Sync Tag Invalidate Function and a store that supports tags.
+ * Returns the default cache strategy. A long TTL is safe only when every instance sees a purge:
+ * a live secret for the Sync Tag Invalidate Function, and a store with global tag invalidation.
+ * A per-process or per-data-center store keeps the short TTL, because a purge reaches only one
+ * instance.
  *
  * @internal
  */
 export function defaultStrategy(config: SanityMiddlewareConfig): CacheStrategy {
   if (config.cache?.strategy) return config.cache.strategy
-  const canInvalidate = Boolean(config.live?.secret && config.cache?.store.invalidateTags)
+  const store = config.cache?.store
+  const canInvalidate = Boolean(config.live?.secret && store?.invalidateTags && store.invalidation === 'global')
   return canInvalidate ? LONG_STRATEGY : SHORT_STRATEGY
 }
 

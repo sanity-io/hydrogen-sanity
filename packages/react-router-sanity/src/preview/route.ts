@@ -30,6 +30,9 @@ export interface PreviewRouteArgs {
 
 const NO_STORE = {'Cache-Control': 'private, no-store'}
 
+/** Matches a variant name. The value goes into the signed cookie and into API requests. */
+const VARIANT_NAME = /^[A-Za-z0-9][\w.:-]{0,127}$/
+
 function deny(status: 401 | 403 | 405): Response {
   return new Response(null, {status, headers: NO_STORE})
 }
@@ -101,7 +104,8 @@ export async function loader({request, context}: PreviewRouteArgs): Promise<Resp
   const {projectId = '', dataset = ''} = config.client.config()
   const perspective =
     parsePerspective(result.studioPreviewPerspective) ?? config.preview?.defaultPerspective ?? 'drafts'
-  const variant = result.studioPreviewVariant ?? undefined
+  const studioVariant = result.studioPreviewVariant
+  const variant = studioVariant && VARIANT_NAME.test(studioVariant) ? studioVariant : undefined
   session.set(PREVIEW_SESSION_KEY, {projectId, dataset, perspective, ...(variant ? {variant} : {})})
   internal.sessionDirty = true
   internal.previewChanged = true
@@ -150,7 +154,12 @@ export async function action({request, context}: PreviewRouteArgs): Promise<Resp
   if (!perspective) return Response.json({error: 'RRS022'}, {status: 400, headers: NO_STORE})
 
   let variant = current.variant
-  if (typeof rawVariant === 'string') variant = rawVariant.length > 0 ? rawVariant : undefined
+  if (typeof rawVariant === 'string') {
+    if (rawVariant.length > 0 && !VARIANT_NAME.test(rawVariant)) {
+      return Response.json({error: 'Invalid variant'}, {status: 400, headers: NO_STORE})
+    }
+    variant = rawVariant.length > 0 ? rawVariant : undefined
+  }
 
   session.set(PREVIEW_SESSION_KEY, {...current, perspective, variant})
   internal.sessionDirty = true

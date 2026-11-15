@@ -56,7 +56,7 @@ describe('live route action', () => {
     const body = JSON.stringify({tags: ['s1:a']})
     const response = await post(body, await signInvalidation('live-secret', body))
     expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({invalidated: 1})
+    expect(await response.json()).toEqual({tags: 1, purged: true})
     expect(await store.get('k')).toBeUndefined()
     expect(onInvalidate).toHaveBeenCalledWith(['s1:a'])
   })
@@ -74,6 +74,11 @@ describe('live route action', () => {
 
   it('returns 405 for GET', async () => {
     expect((await post('', undefined, 'GET')).status).toBe(405)
+  })
+
+  it('returns 413 for a body over 64 KB, before it verifies the signature', async () => {
+    const body = JSON.stringify({tags: Array.from({length: 10_000}, (_, i) => `s1:${i}`)})
+    expect((await post(body, await signInvalidation('live-secret', body))).status).toBe(413)
   })
 })
 

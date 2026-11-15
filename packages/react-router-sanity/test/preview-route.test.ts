@@ -168,6 +168,15 @@ describe('preview change and exit (action)', () => {
     expect(response.status).toBe(400)
   })
 
+  it('rejects an invalid variant', async () => {
+    const cookies = await previewCookies()
+    const response = await callAction(
+      {method: 'PUT', headers: {Origin: ORIGIN}, body: new URLSearchParams({variant: 'x'.repeat(200)})},
+      cookies,
+    )
+    expect(response.status).toBe(400)
+  })
+
   it('exits preview on POST and redirects to /', async () => {
     const cookies = await previewCookies()
     const response = await callAction({method: 'POST', headers: {Origin: ORIGIN}}, cookies)

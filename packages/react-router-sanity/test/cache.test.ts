@@ -177,6 +177,52 @@ describe('runWithCache', () => {
     }
     const result = await runWithCache({cache, key: 'k', strategy, tags: [], waitUntil: undefined, load: async () => entry(1), onError})
     expect(result.entry.data).toBe(1)
-    expect(onError).toHaveBeenCalledTimes(2)
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledTimes(2))
+  })
+
+  it('still answers when the onError handler throws', async () => {
+    const cache: SanityCache = {get: async () => Promise.reject(new Error('down')), set: async () => {}}
+    const onError = () => {
+      throw new Error('handler bug')
+    }
+    const result = await runWithCache({cache, key: 'k', strategy, tags: [], waitUntil: undefined, load: async () => entry(1), onError})
+    expect(result.status).toBe('MISS')
+  })
+
+  it('serves a stale entry without waiting for the refresh when there is no waitUntil', async () => {
+    const cache = memoryCache()
+    await runWithCache({cache, key: 'k', strategy, tags: [], waitUntil: undefined, load: async () => entry('v1')})
+    vi.advanceTimersByTime(15_000)
+    // A refresh that never settles: the request must not wait for it.
+    const result = await runWithCache({cache, key: 'k', strategy, tags: [], waitUntil: undefined, load: () => new Promise(() => {})})
+    expect(result.status).toBe('STALE')
+    expect(result.entry.data).toBe('v1')
+  })
+})
+
+describe('memoryCache isolation', () => {
+  it('returns copies, so a loader that mutates its data cannot change the cache', async () => {
+    const cache = memoryCache()
+    const original = entry({items: [3, 1, 2]})
+    await cache.set('k', original, {ttl: 60, tags: []})
+    // Mutate the value that was stored, and the value that was read.
+    if (typeof original.data === 'object' && original.data && 'items' in original.data && Array.isArray(original.data.items)) {
+      original.data.items.push(99)
+    }
+    const first = await cache.get('k')
+    if (typeof first?.data === 'object' && first.data && 'items' in first.data && Array.isArray(first.data.items)) {
+      first.data.items.sort()
+    }
+    expect((await cache.get('k'))?.data).toEqual({items: [3, 1, 2]})
+  })
+})
+
+describe('invalidation scope', () => {
+  it('declares local scope for memory and web, global for KV', () => {
+    const store: KeyValueStore = {get: async () => null, put: async () => {}, delete: async () => {}}
+    const web: CacheLike = {match: async () => undefined, put: async () => {}, delete: async () => true}
+    expect(memoryCache().invalidation).toBe('local')
+    expect(webCache({cache: async () => web}).invalidation).toBe('local')
+    expect(kvCache({store}).invalidation).toBe('global')
   })
 })

@@ -61,6 +61,8 @@ export function webCache(options: WebCacheOptions): SanityCache {
   }
 
   return {
+    // The Cloudflare Cache API is local to one data center.
+    invalidation: 'local',
     async get(key) {
       const value = await readJson(await options.cache(), entryUrl(key))
       return isCacheEntry(value) ? value : undefined

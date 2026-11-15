@@ -113,6 +113,55 @@ React Router's own `react-server` build imports a `'use client'` module, which o
 can replace. Under `--conditions=react-server`, the condition matrix checks resolution and the
 no-hooks rule. Real RSC evaluation belongs to the RSC example app (not built yet).
 
+### 10. The long default TTL needs a store with global invalidation
+
+**Spec (5.1):** a long TTL "when an invalidation path exists".
+
+**Problem (found in review):** `memoryCache` is per process and `webCache` is per data center. A
+purge from the live route reaches one instance. With two Node instances, the second one served old
+content for up to 1 hour.
+
+**Draft:** the cache port has an `invalidation: 'global' | 'local'` flag. `kvCache` is `'global'`;
+`memoryCache` and `webCache` are `'local'`. The SDK uses the long TTL only for a `'global'` store
+with `live.secret` set.
+
+## Review outcome (fresh-context adversarial review, 2026-11-15)
+
+The reviewer confirmed claims on request isolation, token handling, preview cache headers, the
+cache key, `Set-Cookie` handling and the React Router 8 integration. It found no token or
+preview-response leak. Fixed, each with a regression test:
+
+| Finding                                                                    | Fix                                                          |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `pnpm check` passed on a stale `dist`                                       | `check` builds first                                         |
+| A malformed `__sanity_live_event` cookie threw on every request            | Decode in `try`; accept only `^[A-Za-z0-9._:=+/-]{1,128}$`    |
+| `memoryCache` returned shared objects; a loader could mutate the cache     | `structuredClone` on `get` and `set`                         |
+| Long default TTL with per-process and per-data-center stores               | Departure 10                                                 |
+| A stale hit without `waitUntil` waited for the refresh                     | Background work runs detached                                |
+| An `onError` that throws failed the request                                | `onError` runs in `try`                                      |
+| `<SanityLive>` polled forever after a stream error                         | Reconnect with backoff (1 s to 60 s); poll only in a visible tab |
+| `<SanityLive includeDrafts>` turned live off for public visitors           | `includeDrafts` applies only in preview                      |
+| The CDN tag header replaced tags that the route wrote                      | `append`                                                     |
+| The invalidation body had no size limit                                    | 413 over 64 KB                                               |
+| `variant` had no validation                                                | `^[A-Za-z0-9][\w.:-]{0,127}$` on enable and on `PUT`         |
+| The hooks rule did not walk shared chunks                                  | Walks the static graph; positive control added               |
+
+Accepted, documented, not changed:
+
+- **Replay inside 5 minutes.** The live route accepts a captured call again inside the window. A
+  purge is idempotent. The TSDoc now states this.
+- **Any visitor can send a well-formed `__sanity_live_event` cookie** to skip the app cache for
+  that request. The API CDN still serves it (`cacheMode: 'noStale'`). This is the cost of
+  departure 2. With `live.waitFor: 'function'`, the server can ignore the cookie (not built).
+- **CDN tags miss deferred queries.** Tags of a streamed `fetch` arrive after the headers.
+- **`Origin` check behind a proxy.** If the adapter rewrites `request.url` to `http://` or another
+  host, every `PUT` and `POST` gets 403. Verify per deployment target.
+- **`Server-Timing` is on by default** and shows cache hit counts publicly. Low sensitivity.
+- **No single-flight** for concurrent loads of one key.
+- **The STE first-word check** accepts any capitalized word that ends in "s" ("Props").
+- **Peer ranges `react-router ^7.9` and `@sanity/client ^7.28` are untested.** Only RR 8.5.1 and
+  client 8.16.0 ran.
+
 ## Upstream findings
 
 - `@sanity/preview-url-secret` already forwards the Vercel protection bypass (P9) and accepts
