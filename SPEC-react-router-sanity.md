@@ -1,6 +1,6 @@
 # Spec: `react-router-sanity`
 
-Status: **draft for decision** · 2026-11-14 · Supersedes nothing. Builds on
+Status: **draft for decision** · 2026-11-15 · Supersedes nothing. Builds on
 `PREWORK-react-router-sanity.md` (measurements, architecture verdict) and `V7-PLAN.md`.
 
 A Sanity SDK for React Router framework mode. It replaces the React Router layer of
@@ -37,16 +37,17 @@ that block implementation. Section 10 lists proposed scope additions for you to 
 
 ### Goals (from the brief)
 
-| #   | Requirement                                                                                                        | Required |
-| --- | ------------------------------------------------------------------------------------------------------------------ | -------- |
-| G1  | Querying, with an app-cache affordance on top of the API CDN's `cacheMode=noStale`                                 | yes      |
-| G2  | Live Content API: client-side (live UI parts) and server-side (Sync Tag Invalidate Function)                       | optional |
-| G3  | Presentation: routing, events, perspectives, variants, preview mode, overlays, every progressive-enhancement level | yes      |
-| G4  | Images, video, files for dataset assets and Media Library assets                                                   | optional |
-| E1  | Discoverable import paths that tree-shake                                                                          | yes      |
-| E2  | Lowest production bundle cost; preview code loads only in preview; a harness measures and enforces it              | yes      |
-| E3  | Secure preview and Presentation sessions                                                                           | yes      |
-| E4  | Two in-repo example apps: vanilla React Router and the Shopify Hydrogen template; E2E runs against both            | yes      |
+| #   | Requirement                                                                                                                | Required |
+| --- | -------------------------------------------------------------------------------------------------------------------------- | -------- |
+| G1  | Querying, with an app-cache affordance on top of the API CDN's `cacheMode=noStale`                                         | yes      |
+| G2  | Live Content API: client-side (live UI parts) and server-side (Sync Tag Invalidate Function)                               | optional |
+| G3  | Presentation: routing, events, perspectives, variants, preview mode, overlays, every progressive-enhancement level         | yes      |
+| G4  | Images, video, files for dataset assets and Media Library assets                                                           | optional |
+| E1  | Discoverable import paths that tree-shake                                                                                  | yes      |
+| E2  | Lowest production bundle cost; preview code loads only in preview; a harness measures and enforces it                      | yes      |
+| E3  | Secure preview and Presentation sessions                                                                                   | yes      |
+| E4  | Two in-repo example apps: vanilla React Router and the Shopify Hydrogen template; E2E runs against both                    | yes      |
+| E5  | Agent experience (AX): token-efficient primitives, STE TSDoc on functions and types, evals that measure it, shipped skills | yes      |
 
 **Correction to the brief:** the CDN parameter is `cacheMode=noStale` (`@sanity/client`
 option `cacheMode: 'noStale'`), not `mode=no-stale`. The client sends it only when `useCdn` is
@@ -578,20 +579,193 @@ costs one extra example and one CI job. Promote to (b) when React Router drops `
 Full preview in SPA mode needs a token in the browser or an external server, which conflicts
 with principle 4.
 
-## 12. Milestones
+**D11. Eval harness.** Recommend AILF (`@sanity/ailf`). It is the org standard: Sanity UI v5,
+App SDK, Workflows and Runtime use it, it has an Agent Harness mode (sandboxed Claude Code with
+file, diff and command assertions), and it reports Floor/Ceiling/Actual. Alternatives:
+`vercel-labs/agent-eval` (compared against AILF in #rd-adx-internal) or a custom harness on the
+Claude Agent SDK. A custom harness duplicates AILF's reporting.
+
+**D12. STE enforcement level.** Options: (a) heuristic lint (sentence length, passive voice,
+banned-word list) plus an LLM rubric in AILF; (b) a full ASD-STE100 dictionary check; (c) review
+only. Recommend (a). (b) needs a licensed dictionary and flags every technical name. (c) drifts:
+the UI v5 README already contradicts its own skill on the Checkbox `label` prop.
+
+**D13. Skill distribution.** Recommend in-package (`skills/` in the npm tarball, version-matched,
+as UI v5 does) plus a pointer skill in `sanity-io/agent-toolkit` that tells agents to read the
+installed copy. A toolkit-only skill drifts from the installed version.
+
+**D14. `doctor` CLI.** Recommend include (section 12.5). It turns silent misconfiguration into
+an agent-readable report. Cost: one `bin` entry, no runtime cost for apps.
+
+## 12. Agent experience (E5)
+
+Modelled on the Sanity UI v5 method (PJ Onori's design-system team; `sanity-io/ui` branch
+`v5-alpha`; `sanity.io/engineering/design-system-evals`), with three gaps filled: UI v5 has no
+token measurement, no TSDoc or STE lint, and no eval of the skill itself.
+
+Evidence that the method works: on Haiku, UI5 build success went from 4% (UI3) to 73% after the
+docs-schema change; the blog reports Sonnet 20% → 90% and Opus 40% → 100% (n = 30). The latest
+AILF run on `v5-alpha` scores 81/100, with a Retrieval Gap of 30: agents still fail to find the
+docs that would help them. Docs alone plateau; API changes and structured guidance move the
+score more.
+
+### 12.1 API surface principles
+
+1. **Few primitives, one job each.** The public surface is `createSanityMiddleware`,
+   `sanityContext`, `sanity.fetch`, the preview route, `<VisualEditing>`, `<SanityLive>`,
+   `<SanityImage>`, `<SanityVideo>`. Each entry exports the fewest values that cover its job. The
+   harness reports the count of value exports per entry (section 12.3).
+2. **Use names that models already know.** Keep upstream names unchanged (`perspective`, `stega`,
+   `syncTags`, `useCdn`, `cacheMode`, `studioUrl`). Use React Router names (`middleware`,
+   `context.get`, `loader`, `revalidate`). Do not invent synonyms. UI v5 mirrors CSS property
+   names for the same reason.
+3. **One way to do each thing.** `hydrogen-sanity` has `query`, `fetch` and `loadQuery`. The new
+   surface has `fetch`. Every removed alternative goes into the skill's "wrong → right" table.
+4. **Wrong guesses fail `tsc`.** Literal unions for perspectives and modes; the template literal
+   `` `s1:${string}` `` for sync tags; no `any` in public types; server-only entries throw under
+   `browser`, so a client import fails at build. UI v5 makes padding on `Card` a type error for
+   the same reason.
+5. **Safe defaults.** The minimal setup is correct and secure. An agent never needs to write a
+   default value. A security-relevant option (browser token, CDN tag headers) is opt-in.
+6. **Errors are instructions.** Each thrown error and dev warning states the cause and the fix in
+   STE, and carries a stable code (`RRS0xx`) that links to a docs page. Agents read error text
+   first.
+7. **The installed package is the source of truth.** The npm tarball ships `src`, `docs/`,
+   `skills/` and `llms.txt` (UI v5 `package.json` `files`). The skill tells agents that the
+   installed package beats web docs.
+
+### 12.2 Documentation contract
+
+- **Every exported function, type, interface, property and union member** has a TSDoc comment.
+  UI v5 documents prop types but leaves functions at `/** @public */`; this SDK documents both.
+- **Style: ASD-STE100.** Active voice, present tense, one idea per sentence, ≤ 20 words per
+  instruction and ≤ 25 per description. The first sentence starts with a verb in third person
+  ("Returns…", "Sets…", "Enables…"). Technical names stay verbatim.
+- **Tags:** `@param`, `@returns`, `@throws` (with the error code), `@defaultValue`, `@see`, a
+  release tag (`@public`, `@beta`, `@alpha`, `@internal`), and one minimal `@example` on each
+  entry-level function and component.
+- **Example of the target style:**
+
+  ```ts
+  /**
+   * Fetches a GROQ query for the current request.
+   *
+   * In production, the client reads from the API CDN with `cacheMode: 'noStale'` and uses the app
+   * cache. In preview, the client reads from the live API with the server token and skips the cache.
+   *
+   * @param options - The query, its parameters, and per-call overrides.
+   * @returns The result, the sync tags of the result, and the source map in preview.
+   * @throws RRS010 when the Sanity middleware is not registered on the root route.
+   * @public
+   */
+  fetch<Q extends string>(options: FetchOptions<Q>): Promise<FetchResult<Q>>
+
+  /** Sets the tags that invalidate a cached result. The SDK adds the sync tags of the result. */
+  tags?: string[]
+  ```
+
+- **Guideline levels.** Docs and the skill use the UI v5 level vocabulary (`must`, `should`,
+  `may`, `should-not`, `must-not`, each with an alternative). Do not adopt the DSDS YAML schema
+  itself: it targets UI components, not SDK functions.
+- **Generated, not hand-written:** the API reference (TypeDoc JSON, the format
+  reference.sanity.io consumes), `llms.txt` (an index of one line per entry and guide), and a
+  `.md` twin for each docs page.
+- **Drift guards:** every code block in README, docs and skill compiles against `dist` in CI.
+  The skill states the package version it was verified against, and CI fails when that version
+  falls more than one minor behind.
+- **Enforcement (D12):** a doc-coverage check over the emitted `.d.ts` (each export and member
+  has a comment), TSDoc syntax validation (`@microsoft/tsdoc` parser), an STE heuristic lint, and
+  an AILF rubric criterion that grades doc clarity.
+
+### 12.3 Token efficiency (measured)
+
+UI v5 gets token efficiency by design but does not measure it. This SDK measures it.
+
+| Metric                                                | What it shows                                   |
+| ----------------------------------------------------- | ----------------------------------------------- |
+| Tokens per entry `.d.ts`                              | Cost for an agent to read the types of an entry |
+| Tokens of `llms.txt`, `SKILL.md`, each reference file | Cost of the guidance layer                      |
+| Value exports per entry                               | Surface size (principle 12.1.1)                 |
+| Input and output tokens per eval task                 | Cost for an agent to finish real work           |
+
+- Count with one pinned tokenizer, so deltas compare. Absolute numbers matter less than change.
+- CI reports the table per PR next to the bundle report (section 7.2.5). A growth over a set
+  percentage fails unless the PR carries an explicit label.
+- Progressive disclosure: `llms.txt` → per-entry doc → skill reference file. An agent reads only
+  the files that its task needs.
+
+### 12.4 Evals (D11)
+
+- **Harness:** AILF. Config in `.ailf/`, tasks in `.ailf/tasks/*.yaml`, gold answers in
+  `.ailf/canonical/`, and a committed results snapshot in `.ailf/results/latest/` (the UI v5
+  layout).
+- **Two task modes.**
+  - Literacy: question and code tasks graded by rubric and `contains`/`not-contains`.
+  - Agent Harness: a sandboxed agent changes one of the example apps (section 8). The graders are
+    commands that already exist: `tsc`, the production build, the bundle harness (section 7), the
+    security unit tests, and the Playwright specs for the feature. An eval passes only when the
+    app works and stays within budget.
+- **Metrics.** AILF's Floor (no docs), Ceiling (curated docs), Actual (agent finds docs), Doc Lift
+  and Retrieval Gap. Add **Skill Lift**: the same tasks with and without the skill loaded. Also
+  track tokens, cost, turns, and hallucinated API names (names absent from the `.d.ts`).
+- **Tasks come from real failure modes**, one failure per task. Seed list:
+  - Token reaches the browser, or a `/server` entry is imported in a client module.
+  - `<VisualEditing>` rendered without `enabled`.
+  - Preview cookie written without `Partitioned`, or overwritten by `headers.set`.
+  - Perspective missing from a hand-written cache key.
+  - `mode=no-stale` written instead of `cacheMode: 'noStale'`.
+  - Hydrogen-era APIs (`createWithCache`, `context.sanity`, `loadQuery`) or `react-router-dom`.
+  - Sync Tag Invalidate Function that never calls `done()`.
+  - Media Library GDR passed straight to `@sanity/image-url`.
+- **Models.** A matrix that includes a small model. UI v5 found that small models expose API
+  problems that large models hide.
+- **Method lessons from UI v5:** generate prompts with an agent across domains, so the SDK does
+  not overfit one prompt; aggregate over prompts, because small-model runs are noisy; run a
+  docs-only variant with the skill and tools off, because tools mask doc gaps; ask the agent for
+  friction feedback at the end of each run.
+- **Cadence and gate.** A fast subset runs on PRs that touch `src`, `docs` or `skills`
+  (manual trigger or label, for cost). The full matrix runs before each release. A score drop
+  beyond the AILF baseline threshold (±2) blocks the release.
+
+### 12.5 Skills and the `doctor` CLI
+
+- **One skill, shipped in the package:** `skills/react-router-sanity/SKILL.md` plus
+  `references/*.md`.
+- **`SKILL.md` structure (UI v5 pattern):**
+  - A trigger-rich description with explicit "do not use for" cases (Studio schemas, GROQ
+    authoring, Next.js).
+  - The silent failures the skill prevents.
+  - The load-bearing facts, including "the installed package beats the docs".
+  - A workflow: read `node_modules/react-router-sanity/llms.txt`, run
+    `npx react-router-sanity doctor`, implement, then verify with `tsc` and `doctor` again.
+  - Rules grouped by area, each naming the failure it prevents.
+  - A "wrong → right" table.
+  - The version the skill was verified against.
+- **References**, each read "when the task touches it": setup (vanilla), setup (Hydrogen),
+  querying and caching, preview and Presentation, live content, media, security, rendering modes
+  and RSC, migrating from `hydrogen-sanity`.
+- **`doctor` CLI (D14):** non-interactive, with JSON output for agents. It checks the
+  middleware registration, the React Router `v8_middleware` flag on 7.x, the preview route, the
+  env vars, the cookie options, the Studio CORS origin, and `<VisualEditing enabled>`. `init`
+  scaffolds the minimal setup with `--yes` for agents and CI.
+- **Skill evals:** Skill Lift in AILF (section 12.4), plus a description-routing check that the
+  skill triggers on React Router + Sanity prompts and not on Next.js or Studio prompts.
+
+## 13. Milestones
 
 Each milestone ends with green gates and a commit. Harness first, because the invariant must be
-measured before code moves.
+measured before code moves. From M1 on, every milestone also ships: TSDoc for its exports,
+AILF tasks for its features, the skill reference for its area, and no AILF score regression.
 
-| M   | Scope                                                                                                                                                               | Exit gate                                              |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| M0  | Package skeleton with the full condition map, both example apps + RSC app, rendering-mode fixtures, Playwright matrix, bundle harness (7.1 + 7.2), condition matrix | Harness runs against both apps; baseline recorded      |
-| M1  | Middleware, context key, `fetch`, cache port + 3 adapters, tag collection, `Server-Timing`                                                                          | Unit + E2E production paths green; graph checks green  |
-| M2  | Preview session, enable/exit/perspective/variant route, CHIPS, `<VisualEditing enabled>` (L1)                                                                       | Security E2E (S1–S7) green; no preview chunk in prod   |
-| M3  | `<SanityLive>`, `live/route`, Function template, CDN tag headers (if D6)                                                                                            | Live E2E green; invalidation auth tests green          |
-| M4  | L2–L4: live drafts, client loaders, optimistic hooks                                                                                                                | Presentation E2E green in both apps                    |
-| M5  | Images, files, video, signing, aspects                                                                                                                              | Media E2E; client budget still met                     |
-| M6  | `hydrogen-sanity` v8 on top; migration guide; docs                                                                                                                  | Shopify example runs on `hydrogen-sanity` v8 unchanged |
+| M   | Scope                                                                                                                                                                                                                                                                                                | Exit gate                                              |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| M0  | Package skeleton with the full condition map, both example apps + RSC app, rendering-mode fixtures, Playwright matrix, bundle harness (7.1 + 7.2), condition matrix; AX harness: doc-coverage + STE lint, token report, `.ailf/` with seed tasks and a Floor baseline, skill skeleton, `doctor` stub | Harness runs against both apps; baseline recorded      |
+| M1  | Middleware, context key, `fetch`, cache port + 3 adapters, tag collection, `Server-Timing`                                                                                                                                                                                                           | Unit + E2E production paths green; graph checks green  |
+| M2  | Preview session, enable/exit/perspective/variant route, CHIPS, `<VisualEditing enabled>` (L1)                                                                                                                                                                                                        | Security E2E (S1–S7) green; no preview chunk in prod   |
+| M3  | `<SanityLive>`, `live/route`, Function template, CDN tag headers (if D6)                                                                                                                                                                                                                             | Live E2E green; invalidation auth tests green          |
+| M4  | L2–L4: live drafts, client loaders, optimistic hooks                                                                                                                                                                                                                                                 | Presentation E2E green in both apps                    |
+| M5  | Images, files, video, signing, aspects                                                                                                                                                                                                                                                               | Media E2E; client budget still met                     |
+| M6  | `hydrogen-sanity` v8 on top; migration guide; docs                                                                                                                                                                                                                                                   | Shopify example runs on `hydrogen-sanity` v8 unchanged |
 
 ## Appendix A: sources
 
@@ -611,3 +785,7 @@ measured before code moves.
   `packages/hydrogen/src/core/cache/run-with-cache.ts`, `skills/migrate-to-hydrogen-2026-10`.
 - Sanity docs: Live Content API, sync tags, Sync Tag Function quickstart, Media Library
   (working with video, asset visibility, link media assets, aspects), visual editing with React Router.
+- Sanity UI v5 AX: `sanity-io/ui` branch `v5-alpha` (`packages/ui/{docs,skills/sanity-ui-5,llms.txt,bin}`,
+  `.ailf/`), `sanity.io/engineering/design-system-evals`, `sanity-labs/design-system-agent-tester`,
+  `@sanity/ailf` (`sanity-labs/ai-literacy-framework`), Slack #ai-at-sanity and #design-system
+  project updates (2026-08 to 2026-11).
