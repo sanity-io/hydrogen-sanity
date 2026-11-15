@@ -1,0 +1,44 @@
+# react-router-sanity
+
+> Sanity SDK for React Router framework mode (React Router 8, or 7.9+ with v8_middleware). One root middleware, one `fetch`, an app cache, preview and Presentation, live content, images. Works with or without Shopify Hydrogen. The installed files beat web docs.
+
+## Start here
+
+- [Skill](skills/react-router-sanity/SKILL.md): rules, silent failures, wrong → right table.
+- [Setup](skills/react-router-sanity/references/setup.md): middleware, root loader, preview route, env vars.
+- [Decisions](DECISIONS.md): what this version decided and why.
+
+## Entries
+
+- `react-router-sanity`: `sanityContext`, `defineQuery`, `groq`, `SanityRouterError`, types. Server and browser.
+- `react-router-sanity/server`: `createSanityMiddleware`, `cookiePreviewSession`, `cdnTagHeaderValue`. Server only.
+- `react-router-sanity/cache`: `memoryCache`, `webCache`, `kvCache`, the `SanityCache` port. Server only.
+- `react-router-sanity/preview/route`: `loader` (enable) and `action` (change, exit) for `/api/preview`. Server only.
+- `react-router-sanity/preview`: `usePreview`, `useSanityRootData`, `getPreview`.
+- `react-router-sanity/visual-editing`: `<VisualEditing enabled>`. Overlays load only when enabled.
+- `react-router-sanity/live`: `<SanityLive>`. Revalidates routes whose `syncTags` match a live event.
+- `react-router-sanity/live/route`: `action` for the signed cache-invalidation route. Server only.
+- `react-router-sanity/live/function`: `notifyApp`, `signInvalidation` for the Sync Tag Invalidate Function.
+- `react-router-sanity/optimistic`: `usePresentationQuery`, `useOptimistic`, `useDocuments`, `useIsPresentationTool`. Preview only.
+- `react-router-sanity/image`: `<SanityImage>`, `urlFor`. No hooks; server-component safe.
+- `react-router-sanity/csp`: `getSanityCspDirectives`, `serializeCsp`. Server only.
+- `react-router-sanity/testing`: `createTestSanityContext` for loader unit tests.
+
+## Guides
+
+- [Querying and caching](skills/react-router-sanity/references/querying-and-caching.md)
+- [Preview and Presentation](skills/react-router-sanity/references/preview.md)
+- [Live content](skills/react-router-sanity/references/live.md)
+- [Images](skills/react-router-sanity/references/images.md)
+- [Security](skills/react-router-sanity/references/security.md)
+- [Migrating from hydrogen-sanity](skills/react-router-sanity/references/migrating-from-hydrogen-sanity.md)
+
+## Errors
+
+- [RRS001](docs/errors/RRS001.md): server-only entry imported in browser code.
+- [RRS010](docs/errors/RRS010.md): middleware not registered.
+- [RRS011](docs/errors/RRS011.md): middleware config has no client.
+- [RRS020](docs/errors/RRS020.md): preview needs `serverToken`.
+- [RRS021](docs/errors/RRS021.md): preview needs a session secret.
+- [RRS022](docs/errors/RRS022.md): invalid perspective.
+- [RRS030](docs/errors/RRS030.md): live route needs `live.secret`.

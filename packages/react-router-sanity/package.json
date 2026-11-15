@@ -94,7 +94,8 @@
     "src",
     "docs",
     "skills",
-    "llms.txt"
+    "llms.txt",
+    "DECISIONS.md"
   ],
   "scripts": {
     "build": "tsdown",
