@@ -125,6 +125,46 @@ content for up to 1 hour.
 `memoryCache` and `webCache` are `'local'`. The SDK uses the long TTL only for a `'global'` store
 with `live.secret` set.
 
+### 11. Content Security Policy is a requirement (E6), built on the `feature/add-csp` pass
+
+**Request (2026-11-15):** Sanity CSP is a requirement and a utility export.
+
+**Prior art:** `origin/feature/add-csp` (`fdf22e2`, 2025-09-02) added `createSanityCSPHelpers(client)`
+to `hydrogen-sanity`. Commit `7e82436` (2025-11-19) added the Dashboard to `frame-ancestors` in
+the example. Issue #121: an `undefined` directive crashed Hydrogen's serializer.
+
+**Kept from the pass:** hosts come from `client.config()` (`apiHost`, `useProjectHostname`), so a
+staging or custom host gives matching sources. The Dashboard origin (`https://www.sanity.io`) is
+in `frame-ancestors`, because `frame-ancestors` checks every ancestor.
+
+**Fixed from the pass:** `assetCdn` was `https://cdn.sanity.io/*/{projectId}/{dataset}`. CSP allows
+no `*` in a path, so browsers drop that source. The draft uses
+`https://cdn.sanity.io/images/{projectId}/{dataset}/` and `.../files/...`. The Dashboard origin is
+in preview only; `7e82436` sent it on every response.
+
+**Design:**
+
+- `getSanityCspDirectives(context)` reads everything from the request. `createSanityCspDirectives(options)`
+  is the pure builder. Both return camelCase directives with no nonce, which Hydrogen 2026.10
+  `createContentSecurityPolicy({directives})` merges into its defaults (it rejects manual nonces).
+- `serializeCsp` and `createNonce` cover React Router without Hydrogen. `serializeCsp` skips
+  empty directives (issue #121) and lets added sources replace `'none'`, as Hydrogen does.
+- **Nonce for the overlays, with no app code.** styled-components 6.4 reads its nonce from
+  `<meta property="csp-nonce">`. `<VisualEditing>` copies the nonce of a React Router script tag
+  into that meta tag (in the `nonce` property, not an attribute). E2E proves the overlays inject
+  styles and every style carries the nonce, under `style-src 'self' 'nonce-…'`.
+
+**Bug found by the CSP E2E:** browser code ignored a custom `apiHost`. `<SanityLive>` always
+connected to `*.api.sanity.io`, and `urlFor` rewrote staging asset URLs to `cdn.sanity.io`. Root
+data now carries `apiHost` and `useProjectHostname: false`, `<SanityLive>` uses them, and
+`<SanityImage>` keeps the origin of the asset URL or takes `config.baseUrl`.
+
+**Known limit:** the LQIP placeholder of `<SanityImage>` is an inline `style` attribute. A policy
+without `'unsafe-inline'` for style attributes blocks it; the image still loads.
+
+**Upstream gaps:** `getProject` in `@sanity/asset-utils` drops the CDN host. `@sanity/visual-editing`
+has no `nonce` option; the meta tag is a workaround that depends on styled-components internals.
+
 ## Review outcome (fresh-context adversarial review, 2026-11-15)
 
 The reviewer confirmed claims on request isolation, token handling, preview cache headers, the

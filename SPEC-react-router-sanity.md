@@ -48,6 +48,7 @@ that block implementation. Section 10 lists proposed scope additions for you to 
 | E3  | Secure preview and Presentation sessions                                                                                   | yes      |
 | E4  | Two in-repo example apps: vanilla React Router and the Shopify Hydrogen template; E2E runs against both                    | yes      |
 | E5  | Agent experience (AX): token-efficient primitives, STE TSDoc on functions and types, evals that measure it, shipped skills | yes      |
+| E6  | Content Security Policy: a Sanity CSP utility for Hydrogen and plain React Router; every feature works under a strict nonce policy (section 6.1) | yes      |
 
 **Correction to the brief:** the CDN parameter is `cacheMode=noStale` (`@sanity/client`
 option `cacheMode: 'noStale'`), not `mode=no-stale`. The client sends it only when `useCdn` is
@@ -105,7 +106,7 @@ evaluate the module.
 | `react-router-sanity/image`          | `<SanityImage>` (srcset, sizes, hotspot/crop, LQIP/thumbhash placeholder), `urlFor`.                                                           | both    | opt  |
 | `react-router-sanity/video`          | `<SanityVideo>`, `<SanityBackgroundVideo>` on Mux Player (optional peer). Public playback IDs.                                                 | client  | opt  |
 | `react-router-sanity/media/server`   | `getPlaybackInfo` loader helper (private video), image/file URL signing, aspect projection fragments.                                          | server  | opt  |
-| `react-router-sanity/csp`            | `getSanityCspDirectives({preview})` and nonce plumbing notes. See P5.                                                                          | server  | yes  |
+| `react-router-sanity/csp`            | `getSanityCspDirectives(context)`, `createSanityCspDirectives`, `serializeCsp`, `createNonce`. Hydrogen-compatible directives. See 6.1.          | server  | yes  |
 
 \* The `visual-editing` module is imported in `root.tsx`, so its eager wrapper ships to every
 visitor. The wrapper must stay under the budget in section 7.2 (target: 1 KB gzip, measured
@@ -401,9 +402,50 @@ no runtime cost. Only aspects marked `public: true` are readable from the datase
 | S7  | Third-party cookie blocking breaks Presentation | CHIPS `Partitioned` when cross-site iframe.                                                                                                                                                                          |
 | S8  | Forged invalidation calls                       | HMAC + timestamp on `live/route`; reject stale or unsigned bodies.                                                                                                                                                   |
 | S9  | XSS through serialized config                   | No inline `<script>` provider. Config travels in loader data, which React Router escapes. Removes the unescaped `JSON.stringify` in `provider.tsx:64`.                                                               |
-| S10 | Framing                                         | `getSanityCspDirectives` adds the Studio origin to `frame-ancestors` in preview only, plus `connect-src` for API, CDN and live hosts.                                                                                |
+| S10 | Framing                                         | `getSanityCspDirectives` adds `'self'`, the Studio origin and the Dashboard origin to `frame-ancestors` in preview only. Section 6.1.                                                                               |
 | S11 | Stega leaks into production output              | Stega forced off outside preview; E2E asserts no stega characters in production HTML.                                                                                                                                |
 | S12 | Signed media keys exposed                       | Signing only in `media/server`; keys never in loader data.                                                                                                                                                           |
+
+### 6.1 Content Security Policy (E6)
+
+Prior art: `hydrogen-sanity` branch `feature/add-csp` (`fdf22e2`, `createSanityCSPHelpers`),
+commit `7e82436` (Dashboard in `frame-ancestors`), issue #121, PR #138. Hydrogen 2026.10 keeps
+`createContentSecurityPolicy({shop, directives, nonce})`, merges `directives` into its defaults,
+and rejects manual nonces. React Router has no CSP helper.
+
+**API** (`react-router-sanity/csp`, server only):
+
+| Export                              | Job                                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------------------- |
+| `getSanityCspDirectives(context)`   | Sanity sources for this request: client config, `studioUrl`, preview state            |
+| `createSanityCspDirectives(options)`| The same, from explicit options                                                       |
+| `serializeCsp(...sets)`             | Merges camelCase or kebab-case sets into one header; skips empty values (#121)        |
+| `createNonce()`                     | 16 random bytes, base64                                                               |
+
+**Sources:**
+
+| Directive        | Value                                                                  | When     |
+| ---------------- | ---------------------------------------------------------------------- | -------- |
+| `connectSrc`     | `<projectId>.api.<host>`, `<projectId>.apicdn.<host>`                   | always   |
+| `imgSrc`         | `cdn.<host>/images/<projectId>/<dataset>/` (path-scoped, no `*`)        | always   |
+| `mediaSrc`       | `cdn.<host>/files/<projectId>/<dataset>/`                               | always   |
+| `styleSrc`       | `'unsafe-inline'` (ignored by browsers when `style-src` has a nonce)   | preview  |
+| `frameAncestors` | `'self'`, Studio origin, `https://www.sanity.io`                        | preview  |
+
+**Rules:**
+
+- Hosts follow `apiHost` and `useProjectHostname`, on the server and in the browser. Root data
+  carries a custom `apiHost`, so `<SanityLive>` and the CSP name the same host.
+- The result never contains a nonce, so it fits Hydrogen.
+- Every feature works under `script-src 'self' 'nonce-…'; style-src 'self' 'nonce-…'`. The
+  overlays get the nonce through `<meta property="csp-nonce">`, which `<VisualEditing>` writes from
+  the nonce of the React Router scripts. Upstream fix: a `nonce` option in `@sanity/visual-editing`.
+- E2E runs the example under that strict policy and asserts zero `securitypolicyviolation`
+  events in production, streaming and preview, with a positive control.
+
+**Open:** a nonce makes HTML uncacheable in a shared cache. A nonce-free policy for edge-cached
+HTML (P5 "hash-based path") must allow React Router's per-request inline scripts, which hashes
+cannot cover. Decide whether the SDK documents `'strict-dynamic'` or leaves edge-cached HTML out.
 
 ## 7. Bundle-cost harness (E2)
 
@@ -491,6 +533,8 @@ build. Small changes under budget only report.
 | -------------------------------------------------------------------------------- | ------------------------------------- |
 | `/react-router` does not forward `plugins`; does not export the optimistic hooks | `@sanity/visual-editing`              |
 | Programmatic-navigation dedup guard (`isProgrammaticNavRef`)                     | `@sanity/visual-editing/react-router` |
+| `nonce` option for overlay styles (today: `meta[property=csp-nonce]` workaround) | `@sanity/visual-editing`              |
+| `getProject` drops the CDN host of staging and custom asset URLs                 | `@sanity/asset-utils`                 |
 | Parse `media-library:<lib>:<id>` GDR refs                                        | `@sanity/asset-utils`                 |
 | Accept GDR refs in `parseSource`                                                 | `@sanity/image-url`                   |
 | `client.live` `welcome` event typed without `id`                                 | `@sanity/client`                      |
@@ -508,7 +552,7 @@ Found during research. Not in the brief. Each has a recommendation.
 | P2  | **TypeGen inference.** `fetch` infers result types from `defineQuery`; `.groq` file support.                                                                                                       | `hydrogen-sanity` PR #195; `next-sanity` re-exports `defineQuery`                                                                                                       | include                          |
 | P3  | **Portable Text** subpath re-exporting `@portabletext/react` with block-level data attributes.                                                                                                     | `next-sanity` re-exports it from root                                                                                                                                   | include as own subpath, not root |
 | P4  | **Embedded Studio route** (`/studio/*` resource route + client-only Studio).                                                                                                                       | `hydrogen-sanity` PR #112; `next-sanity/studio`                                                                                                                         | defer                            |
-| P5  | **CSP helpers.** Nonce plumbing through `<ServerRouter nonce>` and a hash-based path for cached HTML.                                                                                              | PR #138; issue #121; Hydrogen `createContentSecurityPolicy` `nonce:false`                                                                                               | include                          |
+| P5  | **CSP helpers.** Promoted to requirement E6 (section 6.1). The hash-based path for cached HTML stays open there.                                                                                    | PR #138; issue #121; branch `feature/add-csp`; Hydrogen `createContentSecurityPolicy`                                                                                   | E6                               |
 | P6  | **Preview access sharing.** Support shareable preview links (`sanity.previewUrlShareAccess`).                                                                                                      | `@sanity/preview-url-secret` `toggle-preview-access-sharing`                                                                                                            | include (it is a pass-through)   |
 | P7  | **`Origin` check on preview actions.**                                                                                                                                                             | Current CSRF control is `SameSite=None` + `projectId` only                                                                                                              | include                          |
 | P8  | **Studio origin allowlist** on enable.                                                                                                                                                             | `validatePreviewUrl` returns `studioOrigin`; README shows the check                                                                                                     | include (opt-in)                 |
@@ -761,7 +805,7 @@ AILF tasks for its features, the skill reference for its area, and no AILF score
 | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | M0  | Package skeleton with the full condition map, both example apps + RSC app, rendering-mode fixtures, Playwright matrix, bundle harness (7.1 + 7.2), condition matrix; AX harness: doc-coverage + STE lint, token report, `.ailf/` with seed tasks and a Floor baseline, skill skeleton, `doctor` stub | Harness runs against both apps; baseline recorded      |
 | M1  | Middleware, context key, `fetch`, cache port + 3 adapters, tag collection, `Server-Timing`                                                                                                                                                                                                           | Unit + E2E production paths green; graph checks green  |
-| M2  | Preview session, enable/exit/perspective/variant route, CHIPS, `<VisualEditing enabled>` (L1)                                                                                                                                                                                                        | Security E2E (S1–S7) green; no preview chunk in prod   |
+| M2  | Preview session, enable/exit/perspective/variant route, CHIPS, `<VisualEditing enabled>` (L1), CSP utility and strict-policy example (E6)                                                                                                                                                            | Security E2E (S1–S7, S10) green; zero CSP violations; no preview chunk in prod |
 | M3  | `<SanityLive>`, `live/route`, Function template, CDN tag headers (if D6)                                                                                                                                                                                                                             | Live E2E green; invalidation auth tests green          |
 | M4  | L2–L4: live drafts, client loaders, optimistic hooks                                                                                                                                                                                                                                                 | Presentation E2E green in both apps                    |
 | M5  | Images, files, video, signing, aspects                                                                                                                                                                                                                                                               | Media E2E; client budget still met                     |

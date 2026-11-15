@@ -38,7 +38,8 @@ can be older.
 | Preview, Presentation, overlays, perspectives  | `references/preview.md`            |
 | Live updates, Sync Tag Invalidate Function     | `references/live.md`               |
 | Images                                         | `references/images.md`             |
-| Tokens, cookies, CSRF, CSP                     | `references/security.md`           |
+| Tokens, cookies, CSRF                          | `references/security.md`           |
+| Content Security Policy, nonces, framing       | `references/csp.md`                |
 | Moving from `hydrogen-sanity`                  | `references/migrating-from-hydrogen-sanity.md` |
 | An error with a code `RRS0xx`                  | `docs/errors/RRS0xx.md` in the package |
 
@@ -72,6 +73,13 @@ can be older.
 - MUST append cookies in your own middleware or `server.ts` (`headers.append('Set-Cookie', …)`).
   Never `headers.set('Set-Cookie', …)`.
 
+**Content Security Policy**
+
+- MUST build the Sanity part of the policy with `getSanityCspDirectives(context)`. Prevents:
+  Presentation "refused to frame", blocked images, blocked live events, wrong hosts on staging.
+- MUST-NOT put a Studio origin in `frame-ancestors` for every request. The function adds it in
+  preview only.
+
 **Imports**
 
 - MUST import server-only entries (`/server`, `/cache`, `/preview/route`, `/live/route`, `/csp`)
@@ -91,3 +99,5 @@ can be older.
 | `return {page: data}`                                       | `return {page: data, syncTags}`                                       |
 | `urlFor(image)` with a Media Library `media-library:` ref   | Query the linked dataset asset (`asset->`), not the GDR               |
 | A Sync Tag Invalidate Function without `done()`             | `await notifyApp({...}); await context.done(syncTags)`                |
+| `frameAncestors: [studioUrl]` on every response             | `getSanityCspDirectives(context)` (preview only, plus the Dashboard)  |
+| `https://cdn.sanity.io/*/p1/production` as a CSP source     | `https://cdn.sanity.io/images/p1/production/` (CSP has no path `*`)   |

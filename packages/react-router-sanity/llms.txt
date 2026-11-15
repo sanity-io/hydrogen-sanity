@@ -21,7 +21,7 @@
 - `react-router-sanity/live/function`: `notifyApp`, `signInvalidation` for the Sync Tag Invalidate Function.
 - `react-router-sanity/optimistic`: `usePresentationQuery`, `useOptimistic`, `useDocuments`, `useIsPresentationTool`. Preview only.
 - `react-router-sanity/image`: `<SanityImage>`, `urlFor`. No hooks; server-component safe.
-- `react-router-sanity/csp`: `getSanityCspDirectives`, `serializeCsp`. Server only.
+- `react-router-sanity/csp`: `getSanityCspDirectives` (per request), `createSanityCspDirectives`, `serializeCsp`, `createNonce`. Hydrogen-compatible directives. Server only.
 - `react-router-sanity/testing`: `createTestSanityContext` for loader unit tests.
 
 ## Guides
@@ -31,6 +31,7 @@
 - [Live content](skills/react-router-sanity/references/live.md)
 - [Images](skills/react-router-sanity/references/images.md)
 - [Security](skills/react-router-sanity/references/security.md)
+- [Content Security Policy](skills/react-router-sanity/references/csp.md)
 - [Migrating from hydrogen-sanity](skills/react-router-sanity/references/migrating-from-hydrogen-sanity.md)
 
 ## Errors

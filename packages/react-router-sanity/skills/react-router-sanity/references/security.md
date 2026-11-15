@@ -12,7 +12,7 @@ Read this when the task touches tokens, cookies, preview access, CSP or the inva
 | Session tampering                   | Signed cookie with secret rotation                                             | Put the new secret first in `sessionSecrets`         |
 | Third-party cookie blocking         | `Partitioned` cookie in a cross-site iframe                                    | Serve the app over HTTPS                             |
 | Forged invalidation                 | HMAC-SHA256 with a timestamp, 5-minute window                                  | Keep `SANITY_LIVE_SECRET` secret                     |
-| Framing                             | `getSanityCspDirectives({preview: true})` adds the Studio to `frame-ancestors` | Merge it into your CSP in preview only               |
+| Framing                             | `getSanityCspDirectives(context)` adds the Studio and Dashboard to `frame-ancestors` in preview only | Merge it into your CSP; see `csp.md` |
 
 Optional: `preview.allowedStudioOrigins` limits preview entry to known Studio origins.
 
