@@ -146,6 +146,20 @@ test.describe('preview', () => {
   })
 })
 
+test.describe('rendering modes', () => {
+  test('streams a deferred query in production', async ({page}) => {
+    await page.goto('/streaming')
+    await expect(page.getByTestId('title')).toHaveText('Published home')
+    expect(STEGA.test(await page.content())).toBe(false)
+  })
+
+  test('streams a deferred query in preview with drafts', async ({page}) => {
+    await enterPreview(page)
+    await page.goto('/streaming')
+    await expect(page.getByTestId('title')).toHaveText('Draft home')
+  })
+})
+
 test.describe('live', () => {
   test('rejects an unsigned invalidation call', async ({request}) => {
     const response = await request.post('/api/sanity/invalidate', {data: {tags: ['s1:home']}})
