@@ -1,0 +1,144 @@
+{
+  "name": "react-router-sanity",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Sanity SDK for React Router framework mode: querying, caching, preview, Presentation, live content and images",
+  "keywords": [
+    "sanity",
+    "react-router",
+    "visual-editing",
+    "presentation",
+    "live-content-api"
+  ],
+  "homepage": "https://github.com/sanity-io/hydrogen-sanity/tree/main/packages/react-router-sanity#readme",
+  "bugs": {
+    "url": "https://github.com/sanity-io/hydrogen-sanity/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanity-io/hydrogen-sanity.git",
+    "directory": "packages/react-router-sanity"
+  },
+  "license": "MIT",
+  "author": "Sanity.io <hello@sanity.io>",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "react-server": "./dist/server/index.js",
+      "browser": "./dist/server-only.js",
+      "default": "./dist/server/index.js"
+    },
+    "./cache": {
+      "types": "./dist/cache/index.d.ts",
+      "react-server": "./dist/cache/index.js",
+      "browser": "./dist/server-only.js",
+      "default": "./dist/cache/index.js"
+    },
+    "./preview/route": {
+      "types": "./dist/preview/route.d.ts",
+      "react-server": "./dist/preview/route.js",
+      "browser": "./dist/server-only.js",
+      "default": "./dist/preview/route.js"
+    },
+    "./preview": {
+      "types": "./dist/preview/index.d.ts",
+      "react-server": "./dist/preview/server.js",
+      "default": "./dist/preview/index.js"
+    },
+    "./visual-editing": {
+      "types": "./dist/visual-editing/index.d.ts",
+      "default": "./dist/visual-editing/index.js"
+    },
+    "./optimistic": {
+      "types": "./dist/optimistic/index.d.ts",
+      "default": "./dist/optimistic/index.js"
+    },
+    "./live": {
+      "types": "./dist/live/index.d.ts",
+      "default": "./dist/live/index.js"
+    },
+    "./live/route": {
+      "types": "./dist/live/route.d.ts",
+      "react-server": "./dist/live/route.js",
+      "browser": "./dist/server-only.js",
+      "default": "./dist/live/route.js"
+    },
+    "./live/function": {
+      "types": "./dist/live/function.d.ts",
+      "default": "./dist/live/function.js"
+    },
+    "./image": {
+      "types": "./dist/image/index.d.ts",
+      "default": "./dist/image/index.js"
+    },
+    "./csp": {
+      "types": "./dist/csp/index.d.ts",
+      "react-server": "./dist/csp/index.js",
+      "browser": "./dist/server-only.js",
+      "default": "./dist/csp/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "default": "./dist/testing/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "docs",
+    "skills",
+    "llms.txt"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check": "pnpm check:graph && pnpm check:eval && pnpm check:docs && pnpm check:package",
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:eval": "node scripts/check-eval.mjs",
+    "check:graph": "node scripts/check-graph.mjs",
+    "check:package": "publint --strict && attw --pack --profile esm-only",
+    "lint": "oxlint --disable-nested-config src",
+    "test": "vitest run",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@sanity/asset-utils": "^2.3.0",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/preview-url-secret": "^4.1.5",
+    "@sanity/visual-editing": "^6.2.1",
+    "groq": "^6.23.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@sanity/client": "^8.16.0",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "es-module-lexer": "^3.0.4",
+    "jsdom": "^31.0.1",
+    "oxlint": "^1.76.0",
+    "publint": "^0.3.25",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.5.1",
+    "tsdown": "^0.23.7",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "peerDependencies": {
+    "@sanity/client": "^7.28.0 || ^8.11.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.9.0 || ^8.0.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}
