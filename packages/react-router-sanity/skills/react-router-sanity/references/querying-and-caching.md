@@ -29,7 +29,9 @@ cache: {store: kvCache({store: env.SANITY_KV})}                // Workers KV, gl
 ```
 
 Default strategy: `{maxAge: 3600, staleWhileRevalidate: 86400}` when `live.secret` is set and the
-store supports tags; `{maxAge: 10, staleWhileRevalidate: 50}` otherwise. Override per call with
+store purges globally (`kvCache`); `{maxAge: 10, staleWhileRevalidate: 50}` otherwise.
+`memoryCache` and `webCache` purge only one process or data center, so they keep the short TTL
+unless you set `strategy` yourself. Override per call with
 `fetch({query, cache: {maxAge: 60, staleWhileRevalidate: 600}})`, or skip with `cache: false`.
 
 ## Invalidation
