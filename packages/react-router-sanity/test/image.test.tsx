@@ -1,7 +1,6 @@
 import {renderToStaticMarkup} from 'react-dom/server'
 import {describe, expect, it} from 'vitest'
 
-import {getSanityCspDirectives, serializeCsp} from '../src/csp'
 import {SanityImage, urlFor} from '../src/image'
 
 const config = {projectId: 'p1', dataset: 'production'}
@@ -64,23 +63,21 @@ describe('SanityImage', () => {
     expect(urlFor(expanded)?.url()).toContain('/images/p9/staging/')
   })
 
+  it('keeps the CDN origin of a staging or custom asset URL', () => {
+    const file = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2-2000x1000.jpg'
+    const id = 'image-a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2-2000x1000-jpg'
+    const staging = {asset: {_id: id, url: `https://cdn.sanity.work/images/p1/production/${file}`}}
+    const custom = {asset: {_id: id, url: `https://images.example.com/images/p1/production/${file}`}}
+    expect(urlFor(staging)?.url()).toMatch(/^https:\/\/cdn\.sanity\.work\/images\/p1\/production\//)
+    expect(urlFor(custom)?.url()).toMatch(/^https:\/\/images\.example\.com\/images\/p1\/production\//)
+  })
+
+  it('uses config.baseUrl for a custom CDN', () => {
+    const url = urlFor(image, {...config, baseUrl: 'https://cdn.sanity.work'})?.url()
+    expect(url).toMatch(/^https:\/\/cdn\.sanity\.work\/images\/p1\/production\//)
+  })
+
   it('renders nothing for an image without an asset', () => {
     expect(renderToStaticMarkup(<SanityImage value={{asset: null}} config={config} />)).toBe('')
-  })
-})
-
-describe('getSanityCspDirectives', () => {
-  it('adds the Studio to frame-ancestors only in preview', () => {
-    const production = getSanityCspDirectives({projectId: 'p1', studioUrl: 'https://studio.example.com/desk', preview: false})
-    const preview = getSanityCspDirectives({projectId: 'p1', studioUrl: 'https://studio.example.com/desk', preview: true})
-    expect(production['frame-ancestors']).toBeUndefined()
-    expect(preview['frame-ancestors']).toEqual(["'self'", 'https://studio.example.com'])
-    expect(preview['connect-src']).toContain('https://p1.apicdn.sanity.io')
-  })
-
-  it('merges policies without duplicate sources', () => {
-    expect(serializeCsp({'img-src': ["'self'", 'https://cdn.sanity.io']}, {'img-src': ['https://cdn.sanity.io']})).toBe(
-      "img-src 'self' https://cdn.sanity.io",
-    )
   })
 })

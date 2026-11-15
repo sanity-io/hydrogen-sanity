@@ -1,3 +1,4 @@
+import {use} from 'react'
 import {Form, isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration} from 'react-router'
 import {sanityContext} from 'react-router-sanity'
 import {SanityLive} from 'react-router-sanity/live'
@@ -5,6 +6,7 @@ import {usePreview} from 'react-router-sanity/preview'
 import {VisualEditing} from 'react-router-sanity/visual-editing'
 
 import type {Route} from './+types/root'
+import {NonceContext} from './lib/nonce'
 import {sanityMiddleware} from './lib/sanity.server'
 
 export const middleware: Route.MiddlewareFunction[] = [sanityMiddleware]
@@ -14,6 +16,7 @@ export function loader({context}: Route.LoaderArgs) {
 }
 
 export function Layout({children}: {children: React.ReactNode}) {
+  const nonce = use(NonceContext)
   return (
     <html lang="en">
       <head>
@@ -24,8 +27,8 @@ export function Layout({children}: {children: React.ReactNode}) {
       </head>
       <body>
         {children}
-        <ScrollRestoration />
-        <Scripts />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
       </body>
     </html>
   )

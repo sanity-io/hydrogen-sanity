@@ -236,7 +236,9 @@ describe('getRootData', () => {
     const config = baseConfig({preview: {sessionSecrets: ['s3cret'], browserToken: 'sk-browser'}})
     await runMiddleware(createSanityMiddleware(config), new Request('https://shop.example.com/'), (context) => {
       const data = context.get(sanityContext).getRootData()
+      // The fake Content Lake uses a custom host, so `apiHost` and `useProjectHostname` appear.
       expect(Object.keys(data).sort()).toEqual([
+        'apiHost',
         'apiVersion',
         'dataset',
         'live',
@@ -244,7 +246,9 @@ describe('getRootData', () => {
         'previewRoute',
         'projectId',
         'studioUrl',
+        'useProjectHostname',
       ])
+      expect(data.apiHost).toBe(lake.url)
       expect(JSON.stringify(data)).not.toContain('sk-')
       return new Response('ok')
     })

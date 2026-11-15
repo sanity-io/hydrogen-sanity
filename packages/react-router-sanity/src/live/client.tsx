@@ -72,6 +72,8 @@ export default function SanityLiveClient({includeDrafts = false, onError}: Sanit
   const projectId = root?.projectId
   const dataset = root?.dataset
   const apiVersion = root?.apiVersion
+  const apiHost = root?.apiHost
+  const useProjectHostname = root?.useProjectHostname
   const previewEnabled = root?.preview.enabled ?? false
   const browserToken = root?.browserToken
   const waitFor = root?.live.waitFor
@@ -95,6 +97,8 @@ export default function SanityLiveClient({includeDrafts = false, onError}: Sanit
       dataset,
       apiVersion,
       useCdn: true,
+      ...(apiHost ? {apiHost} : {}),
+      ...(useProjectHostname === false ? {useProjectHostname: false} : {}),
       ...(drafts && browserToken ? {token: browserToken, ignoreBrowserTokenWarning: true} : {}),
     })
 
@@ -142,7 +146,7 @@ export default function SanityLiveClient({includeDrafts = false, onError}: Sanit
       if (retry) clearTimeout(retry)
       stopPolling()
     }
-  }, [projectId, dataset, apiVersion, previewEnabled, drafts, browserToken, waitFor])
+  }, [projectId, dataset, apiVersion, apiHost, useProjectHostname, previewEnabled, drafts, browserToken, waitFor])
 
   return null
 }

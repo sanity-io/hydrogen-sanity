@@ -39,6 +39,13 @@ export interface SanityImageConfig {
   projectId: string
   /** Identifies the dataset. */
   dataset: string
+  /**
+   * Sets the image CDN origin. Set it when the client uses a custom `apiHost`, for example
+   * `https://cdn.sanity.work` for `https://api.sanity.work`.
+   *
+   * @defaultValue `'https://cdn.sanity.io'`
+   */
+  baseUrl?: string
 }
 
 /**
@@ -83,15 +90,35 @@ export interface SanityImageProps
 
 const DEFAULT_WIDTHS = [320, 480, 640, 768, 1024, 1280, 1536, 1920, 2560]
 
-function resolveConfig(value: SanityImageValue, config?: SanityImageConfig): SanityImageConfig | undefined {
-  if (config) return config
-  const url = value.asset?.url
-  if (!url) return undefined
+const DEFAULT_CDN = 'https://cdn.sanity.io'
+
+/**
+ * Reads the project, the dataset and the CDN origin from an expanded asset URL.
+ *
+ * `getProject` from `@sanity/asset-utils` drops the host, so a staging or custom CDN URL would
+ * become a `cdn.sanity.io` URL. The function keeps the origin of the asset URL. It falls back to
+ * the `/images/<project>/<dataset>/` path when `getProject` cannot read the URL.
+ */
+function projectFromUrl(url: string): SanityImageConfig | undefined {
+  let parsed: URL
   try {
-    return getProject(url)
+    parsed = new URL(url)
   } catch {
     return undefined
   }
+  const baseUrl = parsed.origin === DEFAULT_CDN ? {} : {baseUrl: parsed.origin}
+  try {
+    return {...getProject(url), ...baseUrl}
+  } catch {
+    const match = parsed.pathname.match(/^\/images\/([^/]+)\/([^/]+)\//)
+    return match?.[1] && match[2] ? {projectId: match[1], dataset: match[2], ...baseUrl} : undefined
+  }
+}
+
+function resolveConfig(value: SanityImageValue, config?: SanityImageConfig): SanityImageConfig | undefined {
+  if (config) return config
+  const url = value.asset?.url
+  return url ? projectFromUrl(url) : undefined
 }
 
 function toSource(value: SanityImageValue): SanityImageSource | undefined {

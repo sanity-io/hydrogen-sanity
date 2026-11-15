@@ -143,12 +143,15 @@ export class RequestContext implements SanityRequestContext {
   }
 
   getRootData(): SanityRootData {
-    const {projectId = '', dataset = '', apiVersion = ''} = this.#config.client.config()
+    const {projectId = '', dataset = '', apiVersion = '', apiHost, useProjectHostname} = this.#config.client.config()
     const {studioUrl, preview, live} = this.#config
     return {
       projectId,
       dataset,
       apiVersion,
+      // Browser clients must use the same API host as the server, and the CSP allows only that host.
+      ...(apiHost && apiHost !== 'https://api.sanity.io' ? {apiHost} : {}),
+      ...(useProjectHostname === false ? {useProjectHostname: false} : {}),
       ...(studioUrl ? {studioUrl} : {}),
       preview: {...this.preview},
       previewRoute: preview?.route ?? DEFAULT_PREVIEW_ROUTE,

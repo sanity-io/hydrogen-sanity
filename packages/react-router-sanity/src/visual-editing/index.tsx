@@ -26,6 +26,11 @@ export interface VisualEditingProps
    * @defaultValue the `previewRoute` of the root data, or `'/api/preview'`
    */
   action?: string
+  /**
+   * Sets the CSP nonce for the overlay styles. Leave it out: the component reads the nonce from
+   * the script tags that React Router renders with `<ServerRouter nonce>`.
+   */
+  nonce?: string
 }
 
 const VisualEditingClient = lazy(() => import('./client'))

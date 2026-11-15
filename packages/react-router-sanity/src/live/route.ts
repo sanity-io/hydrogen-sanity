@@ -48,8 +48,8 @@ const MAX_BODY_BYTES = 64 * 1024
  *
  * The action accepts only a `POST` with a valid HMAC signature in the
  * `X-Sanity-Invalidate-Signature` header. The signature includes a timestamp. The action rejects a
- * signature older or newer than 5 minutes. Inside that window, a captured call can be sent again;
- * a purge is idempotent, so a replay only purges again. After the purge, the action calls
+ * signature older or newer than 5 minutes. Inside that window, an attacker can send a captured
+ * call again. A purge is idempotent, so a replay only purges again. After the purge, the action calls
  * `live.onInvalidate` for CDN purges.
  *
  * @param args - The request and the router context.

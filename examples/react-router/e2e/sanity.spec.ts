@@ -160,6 +160,81 @@ test.describe('rendering modes', () => {
   })
 })
 
+test.describe('content security policy', () => {
+  /** Records every CSP violation that the page reports. */
+  async function recordViolations(page: Page): Promise<() => Promise<string[]>> {
+    await page.addInitScript(() => {
+      const list: string[] = []
+      Object.defineProperty(window, '__cspViolations', {value: list})
+      document.addEventListener('securitypolicyviolation', (event) => {
+        list.push(`${event.violatedDirective} ${event.blockedURI}`)
+      })
+    })
+    return () => page.evaluate(() => Reflect.get(window, '__cspViolations') ?? [])
+  }
+
+  test('sends a strict policy with Sanity sources and no framing in production', async ({page}) => {
+    const response = await page.goto('/')
+    const policy = response?.headers()['content-security-policy'] ?? ''
+    expect(policy).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/=]+'/)
+    // E2E runs with apiHost = the fake lake, so the Sanity sources follow that host.
+    expect(policy).toMatch(/img-src 'self' data: http:\/\/127\.0\.0\.1:4999\/images\/p1\/production\//)
+    expect(policy).toMatch(/connect-src 'self' http:\/\/127\.0\.0\.1:4999/)
+    expect(policy).toContain("frame-ancestors 'none'")
+    expect(policy).not.toContain("'unsafe-inline'")
+  })
+
+  test('reports no violation in production, with images, client navigation and streaming', async ({page}) => {
+    const violations = await recordViolations(page)
+    await trackChunks(page)
+    await page.goto('/')
+    await expect(page.getByTestId('title')).toHaveText('Published home')
+    await page.getByRole('link', {name: 'About'}).click()
+    await expect(page.getByTestId('title')).toHaveText('About')
+    await page.goto('/streaming')
+    await expect(page.getByTestId('title')).toHaveText('Published home')
+    await page.waitForLoadState('networkidle')
+    expect(await violations()).toEqual([])
+
+    // Positive control: the recorder must catch a real violation.
+    await page.evaluate(() => {
+      const image = document.createElement('img')
+      image.src = 'https://blocked.example.com/control.png'
+      document.body.append(image)
+    })
+    await expect.poll(violations).toEqual(['img-src https://blocked.example.com/control.png'])
+  })
+
+  test('lets the Studio and the Dashboard frame the page in preview, and reports no violation', async ({page}) => {
+    const violations = await recordViolations(page)
+    const chunks = await trackChunks(page)
+    await enterPreview(page)
+    const response = await page.reload()
+    const policy = response?.headers()['content-security-policy'] ?? ''
+    expect(policy).toContain("frame-ancestors 'self' https://studio.example.com https://www.sanity.io")
+
+    const map = await moduleMap(page)
+    await expect
+      .poll(() => chunks.some((chunk) => map[chunk]?.packages.includes('@sanity/visual-editing')), {timeout: 10_000})
+      .toBe(true)
+    await page.waitForLoadState('networkidle')
+
+    // styled-components reads the nonce from the meta tag that <VisualEditing> writes.
+    const nonce = await page.evaluate(
+      () => document.head.querySelector<HTMLMetaElement>('meta[property="csp-nonce"]')?.nonce ?? '',
+    )
+    expect(nonce.length).toBeGreaterThan(0)
+    // The overlays injected styles, and every injected style carries the nonce. Without this, a
+    // clean violation list could mean that the overlays rendered nothing.
+    const styles = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLStyleElement>('style[data-styled]')].map((style) => style.nonce),
+    )
+    expect(styles.length).toBeGreaterThan(0)
+    expect(styles.every((value) => value === nonce)).toBe(true)
+    expect(await violations()).toEqual([])
+  })
+})
+
 test.describe('live', () => {
   test('rejects an unsigned invalidation call', async ({request}) => {
     const response = await request.post('/api/sanity/invalidate', {data: {tags: ['s1:home']}})

@@ -31,7 +31,12 @@ function answer(query, params) {
         title: isDrafts(params) ? 'Draft home' : 'Published home',
         image: {
           alt: 'A chair',
-          asset: {_id: IMAGE_ID, url: `https://cdn.sanity.io/images/p1/production/${IMAGE_ID.slice(6).replace(/-jpg$/, '.jpg')}`},
+          // The fake lake is also the image CDN, as `api.<domain>` → `cdn.<domain>` would be for a
+          // custom host. Server, browser and CSP then agree on one host, as in a real deployment.
+          asset: {
+            _id: IMAGE_ID,
+            url: `http://127.0.0.1:${PORT}/images/p1/production/${IMAGE_ID.slice(6).replace(/-jpg$/, '.jpg')}`,
+          },
         },
       },
       syncTags: ['s1:home'],

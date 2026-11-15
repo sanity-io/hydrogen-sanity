@@ -94,6 +94,10 @@ export interface SanityRootData {
   dataset: string
   /** Sets the API version of browser clients. */
   apiVersion: string
+  /** Gives the API host of browser clients. Exists only when the client uses a custom host. */
+  apiHost?: string
+  /** Tells browser clients not to put the project ID in the host name. Exists only when `false`. */
+  useProjectHostname?: false
   /** Gives the Studio URL. Visual editing uses it to build edit links. */
   studioUrl?: string
   /** Gives the preview state of the request. */
