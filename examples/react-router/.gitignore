@@ -1,0 +1,5 @@
+/build
+/.react-router
+/test-results
+/playwright-report
+.env

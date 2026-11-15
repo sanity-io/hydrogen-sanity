@@ -1,0 +1,31 @@
+{
+  "name": "@repo/example-react-router",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@react-router/node": "^8.5.1",
+    "@react-router/serve": "^8.5.1",
+    "@sanity/client": "^8.16.0",
+    "isbot": "^5.2.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.5.1",
+    "react-router-sanity": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@react-router/dev": "^8.5.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.8"
+  }
+}
