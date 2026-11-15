@@ -1,0 +1,65 @@
+name: react-router-sanity
+
+on:
+  pull_request:
+    paths:
+      - 'packages/react-router-sanity/**'
+      - 'examples/react-router/**'
+      - 'pnpm-lock.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/react-router-sanity/**'
+      - 'examples/react-router/**'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  HUSKY: 0
+
+jobs:
+  gates:
+    name: Typecheck, test, build, harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - run: pnpm i --filter="@workspace:." --filter="react-router-sanity"
+      - run: pnpm --filter react-router-sanity run typecheck
+      - run: pnpm --filter react-router-sanity run lint
+      - run: pnpm --filter react-router-sanity run test
+      - run: pnpm --filter react-router-sanity run build
+      # Spec 7.1 and 12.2: graph, evaluation, condition matrix, docs contract, publint + attw.
+      - run: pnpm --filter react-router-sanity run check
+
+  e2e:
+    name: E2E (vanilla React Router)
+    needs: gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - run: pnpm i --filter="@workspace:." --filter="react-router-sanity" --filter="@repo/example-react-router"
+      - run: pnpm --filter react-router-sanity run build
+      - run: pnpm --filter @repo/example-react-router exec playwright install --with-deps chromium
+      - run: pnpm --filter @repo/example-react-router run typecheck
+      # Spec 7.2.1–7.2.3: no preview chunk in production, overlays load in preview, bundle budget.
+      - run: pnpm --filter @repo/example-react-router run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: examples/react-router/test-results
