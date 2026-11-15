@@ -62,9 +62,9 @@ function readLiveEventId(request: Request): string | undefined {
 /**
  * Creates the Sanity middleware. Register it once on the root route.
  *
- * For each request, the middleware creates the Sanity request context, reads the preview session,
- * and sets response headers: `Set-Cookie` for preview changes, `Cache-Control: private, no-store`
- * in preview, `Server-Timing`, and an optional CDN tag header.
+ * For each request, the middleware reads the preview session and creates the Sanity request context.
+ * After the route runs, it sets the response headers. It writes `Set-Cookie` for preview changes,
+ * `Cache-Control: private, no-store` in preview, `Server-Timing`, and an optional CDN tag header.
  *
  * @param config - The config, or a function that returns the config for a request.
  * @returns A React Router middleware.

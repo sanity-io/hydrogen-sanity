@@ -32,7 +32,7 @@ const subscribe = () => () => {}
  *
  * The component subscribes to the Live Content API. It compares the tags of each event with the
  * `syncTags` that routes return from their loaders, and revalidates only on a match. In preview,
- * Presentation refresh events take over, unless `includeDrafts` is set.
+ * Presentation refresh events take over. Set `includeDrafts` to keep live drafts in preview.
  *
  * @param props - The draft mode and the error handler.
  * @returns Nothing visible.

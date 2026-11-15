@@ -140,8 +140,8 @@ export function urlFor(value: SanityImageValue, config?: SanityImageConfig) {
 /**
  * Renders a responsive image from the Sanity image CDN.
  *
- * The component builds `srcset` with automatic format, applies the crop and hotspot, sets `width`
- * and `height` from the asset dimensions to stop layout shift, and shows an LQIP placeholder.
+ * The component builds `srcset` with automatic format and applies the crop and hotspot. It sets
+ * `width` and `height` from the asset dimensions to stop layout shift. It shows an LQIP placeholder.
  *
  * @param props - The image value and the image options.
  * @returns An `img` element, or `null` when the value has no asset.

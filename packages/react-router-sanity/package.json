@@ -98,7 +98,8 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "check": "pnpm check:graph && pnpm check:eval && pnpm check:docs && pnpm check:package",
+    "check": "pnpm check:graph && pnpm check:eval && pnpm check:conditions && pnpm check:docs && pnpm check:package",
+    "check:conditions": "node scripts/check-conditions.mjs",
     "check:docs": "node scripts/check-docs.mjs",
     "check:eval": "node scripts/check-eval.mjs",
     "check:graph": "node scripts/check-graph.mjs",

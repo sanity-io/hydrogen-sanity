@@ -8,7 +8,7 @@ import type {PreviewSessionFactory} from './session'
 /**
  * Configures the Sanity middleware.
  *
- * Only `client` is required. Every other option is opt-in. The minimal config is correct and
+ * The config needs only `client`. Every other option is opt-in. The minimal config is correct and
  * secure for production queries.
  *
  * @public
@@ -113,7 +113,7 @@ export interface LiveConfig {
   secret?: string
   /**
    * Tells `<SanityLive>` to wait for the Sync Tag Invalidate Function before it revalidates.
-   * Set it only when the function is deployed.
+   * Set it only after you deploy the function.
    */
   waitFor?: 'function'
   /** Runs after the live route purges the app cache. Purge your CDN by tag here. */

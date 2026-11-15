@@ -25,8 +25,8 @@ export interface NotifyAppOptions {
 /**
  * Sends a signed invalidation call to the app.
  *
- * Call it in the Sync Tag Invalidate Function before `done(syncTags)`. Then the app cache is
- * purged before `<SanityLive>` receives the event.
+ * Call it in the Sync Tag Invalidate Function before `done(syncTags)`. Then the app purges its
+ * cache before `<SanityLive>` receives the event.
  *
  * @param options - The route URL, the secret and the tags.
  * @returns The response of the app.
