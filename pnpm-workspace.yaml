@@ -7,3 +7,4 @@ allowBuilds:
   workerd: true
 minimumReleaseAgeExclude:
   - '@sanity/client@7.28.0'
+  - '@sanity/image-url@2.2.0'

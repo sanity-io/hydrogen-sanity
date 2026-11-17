@@ -132,7 +132,7 @@
   "dependencies": {
     "@sanity/comlink": "^4.0.1",
     "@sanity/core-loader": "^2.1.2",
-    "@sanity/image-url": "^2.1.1",
+    "@sanity/image-url": "^2.2.0",
     "@sanity/presentation-comlink": "^2.2.0",
     "@sanity/preview-url-secret": "^4.1.2",
     "@sanity/react-loader": "^2.1.2",

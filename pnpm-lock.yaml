@@ -376,8 +376,8 @@ importers:
         specifier: ^2.1.2
         version: 2.1.2(@sanity/types@6.7.0(@types/react@19.2.17))(typescript@5.9.3)
       '@sanity/image-url':
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: ^2.2.0
+        version: 2.2.0
       '@sanity/presentation-comlink':
         specifier: ^2.2.0
         version: 2.2.0(@sanity/client@7.28.0)(@sanity/types@6.7.0(@types/react@19.2.17))
@@ -3837,6 +3837,10 @@ packages:
 
   '@sanity/image-url@2.1.1':
     resolution: {integrity: sha512-qVXsF1teWR6FO3ZFAz46HDcRU+E6EQkpyncPnkGOzeJ1PgnaOiWMVbiSrZtX10s3txzzu/tAjKwbxbGHfDWgGw==}
+    engines: {node: '>=20.19.0'}
+
+  '@sanity/image-url@2.2.0':
+    resolution: {integrity: sha512-6uJnWhDJMlfwsnHwlnHpUgXCo5kmH3Wv/ERXalgRJHiBhChO/UYhIBTOxdwXTP01EkeoDARn6/+e3Vf+db+JIA==}
     engines: {node: '>=20.19.0'}
 
   '@sanity/import@6.0.3':
@@ -14144,6 +14148,10 @@ snapshots:
       ts-brand: 0.2.0
 
   '@sanity/image-url@2.1.1':
+    dependencies:
+      '@sanity/signed-urls': 2.0.4
+
+  '@sanity/image-url@2.2.0':
     dependencies:
       '@sanity/signed-urls': 2.0.4
 
