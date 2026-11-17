@@ -20,6 +20,13 @@ export default async function handleRequest(
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     defaultSrc: ['https://cdn.sanity.io'],
+    // `data:` allows the blur placeholders of Sanity images
+    imgSrc: [
+      "'self'",
+      'https://cdn.shopify.com',
+      'https://cdn.sanity.io',
+      'data:',
+    ],
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,

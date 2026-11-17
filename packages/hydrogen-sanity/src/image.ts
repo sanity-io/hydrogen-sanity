@@ -4,6 +4,18 @@ import {useMemo} from 'react'
 
 import {useSanityProviderValue} from './provider'
 
+export {Image, type ImageProps} from './image/Image'
+export {
+  getImageProps,
+  type GetImagePropsOptions,
+  type ImageAttributes,
+  type SrcSetOptions,
+} from './image/getImageProps'
+export {imageLoader, type ImageLoader, type ImageLoaderParams} from './image/imageLoader'
+export type {InferImageValue, InferStrictImageValue} from './image/infer'
+export type {ImageSource} from './image/resolveImageSource'
+export {isImageWithAsset} from '@sanity/image-url'
+
 /**
  * Hook that returns a Sanity image URL builder configured with current provider settings.
  * Use this to create custom image transformations beyond `useImageUrl`.

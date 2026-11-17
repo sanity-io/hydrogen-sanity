@@ -12,7 +12,7 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
 - Drop-in preview mode handling with pre-built route and session management.
 - Opinionated data fetching that automatically adapts to preview mode.
 - Interactive live preview with automatic loader detection for [Visual Editing](https://www.sanity.io/docs/loaders-and-overlays) in Sanity's Presentation tool.
-- Optimized image URL generation hooks with Sanity's image URL builder.
+- An `Image` component and `getImageProps` that apply the Studio crop and hotspot, infer dimensions, and show a blur placeholder.
 - TypeScript support with [Sanity TypeGen](https://www.sanity.io/docs/sanity-typegen).
 
 > [!TIP]
@@ -626,7 +626,63 @@ export default defineConfig({
 
 ## Working with images
 
-The `useImageUrl` hook provides a convenient way to generate optimized image URLs from Sanity image assets with the [image URL builder](https://www.sanity.io/docs/image-url).
+`Image` renders images from the [Sanity Image CDN](https://www.sanity.io/docs/image-urls) with right-sized, auto-formatted (AVIF/WebP) `srcset` candidates. It takes the same sizing props as Hydrogen's `<Image>` (`width`, `height`, `aspectRatio`, `sizes`, `loader`, `srcSetOptions`), so it sits naturally next to Shopify images.
+
+Pass the whole image value from a GROQ query:
+
+```tsx
+import {Image as SanityImage, isImageWithAsset} from 'hydrogen-sanity'
+
+const HERO_QUERY = defineQuery(`
+  fn image::asset($asset) = $asset->{_id, url, metadata{lqip}};
+  fn image::field($image) = $image{alt, crop, hotspot, "asset": image::asset(asset)};
+
+  *[_id == "home"][0]{"image": image::field(hero.image)}
+`)
+
+function Hero({image}: {image: HERO_QUERY_RESULT['image']}) {
+  if (!isImageWithAsset(image)) return null
+
+  return (
+    <SanityImage src={image} aspectRatio="16/9" sizes="100vw" placeholder="blur" loading="eager" />
+  )
+}
+```
+
+- `src` accepts image objects (`{asset, crop, hotspot}`) in every shape Sanity TypeGen generates, asset documents (`asset->{_id, url}`), asset references and ids, and Sanity Image CDN URLs (`asset->url`, or a URL built with `useImageUrl`). Stega-encoded values from preview mode are cleaned automatically, so don't `stegaClean()` them first.
+- The crop set in the Studio is applied. When `aspectRatio` (or a fixed `width` and `height`) differs from the cropped image, the CDN crop is positioned around the hotspot.
+- `width` and `height` are optional. Without them the image is fluid (`width: 100%`), its `width`/`height` attributes come from the CDN URL or the asset filename (adjusted for the crop), and `srcset` candidates stop at the size of the source image. A numeric `width` renders a fixed-size image with `1x`, `2x` and `3x` candidates, like Hydrogen's `<Image>`.
+- `placeholder="blur"` shows `asset->metadata.lqip` while the image loads, or a `blurDataURL` you pass. Allow `data:` in your [CSP](#modify-storefronts-content-security-policy-csp) `imgSrc` for it to render.
+- `fill` makes the image cover its parent (which needs `position: relative`), and `object-position` defaults to the hotspot. The same default applies to `style={{objectFit: 'cover'}}`. An explicit `style.objectPosition` wins.
+- `queryParams` adds more [image transformations](https://www.sanity.io/docs/image-urls), e.g. `queryParams={{sat: -100}}`. `fit`, `crop` and `fp-x`/`fp-y` are applied before the crop and hotspot are computed. Sizing params (`w`, `h`, `rect`) are ignored.
+- The project and dataset come from the [Sanity provider](#set-up-the-sanity-provider). Pass `projectId` and `dataset` to render images from another project.
+- The image's `alt` field is used when you don't pass `alt`.
+- `InferImageValue` and `InferStrictImageValue` collect the image shapes from a TypeGen query result, including stega-branded results. `isImageWithAsset` narrows an image to one with an asset.
+
+Use `getImageProps` to get the same attributes without rendering, for example for art direction with `<picture>`:
+
+```tsx
+import {getImageProps, Image as SanityImage, type InferStrictImageValue} from 'hydrogen-sanity'
+
+function Banner({image}: {image: InferStrictImageValue<BANNER_QUERY_RESULT>}) {
+  const mobile = getImageProps({src: image, aspectRatio: '1/1', sizes: '100vw'}).props
+
+  return (
+    <picture>
+      <source
+        media="(max-width: 45em)"
+        srcSet={mobile.srcSet}
+        sizes={mobile.sizes}
+        width={mobile.width}
+        height={mobile.height}
+      />
+      <SanityImage src={image} aspectRatio="21/9" sizes="100vw" />
+    </picture>
+  )
+}
+```
+
+The `useImageUrl` hook provides a convenient way to generate optimized image URLs from Sanity image assets with the [image URL builder](https://www.sanity.io/docs/image-url), when you need a URL rather than an `<img>`.
 
 ```tsx
 import {useImageUrl} from 'hydrogen-sanity'
@@ -893,6 +949,8 @@ export default async function handleRequest(
     // If your storefront and Studio are on separate domains...
     // ...allow Sanity assets loaded from the CDN to be loaded in your storefront
 +   defaultSrc: ['https://cdn.sanity.io'],
+    // ...allow the blur placeholders of `Image` (`data:` URLs)
++   imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://cdn.sanity.io', 'data:'],
     // ...allow Studio to load your storefront in Presentation's iframe
 +   frameAncestors: isPreviewEnabled ? [studioHostname] : [],
 

@@ -11,8 +11,9 @@ import {MockShopNotice} from '~/components/MockShopNotice';
 import {defineQuery} from 'groq';
 import {
   type EncodeDataAttributeFunction,
+  Image as SanityImage,
+  isImageWithAsset,
   Query,
-  useImageUrlBuilder,
 } from 'hydrogen-sanity';
 import type {HOMEPAGE_QUERY_RESULT} from 'sanity.generated';
 
@@ -194,8 +195,6 @@ function HeroSection({
   hero: NonNullable<NonNullable<HOMEPAGE_QUERY_RESULT>['hero']>;
   encodeDataAttribute: EncodeDataAttributeFunction;
 }) {
-  const imageUrlBuilder = useImageUrlBuilder();
-
   return (
     <section className="hero">
       {hero.title && <h1 className="hero-title">{hero.title}</h1>}
@@ -239,18 +238,16 @@ function HeroSection({
 
               case 'imageWithProductHotspots':
                 return (
-                  contentItem.image && (
+                  isImageWithAsset(contentItem.image) && (
                     <div key={contentItem._key} className="hero-content-item">
                       <div className="hero-image">
-                        <img
-                          src={imageUrlBuilder
-                            .image(contentItem.image)
-                            .width(800)
-                            .height(600)
-                            .auto('format')
-                            .url()}
-                          alt=""
-                          style={{maxWidth: '100%', height: 'auto'}}
+                        <SanityImage
+                          src={contentItem.image}
+                          aspectRatio="4/3"
+                          sizes="(min-width: 800px) 800px, 100vw"
+                          placeholder="blur"
+                          loading="eager"
+                          style={{maxWidth: '800px'}}
                           data-sanity={encodeDataAttribute([
                             'content',
                             {
@@ -285,8 +282,6 @@ function ModulesSection({
   modules: NonNullable<NonNullable<HOMEPAGE_QUERY_RESULT>['modules']>;
   encodeDataAttribute: EncodeDataAttributeFunction;
 }) {
-  const imageUrlBuilder = useImageUrlBuilder();
-
   return (
     <section className="modules">
       {modules.map((module, index) => {
@@ -360,26 +355,18 @@ function ModulesSection({
 
           case 'imageWithProductHotspots':
             return (
-              module.image && (
+              isImageWithAsset(module.image) && (
                 <div
                   key={module._key}
                   className={`module module-${module._type}`}
                 >
                   <div className="image-module">
                     <h2>Image Module</h2>
-                    <img
-                      src={imageUrlBuilder
-                        .image(module.image)
-                        .width(600)
-                        .height(400)
-                        .auto('format')
-                        .url()}
-                      alt=""
-                      style={{
-                        maxWidth: '100%',
-                        height: 'auto',
-                        borderRadius: '8px',
-                      }}
+                    <SanityImage
+                      src={module.image}
+                      sizes="(min-width: 600px) 600px, 100vw"
+                      placeholder="blur"
+                      style={{maxWidth: '600px', borderRadius: '8px'}}
                       data-sanity={encodeDataAttribute([
                         {
                           _key: module._key,
@@ -512,6 +499,9 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
 ` as const;
 
 const HOMEPAGE_QUERY = defineQuery(`
+  fn image::asset($asset) = $asset->{_id, url, metadata{lqip}};
+  fn image::field($image) = $image{crop, hotspot, "asset": image::asset(asset)};
+
   *[_id == "home"][0]{
     _id,
     _rev,
@@ -560,14 +550,7 @@ const HOMEPAGE_QUERY = defineQuery(`
           }
         },
         _type == "imageWithProductHotspots" => {
-          image{
-            hotspot,
-            crop,
-            asset->{
-              _id,
-              url
-            }
-          }
+          "image": image::field(image)
         }
       }
     },
@@ -622,14 +605,7 @@ const HOMEPAGE_QUERY = defineQuery(`
         }
       },
       _type == "imageWithProductHotspots" => {
-        image{
-          hotspot,
-          crop,
-          asset->{
-            _id,
-            url
-          }
-        }
+        "image": image::field(image)
       }
     }
   }

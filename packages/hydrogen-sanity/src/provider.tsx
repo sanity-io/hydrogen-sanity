@@ -37,6 +37,15 @@ export function useSanityProviderValue(): SanityProviderValue {
 }
 
 /**
+ * Reads the current Sanity provider configuration, if one has been set.
+ * @internal
+ */
+export function getSanityProviderValue(): SanityProviderValue | undefined {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (globalThis as any)[Symbol.for('Sanity Provider')]
+}
+
+/**
  * Provider that makes Sanity configuration available to child components.
  * Serializes configuration across server-client boundary via globalThis.
  */
