@@ -1,6 +1,7 @@
 import {
   type Any,
   type ClientConfig,
+  type ClientParams,
   type ClientPerspective,
   type ClientReturn,
   createClient,
@@ -133,7 +134,7 @@ export interface SanityContext {
    */
   loadQuery<Result = Any, Query extends string = string>(
     query: Query,
-    params?: QueryParams | QueryWithoutParams,
+    params?: ClientParams<Query, QueryParams | QueryWithoutParams>,
     options?: LoadQueryOptions<ClientReturn<Query, Result>>,
   ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>>
 
@@ -144,7 +145,7 @@ export interface SanityContext {
    */
   fetch<Result = Any, Query extends string = string>(
     query: Query,
-    params?: QueryParams | QueryWithoutParams,
+    params?: ClientParams<Query, QueryParams | QueryWithoutParams>,
     options?: FetchOptions<Result>,
   ): Promise<ClientReturn<Query, Result>>
 
@@ -154,7 +155,7 @@ export interface SanityContext {
    */
   query<Result = Any, Query extends string = string>(
     query: Query,
-    params?: QueryParams | QueryWithoutParams,
+    params?: ClientParams<Query, QueryParams | QueryWithoutParams>,
     options?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
   ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>>
 

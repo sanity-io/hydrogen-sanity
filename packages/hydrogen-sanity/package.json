@@ -141,7 +141,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",
-    "@sanity/client": "^7.25.0",
+    "@sanity/client": "^7.28.0",
     "@sanity/pkg-utils": "^10.9.2",
     "@sanity/semantic-release-preset": "^6.0.0",
     "@shopify/hydrogen": "~2026.4.4",
@@ -159,7 +159,7 @@
     "vitest": "^4.1.10"
   },
   "peerDependencies": {
-    "@sanity/client": "^7.24.0",
+    "@sanity/client": "^7.28.0",
     "@shopify/hydrogen": "~2025.7.3 || ~2025.10.0 || ~2026.1.0 || ~2026.4.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
