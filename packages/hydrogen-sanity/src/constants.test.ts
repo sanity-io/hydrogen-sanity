@@ -29,10 +29,9 @@ describe('DEFAULT_CACHE_STRATEGY', () => {
     expect(await loadWith({})).toEqual(long)
   })
 
-  it('equals `CacheLong()` from the installed Hydrogen', async () => {
+  it('equals the long preset of the installed Hydrogen', async () => {
     vi.resetModules()
-    const hydrogen = await import('@shopify/hydrogen')
     const {DEFAULT_CACHE_STRATEGY} = await import('./constants')
-    expect(DEFAULT_CACHE_STRATEGY).toEqual(hydrogen.CacheLong())
+    expect(DEFAULT_CACHE_STRATEGY).toEqual(long)
   })
 })

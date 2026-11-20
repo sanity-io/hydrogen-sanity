@@ -3,41 +3,9 @@ import {describe, expect, it, vi} from 'vitest'
 
 import {createCachedRun} from './cache'
 import {DEFAULT_CACHE_STRATEGY} from './constants'
+import {MapCache} from './fixtures'
 
 const isHydrogenLibrary = 'createRunWithCache' in hydrogen
-
-/** A Web Cache double that every supported Hydrogen version accepts. It never expires entries. */
-class MapCache implements Cache {
-  #entries = new Map<string, Response>()
-
-  async match(request: RequestInfo | URL) {
-    return this.#entries.get(new Request(request).url)?.clone()
-  }
-
-  async put(request: RequestInfo | URL, response: Response) {
-    this.#entries.set(new Request(request).url, response.clone())
-  }
-
-  async delete(request: RequestInfo | URL) {
-    return this.#entries.delete(new Request(request).url)
-  }
-
-  add(): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
-  addAll(): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
-  keys(): Promise<readonly Request[]> {
-    throw new Error('Not implemented')
-  }
-
-  matchAll(): Promise<readonly Response[]> {
-    throw new Error('Not implemented')
-  }
-}
 
 function setup() {
   return createCachedRun({

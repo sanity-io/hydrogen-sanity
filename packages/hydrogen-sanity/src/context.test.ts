@@ -1,15 +1,16 @@
 import {createClient, SanityClient} from '@sanity/client'
 import type {QueryStore} from '@sanity/react-loader'
-import {CacheShort, type WithCache} from '@shopify/hydrogen'
+import type {CachingStrategy} from '@shopify/hydrogen'
 import groq from 'groq'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
+import type {CachedRun, CachedRunContext, CachedRunOptions} from './cache'
 import {createSanityContext} from './context'
-import {PreviewSession} from './fixtures'
+import {MapCache, PreviewSession} from './fixtures'
 import type {SanityProviderValue} from './provider'
 import {hashQuery} from './utils'
 
-// Mock the global caches object
+// A cache that never returns an entry, for tests that don't exercise caching
 const cache = vi.hoisted<Cache>(() => ({
   add: vi.fn().mockResolvedValue(undefined),
   addAll: vi.fn().mockResolvedValue(undefined),
@@ -20,21 +21,23 @@ const cache = vi.hoisted<Cache>(() => ({
   put: vi.fn().mockResolvedValue(undefined),
 }))
 
-const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
+const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue({data: true}))
 const setServerClient = vi.hoisted(() => vi.fn())
-let withCache = vi.hoisted<WithCache | null>(() => null)
+const cachedRuns = vi.hoisted<Pick<CachedRunOptions<unknown>, 'key' | 'strategy'>[]>(() => [])
 
-vi.mock('@shopify/hydrogen', async (importOriginal) => {
-  const module = await importOriginal<typeof import('@shopify/hydrogen')>()
-  withCache = module.createWithCache({
-    cache,
-    waitUntil: () => Promise.resolve(),
-    request: new Request('https://example.com'),
-  })
+// Record each cached run, and let the installed Hydrogen do the caching
+vi.mock('./cache', async (importOriginal) => {
+  const module = await importOriginal<typeof import('./cache')>()
 
   return {
     ...module,
-    createWithCache: vi.fn().mockReturnValue(withCache),
+    createCachedRun: (context: CachedRunContext): CachedRun => {
+      const run = module.createCachedRun(context)
+      return (options, fn) => {
+        cachedRuns.push({key: options.key, strategy: options.strategy})
+        return run(options, fn)
+      }
+    },
   }
 })
 
@@ -48,59 +51,70 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
   }
 })
 
-const runWithCache = vi.spyOn(withCache!, 'run')
 const projectId = 'my-project-id'
 const client = createClient({projectId, dataset: 'my-dataset'})
 const query = groq`true`
 const params = {}
 const hashedQuery = await hashQuery(query, params)
+const shortStrategy = {mode: 'public', maxAge: 1, staleWhileRevalidate: 9} satisfies CachingStrategy
+
+// Collect background cache writes, so a test can wait for them before it reads the cache again
+const pendingWrites: Promise<unknown>[] = []
+const waitUntil = (promise: Promise<unknown>) => {
+  pendingWrites.push(promise)
+}
+const flushWrites = () => Promise.all(pendingWrites.splice(0))
 
 beforeEach(() => {
   vi.clearAllMocks()
+  cachedRuns.length = 0
+  pendingWrites.length = 0
 })
 
 describe('the Sanity request context', () => {
   const request = new Request('https://example.com')
-  let sanity: Awaited<ReturnType<typeof createSanityContext>>
 
-  beforeEach(async () => {
-    sanity = await createSanityContext({request, cache, client})
-  })
-
-  it('should return a client', () => {
+  it('should return a client', async () => {
+    const sanity = await createSanityContext({request, cache, client})
     expect(sanity.client).toSatisfy((contextClient) => contextClient instanceof SanityClient)
   })
 
   it('queries should get cached using the default caching strategy', async () => {
-    const defaultStrategy = CacheShort()
-
-    const contextWithDefaultStrategy = await createSanityContext({
+    const sanity = await createSanityContext({
       request,
-      cache,
+      cache: new MapCache(),
+      waitUntil,
       client,
-      defaultStrategy,
+      defaultStrategy: shortStrategy,
     })
 
-    await contextWithDefaultStrategy.loadQuery<boolean>(query, params)
-    expect(runWithCache).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: defaultStrategy}),
-      expect.any(Function),
-    )
-    expect(cache.put).toHaveBeenCalledOnce()
+    await sanity.loadQuery<boolean>(query, params)
+    await flushWrites()
+    await sanity.loadQuery<boolean>(query, params)
+
+    expect(loadQuery).toHaveBeenCalledOnce()
+    expect(cachedRuns[0]).toEqual({key: hashedQuery, strategy: shortStrategy})
   })
 
   it('queries should use the cache strategy passed in `loadQuery`', async () => {
-    const strategy = CacheShort()
-    await sanity.loadQuery<boolean>(query, params, {
-      hydrogen: {cache: strategy},
-    })
-    expect(runWithCache).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: strategy}),
-      expect.any(Function),
-    )
-    expect(cache.put).toHaveBeenCalledOnce()
+    const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
+
+    await sanity.loadQuery<boolean>(query, params, {hydrogen: {cache: shortStrategy}})
+
+    expect(cachedRuns[0]).toEqual({key: hashedQuery, strategy: shortStrategy})
+  })
+
+  it('fetch calls should get cached', async () => {
+    const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
+    const response = {result: {title: 'Home'}, resultSourceMap: undefined, ms: 100}
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue(response)
+
+    await sanity.fetch(query, params)
+    await flushWrites()
+    const result = await sanity.fetch(query, params)
+
+    expect(result).toEqual(response)
+    expect(fetch).toHaveBeenCalledOnce()
   })
 })
 
@@ -114,7 +128,8 @@ describe('when configured for preview', () => {
   beforeEach(async () => {
     sanity = await createSanityContext({
       request,
-      cache,
+      cache: new MapCache(),
+      waitUntil,
       client,
       preview: {
         token: 'my-token',
@@ -144,8 +159,11 @@ describe('when configured for preview', () => {
 
   it(`shouldn't cache queries`, async () => {
     await sanity.loadQuery<boolean>(query)
-    expect(loadQuery).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalledOnce()
+    await flushWrites()
+    await sanity.loadQuery<boolean>(query)
+
+    expect(loadQuery).toHaveBeenCalledTimes(2)
+    expect(cachedRuns).toHaveLength(0)
   })
 
   it(`shouldn't cache fetch calls`, async () => {
@@ -154,9 +172,13 @@ describe('when configured for preview', () => {
       resultSourceMap: undefined,
       ms: 100,
     })
+
     await sanity.fetch<boolean>(query)
-    expect(spy).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalledOnce()
+    await flushWrites()
+    await sanity.fetch<boolean>(query)
+
+    expect(spy).toHaveBeenCalledTimes(2)
+    expect(cachedRuns).toHaveLength(0)
   })
 })
 
