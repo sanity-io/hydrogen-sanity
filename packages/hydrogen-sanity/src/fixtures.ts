@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type {HydrogenSession} from '@shopify/hydrogen'
-
 import type {SanityContext} from './context'
 import type {SanityPreviewSession} from './preview/session'
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import type {HydrogenSession} from './types'
 
 export class Session implements HydrogenSession {
   protected data = new Map()

@@ -5,9 +5,9 @@ import {
   validateApiPerspective,
 } from '@sanity/client'
 import {urlSearchParamPreviewPerspective} from '@sanity/preview-url-secret/constants'
-import type {HydrogenSession} from '@shopify/hydrogen'
 
 import type {SanityPreviewSession} from './preview/session'
+import type {HydrogenSession} from './types'
 
 /**
  * Create an SHA-256 hash as a hex string
