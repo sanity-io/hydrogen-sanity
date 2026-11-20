@@ -2,6 +2,7 @@ import { createRequestHandler, RouterContextProvider } from "react-router";
 import * as serverBuild from "virtual:react-router/server-build";
 
 import { envContext } from "~/lib/env";
+import { createRequestSanityContext } from "~/lib/sanity/context";
 
 /**
  * Export a fetch handler in module format for Oxygen / mini-oxygen.
@@ -32,6 +33,12 @@ export default {
       routerContext.set(envContext, env);
       routerContext.env = env;
       routerContext.waitUntil = executionContext.waitUntil.bind(executionContext);
+      routerContext.sanity = await createRequestSanityContext(
+        request,
+        env,
+        routerContext.cache,
+        routerContext.waitUntil,
+      );
 
       const handleRequest = createRequestHandler(serverBuild, process.env.NODE_ENV);
       return handleRequest(request, routerContext as never);

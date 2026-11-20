@@ -1,4 +1,5 @@
 import { gql } from "@shopify/hydrogen";
+import { Query } from "hydrogen-sanity";
 import { Link, useRouteLoaderData } from "react-router";
 
 import {
@@ -8,6 +9,7 @@ import {
 } from "~/components/CollectionCard";
 import { HomeHero } from "~/components/HomeHero";
 import { ProductCard, PRODUCT_CARD_FRAGMENT, type ProductCardData } from "~/components/ProductCard";
+import { HOMEPAGE_QUERY, SanityHomepage } from "~/components/SanityHomepage";
 import { selectHomeHero } from "~/lib/home-hero";
 import { storefrontClientContext } from "~/lib/storefront";
 import {
@@ -69,7 +71,13 @@ export function meta({ matches }: Route.MetaArgs) {
 
 export async function loader({ context }: Route.LoaderArgs) {
   const storefrontClient = context.get(storefrontClientContext);
-  const { data } = await storefrontClient.graphql(HOME_QUERY);
+  const [{ data }, homepage] = await Promise.all([
+    storefrontClient.graphql(HOME_QUERY),
+    context.sanity.query(HOMEPAGE_QUERY, undefined, {
+      tag: "homepage",
+      hydrogen: { debug: { displayName: "query Homepage" } },
+    }),
+  ]);
 
   // New arrivals: the most recently created products (by creation date, not
   // publication date), newest first, in the order the Storefront API returns.
@@ -83,6 +91,7 @@ export async function loader({ context }: Route.LoaderArgs) {
     featuredProducts,
     featuredCollections,
     heroCollections,
+    homepage,
   };
 }
 
@@ -164,7 +173,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <main className="flex-1" id="main-content" tabIndex={-1}>
-      <HomeHero hero={hero} />
+      <Query query={HOMEPAGE_QUERY} options={{ initial: loaderData.homepage }}>
+        {(homepage, encodeDataAttribute) =>
+          // Fall back to the template hero when no Sanity homepage exists
+          homepage ? (
+            <SanityHomepage homepage={homepage} encodeDataAttribute={encodeDataAttribute} />
+          ) : (
+            <HomeHero hero={hero} />
+          )
+        }
+      </Query>
       <NewArrivals products={loaderData.featuredProducts} />
       <ShopByCategory collections={loaderData.featuredCollections} />
     </main>

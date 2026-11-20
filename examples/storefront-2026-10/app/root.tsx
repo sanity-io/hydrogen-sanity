@@ -1,5 +1,8 @@
 import { handleShopifyRedirects, handleShopifyRoutes } from "@shopify/hydrogen";
 import { ShopifyScripts } from "@shopify/hydrogen/react";
+import { Sanity } from "hydrogen-sanity";
+import { usePreviewMode } from "hydrogen-sanity/preview";
+import { VisualEditing } from "hydrogen-sanity/visual-editing";
 import type { ReactNode } from "react";
 import {
   isRouteErrorResponse,
@@ -101,6 +104,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     shopIdentity: resolveShopIdentity(env, layout.shopId),
     currency: layout.currency,
     locale: storefrontClient.locale,
+    studioOrigin: env.SANITY_STUDIO_ORIGIN,
   };
 }
 
@@ -109,6 +113,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   // Absent when the root loader failed (error page only).
   const rootData = useRouteLoaderData<typeof loader>("root");
+  const previewMode = usePreviewMode();
 
   return (
     <html lang="en">
@@ -138,6 +143,10 @@ export function Layout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         {children}
+        {previewMode ? (
+          <VisualEditing action="/api/preview" studioUrl={rootData?.studioOrigin} />
+        ) : null}
+        <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
