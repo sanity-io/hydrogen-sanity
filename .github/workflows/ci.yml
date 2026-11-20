@@ -15,12 +15,14 @@ on:
   pull_request:
     paths:
       - 'packages/hydrogen-sanity/**'
+      - 'examples/storefront-2026-10/**'
       - 'pnpm-lock.yaml'
   # Build on commits pushed to branches without a PR if it's in the allowlist
   push:
     branches: [main, v4, v5, v6, next]
     paths:
       - 'packages/hydrogen-sanity/**'
+      - 'examples/storefront-2026-10/**'
       - 'pnpm-lock.yaml'
   # https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch:
@@ -116,10 +118,52 @@ jobs:
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
       - run: pnpm test --project="hydrogen-sanity"
 
+  test-hydrogen:
+    needs: build
+    if: github.event.inputs.test != 'false'
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    name: Hydrogen ${{ matrix.hydrogen }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The `test` job covers the Hydrogen version in devDependencies. Add each other supported line here.
+        hydrogen: ['~2026.10.0']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
+      - run: pnpm --filter="hydrogen-sanity" add --save-dev "@shopify/hydrogen@${{ matrix.hydrogen }}"
+      - run: pnpm --filter="hydrogen-sanity" run typecheck
+      - run: pnpm test --project="hydrogen-sanity"
+
+  build-example:
+    needs: build
+    if: github.event.inputs.test != 'false'
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+    # Bundles the package into a Hydrogen 2026.10 storefront, where missing Hydrogen exports surface
+    name: Build `storefront-2026-10`
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity" --filter="storefront-2026-10"
+      - run: pnpm turbo run build --filter="storefront-2026-10"
+
   release:
-    needs: [build, test]
+    needs: [build, test, test-hydrogen]
     # only run if opt-in during workflow_dispatch
-    if: always() && github.event.inputs.release == 'true' && needs.build.result != 'failure' && needs.test.result != 'failure' && needs.test.result != 'cancelled'
+    if: always() && github.event.inputs.release == 'true' && needs.build.result != 'failure' && needs.test.result != 'failure' && needs.test.result != 'cancelled' && needs.test-hydrogen.result != 'failure' && needs.test-hydrogen.result != 'cancelled'
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
