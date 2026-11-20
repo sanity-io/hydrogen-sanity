@@ -16,3 +16,6 @@ package-lock.json
 
 # Formatted by oxfmt, see packages/hydrogen-sanity/.oxfmtrc.json
 packages/hydrogen-sanity
+
+# Hydrogen 2026.10 template, kept byte-identical to upstream (formatted by oxfmt)
+examples/storefront-2026-10
