@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file. See
 
 ## [7.1.0](https://github.com/sanity-io/hydrogen-sanity/compare/v7.0.0...v7.1.0) (2026-11-20)
 
+### Features
+
+- add Sanity image component and getImageProps ([#199](https://github.com/sanity-io/hydrogen-sanity/issues/199)) ([46fcd40](https://github.com/sanity-io/hydrogen-sanity/commit/46fcd403c46146bfdfda3fcbc042413cbee1a9f8))
+- infer types from branded .groq queries ([9f4e0d7](https://github.com/sanity-io/hydrogen-sanity/commit/9f4e0d7a0fa1c59af5fb8dbcacfa3e13c6a931b1))
+
 ## [7.0.0](https://github.com/sanity-io/hydrogen-sanity/compare/v6.3.1...v7.0.0) (2026-07-29)
 
 ### ⚠ BREAKING CHANGES
