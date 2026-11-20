@@ -45,7 +45,7 @@ export type CreateSanityContextOptions = {
    * The default caching strategy to use for `loadQuery` subrequests.
    * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
    *
-   * Defaults to `CacheLong`
+   * Defaults to Hydrogen's long preset, `Cache.long()` (`CacheLong()` in Hydrogen 2026.4 and earlier)
    */
   defaultStrategy?: CachingStrategy | null
 

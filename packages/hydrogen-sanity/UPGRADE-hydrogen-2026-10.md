@@ -10,6 +10,8 @@ Hydrogen 2026.10 removes `createHydrogenContext`, `HydrogenAdditionalContext`, `
 npm install hydrogen-sanity@^7.2.0
 ```
 
+With Vite 8, the build warns ``[IMPORT_IS_UNDEFINED] Import `createWithCache` will always be undefined``. You can ignore the warning: `hydrogen-sanity` checks for `createWithCache` to support Hydrogen 2026.4 and earlier, and uses `createRunWithCache` on Hydrogen 2026.10.
+
 ## Set `context.sanity` in `server.ts`
 
 Move `createSanityContext` out of `createHydrogenRouterContext` into its own module, for example `app/lib/sanity/context.ts`. Pass it the router context's `cache` and `waitUntil`:
