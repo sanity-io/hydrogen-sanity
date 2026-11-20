@@ -1,0 +1,63 @@
+import { createContentSecurityPolicy } from "@shopify/hydrogen";
+import { isbot } from "isbot";
+import { renderToReadableStream } from "react-dom/server";
+import { ServerRouter, type EntryContext, type RouterContextProvider } from "react-router";
+
+import { NonceProvider } from "~/lib/csp";
+import { envContext } from "~/lib/env";
+import { getMockShopDomain, getStoreDomain, shouldUseMockShop } from "~/lib/shop";
+
+export default async function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  context: RouterContextProvider,
+) {
+  const env = context.get(envContext);
+  const { preview, SanityProvider } = context.sanity;
+
+  const csp = createContentSecurityPolicy({
+    shop: {
+      storeDomain: shouldUseMockShop(env) ? getMockShopDomain(env) : getStoreDomain(env),
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
+    },
+    directives: {
+      defaultSrc: ["https://cdn.sanity.io"],
+      // `data:` allows the blur placeholders of Sanity images
+      imgSrc: ["https://cdn.sanity.io", "data:"],
+      frameAncestors: [
+        "https://www.sanity.io",
+        ...(preview?.enabled ? [env.SANITY_STUDIO_ORIGIN] : []),
+      ],
+    },
+  });
+
+  const body = await renderToReadableStream(
+    <NonceProvider value={csp.nonce}>
+      <SanityProvider>
+        <ServerRouter context={reactRouterContext} url={request.url} nonce={csp.nonce} />
+      </SanityProvider>
+    </NonceProvider>,
+    {
+      nonce: csp.nonce,
+      signal: request.signal,
+      onError(error) {
+        console.error(error);
+        responseStatusCode = 500;
+      },
+    },
+  );
+
+  if (isbot(request.headers.get("user-agent"))) {
+    await body.allReady;
+  }
+
+  responseHeaders.set("Content-Type", "text/html");
+  csp.applyResponseHeaders(responseHeaders);
+
+  return new Response(body, {
+    headers: responseHeaders,
+    status: responseStatusCode,
+  });
+}

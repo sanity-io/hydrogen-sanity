@@ -11,14 +11,15 @@ import {
   SanityClient,
 } from '@sanity/client'
 import type {QueryResponseInitial} from '@sanity/react-loader'
-import {type CachingStrategy, createWithCache, type HydrogenSession} from '@shopify/hydrogen'
+import type {CachingStrategy} from '@shopify/hydrogen'
 import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 
+import {createCachedRun} from './cache'
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
-import type {CacheActionFunctionParam, WaitUntil} from './types'
+import type {CacheInstance, HydrogenSession, WaitUntil} from './types'
 import {getPerspective, getPerspectiveFromUrl} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
@@ -29,7 +30,10 @@ let didWarnAboutLoadQuery = false
 export type CreateSanityContextOptions = {
   request: Request
 
-  cache?: Cache | undefined
+  /**
+   * The cache for query results. Hydrogen 2026.10 and later also accepts a key-value store.
+   */
+  cache?: CacheInstance | undefined
   waitUntil?: WaitUntil | undefined
 
   /**
@@ -41,7 +45,7 @@ export type CreateSanityContextOptions = {
    * The default caching strategy to use for `loadQuery` subrequests.
    * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
    *
-   * Defaults to `CacheLong`
+   * Defaults to Hydrogen's long preset, `Cache.long()` (`CacheLong()` in Hydrogen 2026.4 and earlier)
    */
   defaultStrategy?: CachingStrategy | null
 
@@ -182,7 +186,7 @@ export async function createSanityContext(
   options: CreateSanityContextOptions,
 ): Promise<SanityContext> {
   const {cache, waitUntil = () => Promise.resolve(), request, preview, defaultStrategy} = options
-  const withCache = cache ? createWithCache({cache, waitUntil, request}) : null
+  const cachedRun = cache ? createCachedRun({cache, waitUntil, request}) : null
   let client =
     options.client instanceof SanityClient ? options.client : createClient(options.client)
 
@@ -276,7 +280,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         didWarnAboutLoadQuery = true
       }
 
-      if (!withCache || previewEnabled) {
+      if (!cachedRun || previewEnabled) {
         const {loadQuery} = await import('@sanity/react-loader')
         // Override the singleton's possibly-stale perspective with the per-request value.
         const resolvedOptions =
@@ -291,20 +295,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       const queryHash = await hashQuery(query, params)
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
-      return await withCache.run(
-        {cacheKey: queryHash, cacheStrategy, shouldCacheResult},
-        async ({
-          addDebugData,
-        }: CacheActionFunctionParam): Promise<
-          QueryResponseInitial<ClientReturn<Query, Result>>
-        > => {
-          // Name displayed in the subrequest profiler
-          const displayName = loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity'
-
-          addDebugData({
-            displayName,
-          })
-
+      return await cachedRun(
+        {
+          key: queryHash,
+          strategy: cacheStrategy,
+          shouldCache: shouldCacheResult,
+          displayName: loaderOptions?.hydrogen?.debug?.displayName || 'query Sanity',
+        },
+        async (): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> => {
           const {loadQuery} = await import('@sanity/react-loader')
           return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
         },
@@ -323,7 +321,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         'perspective' | 'hydrogen' | 'useCdn' | 'headers' | 'tag'
       >,
     ): Promise<ClientReturn<Query, Result>> {
-      if (!withCache || previewEnabled) {
+      if (!cachedRun || previewEnabled) {
         return await client.fetch<ClientReturn<Query, Result>>(query, params, fetchOptions)
       }
 
@@ -331,16 +329,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         fetchOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
       const queryHash = await hashQuery(query, params)
 
-      return await withCache.run(
-        {cacheKey: queryHash, cacheStrategy, shouldCacheResult: () => true},
-        async ({addDebugData}: CacheActionFunctionParam): Promise<ClientReturn<Query, Result>> => {
-          // Name displayed in the subrequest profiler
-          const displayName = fetchOptions?.hydrogen?.debug?.displayName || 'fetch Sanity'
-
-          addDebugData({
-            displayName,
-          })
-
+      return await cachedRun(
+        {
+          key: queryHash,
+          strategy: cacheStrategy,
+          shouldCache: () => true,
+          displayName: fetchOptions?.hydrogen?.debug?.displayName || 'fetch Sanity',
+        },
+        async (): Promise<ClientReturn<Query, Result>> => {
           return await client.fetch<ClientReturn<Query, Result>>(query, params, fetchOptions)
         },
       )
