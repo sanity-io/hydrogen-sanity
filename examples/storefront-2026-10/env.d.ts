@@ -11,7 +11,7 @@ type ReactRouterExampleContext = {
   cache: CacheInstance;
   env: Env;
   waitUntil: ExecutionContext["waitUntil"];
-  // Set by the root middleware. `hydrogen-sanity/preview/route` reads `context.sanity`.
+  // Set in `server.ts`. `hydrogen-sanity/preview/route` reads `context.sanity`.
   sanity: SanityContext;
 };
 
