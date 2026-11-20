@@ -4,7 +4,7 @@
 import type {CachingStrategy} from '@shopify/hydrogen'
 import * as hydrogen from '@shopify/hydrogen'
 
-import type {WaitUntil} from './types'
+import type {CacheInstance, WaitUntil, WebCacheLike} from './types'
 
 export type CachedRunOptions<T> = {
   key: string
@@ -17,14 +17,14 @@ export type CachedRunOptions<T> = {
 export type CachedRun = <T>(options: CachedRunOptions<T>, fn: () => Promise<T>) => Promise<T>
 
 export type CachedRunContext = {
-  cache: Cache
+  cache: CacheInstance
   waitUntil: WaitUntil
   request: Request
 }
 
 /** `createRunWithCache`, Hydrogen 2026.10 and later. */
 export type CreateRunWithCache = (options: {
-  cache: Cache
+  cache: CacheInstance
   waitUntil?: WaitUntil
 }) => <T extends Record<string, unknown>>(
   options: {key: string; strategy: CachingStrategy},
@@ -32,7 +32,11 @@ export type CreateRunWithCache = (options: {
 ) => Promise<{data: T}>
 
 /** `createWithCache`, Hydrogen 2026.4 and earlier. */
-export type CreateWithCache = (options: CachedRunContext) => {
+export type CreateWithCache = (options: {
+  cache: WebCacheLike
+  waitUntil: WaitUntil
+  request: Request
+}) => {
   run: <T>(
     options: {
       cacheKey: string
@@ -45,6 +49,10 @@ export type CreateWithCache = (options: CachedRunContext) => {
 
 function isFunction<T>(value: unknown): value is T {
   return typeof value === 'function'
+}
+
+function isWebCacheLike(cache: CacheInstance): cache is WebCacheLike {
+  return 'match' in cache && 'put' in cache && typeof cache.match === 'function'
 }
 
 export function fromRunWithCache(
@@ -65,9 +73,14 @@ export function fromRunWithCache(
 
 export function fromWithCache(
   createWithCache: CreateWithCache,
-  context: CachedRunContext,
+  {cache, waitUntil, request}: CachedRunContext,
 ): CachedRun {
-  const withCache = createWithCache(context)
+  if (!isWebCacheLike(cache)) {
+    throw new Error(
+      'Hydrogen 2026.4 and earlier needs a Web Cache API cache. A key-value store needs Hydrogen 2026.10 or later.',
+    )
+  }
+  const withCache = createWithCache({cache, waitUntil, request})
   return ({key, strategy, shouldCache, displayName}, fn) =>
     withCache.run(
       {cacheKey: key, cacheStrategy: strategy, shouldCacheResult: shouldCache},

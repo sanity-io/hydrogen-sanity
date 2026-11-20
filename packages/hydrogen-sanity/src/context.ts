@@ -19,7 +19,7 @@ import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
-import type {HydrogenSession, WaitUntil} from './types'
+import type {CacheInstance, HydrogenSession, WaitUntil} from './types'
 import {getPerspective, getPerspectiveFromUrl} from './utils'
 import {hashQuery, supportsPerspectiveStack} from './utils'
 
@@ -30,7 +30,10 @@ let didWarnAboutLoadQuery = false
 export type CreateSanityContextOptions = {
   request: Request
 
-  cache?: Cache | undefined
+  /**
+   * The cache for query results. Hydrogen 2026.10 and later also accepts a key-value store.
+   */
+  cache?: CacheInstance | undefined
   waitUntil?: WaitUntil | undefined
 
   /**

@@ -1,7 +1,10 @@
+import * as hydrogen from '@shopify/hydrogen'
 import {describe, expect, it, vi} from 'vitest'
 
 import {createCachedRun} from './cache'
 import {DEFAULT_CACHE_STRATEGY} from './constants'
+
+const isHydrogenLibrary = 'createRunWithCache' in hydrogen
 
 /** A Web Cache double that every supported Hydrogen version accepts. It never expires entries. */
 class MapCache implements Cache {
@@ -78,5 +81,38 @@ describe('createCachedRun with the installed Hydrogen', () => {
     await run(options, fn)
     await run(options, fn)
     expect(fn).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('createCachedRun with a key-value store', () => {
+  const options = {
+    key: 'query-hash',
+    strategy: DEFAULT_CACHE_STRATEGY,
+    shouldCache: () => true,
+    displayName: 'test',
+  }
+  const context = () => {
+    const entries = new Map<string, unknown>()
+    return {
+      cache: {
+        get: (key: string) => entries.get(key),
+        set: (key: string, value: unknown) => entries.set(key, value),
+      },
+      waitUntil: () => Promise.resolve(),
+      request: new Request('https://example.com'),
+    }
+  }
+
+  it.runIf(isHydrogenLibrary)('caches the result on Hydrogen 2026.10 and later', async () => {
+    const run = createCachedRun(context())
+    const fn = vi.fn(async () => [{_id: 'a'}])
+
+    await run(options, fn)
+    expect(await run(options, fn)).toEqual([{_id: 'a'}])
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it.skipIf(isHydrogenLibrary)('throws on Hydrogen 2026.4 and earlier', () => {
+    expect(() => createCachedRun(context())).toThrow(/key-value store needs Hydrogen 2026.10/)
   })
 })
