@@ -1,72 +1,54 @@
-import type {HydrogenSession} from '@shopify/hydrogen';
-import {
-  createCookieSessionStorage,
-  type SessionStorage,
-  type Session,
-} from 'react-router';
+import { createCookie } from "@remix-run/cookie";
+import { createCookieSessionStorage } from "@remix-run/session/cookie-storage";
+import type { WritableCustomerSessionManager } from "@shopify/hydrogen/customer-account";
+
+const sessionStorage = createCookieSessionStorage();
 
 /**
- * This is a custom session implementation for your Hydrogen shop.
- * Feel free to customize it to your needs, add helper methods, or
- * swap out the cookie-based implementation with something else!
+ * Signed cookie session. The cookie is HttpOnly and tamper-proof, but signed,
+ * not encrypted: whoever holds the cookie can read its contents.
  */
-export class AppSession implements HydrogenSession {
-  public isPending = false;
+export async function createRequestSessionManager(
+  request: Request,
+  secret: string,
+): Promise<WritableCustomerSessionManager> {
+  const cookie = createCookie("__Host-session", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Lax",
+    path: "/",
+    secrets: [secret],
+  });
+  const session = await sessionStorage.read(await cookie.parse(request.headers.get("cookie")));
+  const origin = new URL(request.url).origin;
 
-  #sessionStorage;
-  #session;
+  return {
+    getSessionOrigin: () => origin,
+    getSessionItem: (key) => session.get(key),
+    setSessionItem: (key, value) => session.set(key, value),
+    removeSessionItem: (key) => session.unset(key),
+    async commit() {
+      if (session.dirty && session.size === 0) session.destroy();
+      const value = await sessionStorage.save(session);
+      if (value === null) return;
+      return { "set-cookie": await cookie.serialize(value, value === "" ? { maxAge: 0 } : {}) };
+    },
+  };
+}
 
-  constructor(sessionStorage: SessionStorage, session: Session) {
-    this.#sessionStorage = sessionStorage;
-    this.#session = session;
-  }
+/** In-memory session for requests without Customer Accounts configured. */
+export function createEphemeralSessionManager(request: Request): WritableCustomerSessionManager {
+  const data = new Map<string, unknown>();
+  const origin = new URL(request.url).origin;
 
-  static async init(request: Request, secrets: string[]) {
-    const storage = createCookieSessionStorage({
-      cookie: {
-        name: 'session',
-        httpOnly: true,
-        path: '/',
-        sameSite: 'lax',
-        secrets,
-      },
-    });
-
-    const session = await storage
-      .getSession(request.headers.get('Cookie'))
-      .catch(() => storage.getSession());
-
-    return new this(storage, session);
-  }
-
-  get has() {
-    return this.#session.has;
-  }
-
-  get get() {
-    return this.#session.get;
-  }
-
-  get flash() {
-    return this.#session.flash;
-  }
-
-  get unset() {
-    this.isPending = true;
-    return this.#session.unset;
-  }
-
-  get set() {
-    this.isPending = true;
-    return this.#session.set;
-  }
-
-  destroy() {
-    return this.#sessionStorage.destroySession(this.#session);
-  }
-
-  commit() {
-    this.isPending = false;
-    return this.#sessionStorage.commitSession(this.#session);
-  }
+  return {
+    getSessionOrigin: () => origin,
+    getSessionItem: (key) => data.get(key),
+    setSessionItem: (key, value) => {
+      data.set(key, value);
+    },
+    removeSessionItem: (key) => {
+      data.delete(key);
+    },
+  };
 }

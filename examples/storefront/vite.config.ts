@@ -1,11 +1,15 @@
-import {defineConfig} from 'vite';
-import {hydrogen} from '@shopify/hydrogen/vite';
-import {oxygen} from '@shopify/mini-oxygen/vite';
-import {reactRouter} from '@react-router/dev/vite';
-import {sanity} from 'hydrogen-sanity/vite';
+import { reactRouter } from "@react-router/dev/vite";
+import { localHttps } from "@shopify/hydrogen/vite";
+import { oxygen } from "@shopify/mini-oxygen/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+const oxygenPlugins = oxygen();
+const enabled = process.env.npm_lifecycle_event === "dev:https";
+const httpsOptions = { enabled };
 
 export default defineConfig({
-  plugins: [hydrogen(), oxygen(), reactRouter(), sanity()],
+  plugins: [localHttps(httpsOptions), tailwindcss(), ...oxygenPlugins, reactRouter()],
   resolve: {
     tsconfigPaths: true,
   },
@@ -27,13 +31,18 @@ export default defineConfig({
        * @see https://vitejs.dev/config/dep-optimization-options
        */
       include: [
-        'react-router > set-cookie-parser',
-        'react-router > cookie',
-        'react-router',
+        "react",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "react-dom",
+        "react-dom/server",
+        "react-router > set-cookie-parser",
+        "react-router > cookie",
+        "react-router",
       ],
     },
   },
   server: {
-    allowedHosts: ['.tryhydrogen.dev'],
+    allowedHosts: [".tryhydrogen.dev"],
   },
 });
