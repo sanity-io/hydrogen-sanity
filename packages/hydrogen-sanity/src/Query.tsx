@@ -72,7 +72,16 @@ export interface QueryProps<Result = Any, Query extends string = string> extends
 }
 
 /**
- * Query component that provides live updates in preview mode and static data otherwise.
+ * Renders the result of `context.sanity.query`. Outside preview mode it renders `options.initial`
+ * and loads no preview code. In preview mode it renders live updates from the Presentation tool
+ * after hydration, and `encodeDataAttribute` returns `data-sanity` values for click-to-edit.
+ *
+ * @example
+ * ```tsx
+ * <Query query={PAGE_QUERY} options={{initial: loaderData.initial}}>
+ *   {(page, encodeDataAttribute) => <h1 data-sanity={encodeDataAttribute('title')}>{page?.title}</h1>}
+ * </Query>
+ * ```
  *
  * @public
  */

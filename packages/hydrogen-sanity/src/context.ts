@@ -28,13 +28,25 @@ let didWarnAboutNoPerspectiveSupport = false
 let didWarnAboutLoadQuery = false
 
 export type CreateSanityContextOptions = {
+  /**
+   * The incoming request. Preview mode reads the perspective from its URL.
+   */
   request: Request
 
+  /**
+   * Hydrogen's cache, for example `await caches.open('hydrogen-v1')`. Without it, queries aren't
+   * cached.
+   */
   cache?: CacheInstance | undefined
+
+  /**
+   * Keeps the worker alive while the cache revalidates. Pass the execution context's `waitUntil`.
+   */
   waitUntil?: WaitUntil | undefined
 
   /**
-   * Sanity client or configuration to use.
+   * Sanity client or configuration to use. Keep the default `useCdn: true`: `query` and `fetch`
+   * read fresh content from the API CDN, and preview mode switches to the live API.
    */
   client: SanityClient | ClientConfig
 
@@ -47,10 +59,13 @@ export type CreateSanityContextOptions = {
   defaultStrategy?: CachingStrategy | null
 
   /**
-   * Configuration for enabling preview mode.
+   * Enables preview mode. Leave it `undefined` when the preview token or session secret isn't
+   * set, and the context reads published content only.
    */
   preview?: {
+    /** A Sanity token with the Viewer role or higher, to read drafts. */
     token: string
+    /** The preview session, from `PreviewSession.init(request, [env.SESSION_SECRET])`. */
     session: SanityPreviewSession | HydrogenSession
   }
 }
@@ -113,7 +128,9 @@ export type QueryOptions<T> = Omit<LoadQueryOptions<T>, 'hydrogen'> & FetchOptio
 
 export interface SanityContext {
   /**
-   * Query Sanity using the loader.
+   * Queries Sanity and returns the `{data, sourceMap, perspective}` shape that
+   * `useQuery` takes as `initial`. Use it in preview mode only; `query` picks it for you.
+   * Outside preview mode, the result is cached with Hydrogen's cache.
    * @see https://www.sanity.io/docs/loaders
    */
   loadQuery<Result = Any, Query extends string = string>(
@@ -123,9 +140,8 @@ export interface SanityContext {
   ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>>
 
   /**
-   * Query Sanity using direct client fetch with Hydrogen caching.
-   * Use this when you need direct client results without react-loader integration.
-   * Automatically disables caching in preview mode for real-time updates.
+   * Queries Sanity and returns the result, cached with Hydrogen's cache. Use it for data that
+   * doesn't need live preview. Preview mode reads drafts and skips the cache.
    */
   fetch<Result = Any, Query extends string = string>(
     query: Query,
@@ -134,8 +150,19 @@ export interface SanityContext {
   ): Promise<ClientReturn<Query, Result>>
 
   /**
-   * Conditionally query Sanity using either loadQuery (for preview mode) or fetch (for static mode).
-   * This optimizes bundle size by only loading `@sanity/react-loader` dependencies when in preview mode.
+   * The recommended way to query Sanity in a loader. Pass the return value to `<Query>` as
+   * `options.initial`.
+   *
+   * Outside preview mode it calls `fetch` and returns the result. In preview mode it calls
+   * `loadQuery` and returns `{data, sourceMap, perspective}`, so `<Query>` can render live updates.
+   *
+   * @example
+   * ```ts
+   * export async function loader({context}: Route.LoaderArgs) {
+   *   const initial = await context.sanity.query(PAGE_QUERY, {slug: 'home'})
+   *   return {initial}
+   * }
+   * ```
    */
   query<Result = Any, Query extends string = string>(
     query: Query,
@@ -156,6 +183,10 @@ export interface SanityContext {
     enabled: boolean
   }
 
+  /**
+   * Wraps the app in `entry.server.tsx`, so `<Sanity>`, `Image` and the preview components can
+   * read the configuration while rendering.
+   */
   SanityProvider: (props: PropsWithChildren<object>) => ReactNode
 }
 
@@ -189,6 +220,19 @@ async function fetchQueryResponse<T>(
 }
 
 /**
+ * Creates the per-request Sanity context. Call it in `server.ts` and set the result as
+ * `context.sanity`, before React Router handles the request.
+ *
+ * @example
+ * ```ts
+ * routerContext.sanity = await createSanityContext({
+ *   request,
+ *   cache: routerContext.cache,
+ *   waitUntil: routerContext.waitUntil,
+ *   client: {projectId: env.SANITY_PROJECT_ID, dataset: env.SANITY_DATASET, apiVersion: '2025-02-19'},
+ * })
+ * ```
+ *
  * @public
  */
 export async function createSanityContext(
