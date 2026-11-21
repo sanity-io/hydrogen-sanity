@@ -58,6 +58,33 @@ Remove `useCdn: false` and `useCdn: process.env.NODE_ENV === 'production'` from 
 
 To opt out for one request, pass `cacheMode: undefined`.
 
+## Remove the client-side `studioUrl`
+
+`<VisualEditing>` and `<LiveMode>` now read `studioUrl` from the server client's `stega.studioUrl` when it's a string. Remove the `studioOrigin` value from the root loader and the `studioUrl` prop:
+
+```diff
+- <VisualEditing action="/api/preview" studioUrl={data?.studioOrigin} />
++ <VisualEditing action="/api/preview" />
+```
+
+Keep passing a `stega.filter` function, or a function-valued `studioUrl`, as a prop. Functions can't cross from the server.
+
+## Check `shouldCacheResult` in `fetch` and `query`
+
+7.x ignored `hydrogen.shouldCacheResult` in `fetch`, and so in `query` outside preview mode. v8 applies it, and the callback receives the query result. If your callback expects `{data}`, read the result directly instead.
+
+## Expect a cold cache after the deploy
+
+Cache entries now include the method, project, dataset, API version, perspective and stega setting. v8 doesn't read the entries that 7.x wrote, so the first requests after the deploy fetch from Sanity.
+
+## Read `query` results in loaders with `isQueryResponseInitial`
+
+In preview mode `query` returns `{data, sourceMap, perspective}`. To check the result in a loader, use the new `isQueryResponseInitial` guard. See [Using `query` and `Query` together](./README.md#recommended-using-query-and-query-together).
+
+## `loadQuery` no longer sets `@sanity/react-loader`'s server client
+
+`loadQuery` fetches with the request's own client, so concurrent requests don't share a client. If your app also calls `loadQuery` from `@sanity/react-loader` directly, call `setServerClient` yourself.
+
 ## Update the Content Security Policy
 
 `createContentSecurityPolicy` takes `{shop, directives}` and returns `csp.applyResponseHeaders()`. Hydrogen merges `directives` with the Shopify sources, so list only the Sanity sources. See [Modify storefront's Content Security Policy](./README.md#modify-storefronts-content-security-policy-csp).
