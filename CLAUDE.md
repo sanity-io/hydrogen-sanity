@@ -26,12 +26,12 @@ For `packages/hydrogen-sanity/`:
 - `pnpm typecheck` - TypeScript checking
 - `pnpm lint` - ESLint with cache
 
-For example storefront (`examples/storefront/`):
+For example storefront (`examples/storefront/`, the Hydrogen 2026.10 template):
 
-- `pnpm dev` - Start Hydrogen dev server with codegen
-- `pnpm build` - Build Shopify Hydrogen app with codegen
-- `pnpm typecheck` - TypeScript checking with `--noEmit`
-- `pnpm codegen` - Generate Shopify Hydrogen and Sanity TypeGen types
+- `pnpm dev` - Start the Vite dev server
+- `pnpm build` - Build with `react-router build`
+- `pnpm typecheck` - React Router and Sanity TypeGen, `tsc`, and `hydrogen gql check`
+- `pnpm codegen` - Generate Sanity TypeGen types
 
 ### Running Tests
 
@@ -83,7 +83,6 @@ This project uses React Router 7, NOT Remix. Always use React Router imports:
 - Import from `react-router` (not `@remix-run/react`)
 - Import from `@react-router/dev` (not `@remix-run/dev`)
 - **Never** use `react-router-dom` imports
-- Follow the cursor rules in `examples/storefront/.cursor/rules/hydrogen-react-router.mdc` for proper import patterns
 
 ### Testing Setup
 
