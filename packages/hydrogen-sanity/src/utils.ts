@@ -5,8 +5,27 @@ import type {SanityPreviewSession} from './preview/session'
 import type {HydrogenSession} from './types'
 
 /**
+ * A perspective name: `published`, `drafts`, `raw`, `previewDrafts` or a release name. Release
+ * names use the document ID alphabet of `@sanity/id-utils` without dots, because a dot would
+ * break `versions.<release>.<id>`. `validateApiPerspective` accepts any string, so this check is
+ * what keeps markup out of a perspective that the page later serializes.
+ */
+const PERSPECTIVE_NAME = /^[a-zA-Z0-9_-]+$/
+
+function assertPerspectiveNames(perspective: unknown): asserts perspective is string | string[] {
+  const names = Array.isArray(perspective) ? perspective : [perspective]
+  const valid =
+    names.length > 0 &&
+    names.every((name) => typeof name === 'string' && PERSPECTIVE_NAME.test(name))
+  if (!valid) {
+    throw new TypeError(`Invalid perspective: ${JSON.stringify(perspective)}`)
+  }
+}
+
+/**
  * Sanitizes and validates a perspective value.
  * Handles both string (comma-separated) and array formats.
+ * @throws TypeError when the value is empty or contains anything but perspective names.
  */
 export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspective, 'raw'> {
   let sanitizedPerspective =
@@ -21,6 +40,7 @@ export function sanitizePerspective(perspective: unknown): Exclude<ClientPerspec
     )
   }
 
+  assertPerspectiveNames(sanitizedPerspective)
   validateApiPerspective(sanitizedPerspective)
 
   return sanitizedPerspective === 'raw' ? 'drafts' : sanitizedPerspective
@@ -49,14 +69,16 @@ export function supportsPerspectiveStack(apiVersion: string): boolean {
 
 /**
  * Extracts and validates the perspective from a session.
+ * Falls back to `drafts` when the session has no valid perspective, so a stale or foreign session
+ * value can't break the request.
  */
 export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
-  const perspective = session
-    .get('perspective')
-    ?.split(',')
-    .filter((p: string) => p.length > 0)
-  validateApiPerspective(perspective)
-  return perspective
+  try {
+    const perspective = sanitizePerspective(session.get('perspective'))
+    return Array.isArray(perspective) ? perspective : [perspective]
+  } catch {
+    return ['drafts']
+  }
 }
 
 /**
