@@ -118,7 +118,6 @@ export function createRequestSanityContext(
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET || 'production',
       apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
-      useCdn: process.env.NODE_ENV === 'production',
     },
 
     // You can also initialize a client and pass it instead
@@ -126,7 +125,6 @@ export function createRequestSanityContext(
     //   projectId: env.SANITY_PROJECT_ID,
     //   dataset: env.SANITY_DATASET,
     //   apiVersion: env.SANITY_API_VERSION,
-    //   useCdn: process.env.NODE_ENV === 'production',
     // }),
 
     // Optionally, set a default cache strategy. Defaults to `Cache.long()`
@@ -134,6 +132,9 @@ export function createRequestSanityContext(
   })
 }
 ```
+
+> [!NOTE]
+> Keep the client's default `useCdn: true`. `query` and `fetch` read published content from the [API CDN](https://www.sanity.io/docs/content-lake/api-cdn) and send `cacheMode: 'noStale'`, so the API CDN doesn't return stale content. Hydrogen's cache already serves stale content while it revalidates. In preview mode, `hydrogen-sanity` uses the live API.
 
 Then set `context.sanity` in `server.ts`, before React Router handles the request:
 
@@ -735,7 +736,6 @@ import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET || 'production',
       apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
-      useCdn: process.env.NODE_ENV === 'production',
 
 +     // Enable stega encoding only when in preview mode
 +     stega: {
@@ -1052,7 +1052,6 @@ The following example configures Sanity Client and provides it in the request co
 +       projectId: env.SANITY_PROJECT_ID,
 +       dataset: env.SANITY_DATASET,
 +       apiVersion: env.SANITY_API_VERSION ?? 'v2025-02-19',
-+       useCdn: process.env.NODE_ENV === 'production',
 +     })
 ```
 
@@ -1069,12 +1068,16 @@ The following example configures Sanity Client and provides it in the request co
   }
 ```
 
-Then, in your loaders and actions you'll have access to Sanity Client in context:
+Then, in your loaders and actions you'll have access to Sanity Client in context. Pass `cacheMode: 'noStale'` so the API CDN doesn't return stale content:
 
 ```ts
 export async function loader({context}: Route.LoaderArgs) {
   const {sanity} = context
-  const homepage = await sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+  const homepage = await sanity.fetch(
+    `*[_type == "page" && _id == $id][0]`,
+    {id: 'home'},
+    {cacheMode: 'noStale'},
+  )
 
   return {homepage}
 }
@@ -1090,7 +1093,11 @@ export async function loader({context}: Route.LoaderArgs) {
   const runWithCache = createRunWithCache({cache, waitUntil})
 
   const {data} = await runWithCache({key: 'home', strategy: Cache.long()}, async () => {
-    const homepage = await sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+    const homepage = await sanity.fetch(
+      `*[_type == "page" && _id == $id][0]`,
+      {id: 'home'},
+      {cacheMode: 'noStale'},
+    )
     // Avoid caching a miss
     return {data: {homepage}, shouldCache: Boolean(homepage)}
   })

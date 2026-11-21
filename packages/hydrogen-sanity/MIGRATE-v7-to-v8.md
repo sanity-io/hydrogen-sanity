@@ -50,6 +50,14 @@ v8 removes the `hydrogen.debug` option from `query`, `loadQuery` and `fetch`. Hy
 
 The `refreshDefault` callback of the `refresh` prop on `VisualEditing` and `Overlays` no longer reads the deprecated `livePreviewEnabled` flag from Studio. It skips revalidation for mutations when a `Query` component or `useQuery` hook is mounted, and revalidates in all other cases.
 
+## Read fresh content from the API CDN
+
+`query` and `fetch` now send `cacheMode: 'noStale'`, so the API CDN doesn't return stale content. Hydrogen's cache already serves stale content while it revalidates.
+
+Remove `useCdn: false` and `useCdn: process.env.NODE_ENV === 'production'` from your client configuration, and keep the client's default `useCdn: true`. The option applies only to API CDN requests. In preview mode, `hydrogen-sanity` uses the live API.
+
+To opt out for one request, pass `cacheMode: undefined`.
+
 ## Update the Content Security Policy
 
 `createContentSecurityPolicy` takes `{shop, directives}` and returns `csp.applyResponseHeaders()`. Hydrogen merges `directives` with the Shopify sources, so list only the Sanity sources. See [Modify storefront's Content Security Policy](./README.md#modify-storefronts-content-security-policy-csp).
