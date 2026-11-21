@@ -31,6 +31,21 @@ describe('sanitizePerspective', () => {
 
     expect(result).toEqual(['drafts', 'published'])
   })
+
+  it.each([
+    '</script><script>alert(1)</script>',
+    'drafts,</script>',
+    'versions.rABC',
+    '',
+    ',',
+    null,
+  ])('rejects %j', (perspective) => {
+    expect(() => sanitizePerspective(perspective)).toThrow(TypeError)
+  })
+
+  it('accepts release names', () => {
+    expect(sanitizePerspective('rAbC123_-x,drafts')).toEqual(['rAbC123_-x', 'drafts'])
+  })
 })
 
 describe('supportsPerspectiveStack', () => {
@@ -103,6 +118,12 @@ describe('getPerspective', () => {
 
     expect(result).toEqual(['releaseId', 'drafts'])
   })
+
+  it.each([undefined, '', ',', '<b>'])('falls back to drafts for %j', (stored) => {
+    mockSession.get.mockReturnValue(stored)
+
+    expect(getPerspective(mockSession)).toEqual(['drafts'])
+  })
 })
 
 describe('getPerspectiveFromUrl', () => {
@@ -120,6 +141,13 @@ describe('getPerspectiveFromUrl', () => {
     expect(
       getPerspectiveFromUrl('https://example.com/?sanity-preview-perspective='),
     ).toBeUndefined()
+  })
+
+  it('ignores a param that carries markup', () => {
+    const url = new URL('https://example.com/')
+    url.searchParams.set('sanity-preview-perspective', '</script><script>alert(1)</script>')
+
+    expect(getPerspectiveFromUrl(url)).toBeUndefined()
   })
 
   it('should handle comma-separated perspective stacks', () => {
