@@ -9,12 +9,17 @@
     "dev": "hydrogen skills check --mode=warn && vite dev",
     "dev:https": "hydrogen skills check --mode=warn && vite dev",
     "preview": "react-router build && vite preview",
-    "typecheck": "react-router typegen && tsc && hydrogen gql check --fail-on-warn"
+    "typecheck": "react-router typegen && sanity typegen generate && tsc && hydrogen gql check --fail-on-warn",
+    "codegen": "sanity typegen generate",
+    "test": "node --test __test__/*.test.ts"
   },
   "dependencies": {
     "@remix-run/cookie": "^0.6.0",
     "@remix-run/session": "^0.4.2",
+    "@sanity/client": "^7.28.0",
     "@shopify/hydrogen": "2026.10.3",
+    "groq": "^6.6.0",
+    "hydrogen-sanity": "workspace:*",
     "isbot": "^5.1.36",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -22,6 +27,7 @@
   },
   "devDependencies": {
     "@react-router/dev": "7.15.1",
+    "@sanity/cli": "^7.13.0",
     "@shopify/cli": "4.8.1",
     "@shopify/mini-oxygen": "4.3.0",
     "@shopify/oxygen-workers-types": "^4.1.6",

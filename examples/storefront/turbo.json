@@ -1,0 +1,21 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "codegen": {
+      "outputs": ["*.generated.d.ts"]
+    },
+    "build": {
+      "dependsOn": ["hydrogen-sanity#build"],
+      "outputs": [".react-router/**", "dist/**", "*.generated.d.ts"]
+    },
+    "preview": {
+      "dependsOn": ["hydrogen-sanity#build"],
+      "outputs": [".react-router/**", "dist/**", "*.generated.d.ts"]
+    },
+    "deploy": {
+      "dependsOn": ["hydrogen-sanity#build"],
+      "outputs": [".react-router/**", "dist/**", "*.generated.d.ts"]
+    }
+  }
+}
