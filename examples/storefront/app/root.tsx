@@ -1,177 +1,143 @@
-import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
+import { handleShopifyRedirects, handleShopifyRoutes } from "@shopify/hydrogen";
+import { ShopifyScripts } from "@shopify/hydrogen/react";
+import type { ReactNode } from "react";
 import {
-  Outlet,
-  useRouteError,
   isRouteErrorResponse,
-  type ShouldRevalidateFunction,
   Links,
   Meta,
+  Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigate,
   useRouteLoaderData,
-} from 'react-router';
-import type {Route} from './+types/root';
-import favicon from '~/assets/favicon.svg';
-import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
-import resetStyles from '~/styles/reset.css?url';
-import appStyles from '~/styles/app.css?url';
-import {PageLayout} from './components/PageLayout';
-import {VisualEditing} from 'hydrogen-sanity/visual-editing';
-import {Sanity} from 'hydrogen-sanity';
-import {usePreviewMode} from 'hydrogen-sanity/preview';
-// if using other stega options, import them here
-// import {filter} from '~/lib/sanity/stega';
+} from "react-router";
 
-export type RootLoader = typeof loader;
+import { CartAnalyticsTracker, PageViewedTracker } from "~/components/AnalyticsTrackers";
+import { AnnouncementBar } from "~/components/AnnouncementBar";
+import { CartDrawer } from "~/components/CartDrawer";
+import { Footer } from "~/components/Footer";
+import { Header } from "~/components/Header";
+import { SearchDrawer } from "~/components/SearchDrawer";
+import { CartProvider } from "~/lib/cart";
+import { cartHandlers } from "~/lib/cart-handlers";
+import { useNonce } from "~/lib/csp";
+import { createRequestCustomerAccount, customerAccountContext } from "~/lib/customer-account";
+import { envContext } from "~/lib/env";
+import { predictiveSearchHandlers } from "~/lib/predictive-search-handlers";
+import { loadRootLayout } from "~/lib/root-layout";
+import { routeTemplates } from "~/lib/route-templates";
+import { createEphemeralSessionManager } from "~/lib/session";
+import { analyticsConsent, resolveShopIdentity } from "~/lib/shop";
+import { createRequestStorefrontClient, storefrontClientContext } from "~/lib/storefront";
 
-/**
- * This is important to avoid re-fetching root queries on sub-navigations
- */
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  formMethod,
-  currentUrl,
-  nextUrl,
-}) => {
-  // revalidate when a mutation is performed e.g add to cart, login...
-  if (formMethod && formMethod !== 'GET') return true;
+import type { Route } from "./+types/root";
 
-  // revalidate when manually revalidating via useRevalidator
-  if (currentUrl.toString() === nextUrl.toString()) return true;
+import appStylesHref from "./app.css?url";
 
-  // Defaulting to no revalidation for root loader data to improve performance.
-  // When using this feature, you risk your UI getting out of sync with your server.
-  // Use with caution. If you are uncomfortable with this optimization, update the
-  // line below to `return defaultShouldRevalidate` instead.
-  // For more details see: https://remix.run/docs/en/main/route/should-revalidate
-  return false;
-};
+export const links: Route.LinksFunction = () => [
+  { rel: "stylesheet", href: appStylesHref },
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+];
 
-/**
- * The main and reset stylesheets are added in the Layout component
- * to prevent a bug in development HMR updates.
- *
- * This avoids the "failed to execute 'insertBefore' on 'Node'" error
- * that occurs after editing and navigating to another page.
- *
- * It's a temporary fix until the issue is resolved.
- * https://github.com/remix-run/remix/issues/9242
- */
-export function links() {
-  return [
-    {
-      rel: 'preconnect',
-      href: 'https://cdn.shopify.com',
-    },
-    {
-      rel: 'preconnect',
-      href: 'https://shop.app',
-    },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
-  ];
-}
+export const middleware: Route.MiddlewareFunction[] = [
+  async ({ context, request }, next) => {
+    const env = context.get(envContext);
+    const storefrontClient = createRequestStorefrontClient(
+      request,
+      env,
+      context.cache,
+      context.waitUntil,
+    );
+    const requestContext = storefrontClient.requestContext;
+    const customerAccount = await createRequestCustomerAccount(request, env, requestContext);
+    const sessionManager =
+      customerAccount?.customerAccount.sessionManager ?? createEphemeralSessionManager(request);
 
-export async function loader(args: Route.LoaderArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
+    const shopifyRoute = handleShopifyRoutes({
+      request,
+      requestContext,
+      sessionManager,
+      storefrontClient,
+      routeTemplates,
+      handlers: customerAccount
+        ? [cartHandlers, predictiveSearchHandlers, customerAccount.handlers]
+        : [cartHandlers, predictiveSearchHandlers],
+    });
 
-  // Await the critical data required to render initial state of the page
-  const criticalData = await loadCriticalData(args);
+    if (shopifyRoute) return shopifyRoute;
 
-  const {storefront, env} = args.context;
+    context.set(storefrontClientContext, storefrontClient);
+    context.set(customerAccountContext, customerAccount?.customerAccount ?? null);
 
-  return {
-    ...deferredData,
-    ...criticalData,
-    publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
-    shop: getShopAnalytics({
-      storefront,
-      publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
-    }),
-    consent: {
-      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
-      storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: false,
-      // localize the privacy banner
-      country: args.context.storefront.i18n.country,
-      language: args.context.storefront.i18n.language,
-    },
-    studioOrigin: env.SANITY_STUDIO_ORIGIN,
-  };
-}
+    const response = await next();
+    const sessionHeaders = new Headers((await sessionManager.commit?.()) ?? undefined);
+    for (const [name, value] of sessionHeaders) response.headers.append(name, value);
+    if (response.status === 404) {
+      const redirect = await handleShopifyRedirects({
+        request,
+        storefrontClient,
+        routeTemplates,
+      });
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- */
-async function loadCriticalData({context}: Route.LoaderArgs) {
-  const {storefront} = context;
+      if (redirect) return redirect;
+    }
 
-  const [header] = await Promise.all([
-    storefront.query(HEADER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-      },
-    }),
-    // Add other queries here, so that they are loaded in parallel
+    requestContext.applyResponseHeaders(response.headers);
+    return response;
+  },
+];
+
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const env = context.get(envContext);
+  const storefrontClient = context.get(storefrontClientContext);
+  const [cartResult, layout] = await Promise.all([
+    cartHandlers.get({ storefrontClient, request }),
+    loadRootLayout(storefrontClient),
   ]);
 
-  return {header};
-}
-
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- */
-function loadDeferredData({context}: Route.LoaderArgs) {
-  const {storefront, customerAccount, cart} = context;
-
-  // defer the footer query (below the fold)
-  const footer = storefront
-    .query(FOOTER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        footerMenuHandle: 'footer', // Adjust to your footer menu handle
-      },
-    })
-    .catch((error: Error) => {
-      // Log query errors, but don't throw them so the page can still render
-      console.error(error);
-      return null;
-    });
   return {
-    cart: cart.get(),
-    isLoggedIn: customerAccount.isLoggedIn(),
-    footer,
+    cartData: cartResult.data,
+    shopInfo: layout.shopInfo,
+    shopIdentity: resolveShopIdentity(env, layout.shopId),
+    currency: layout.currency,
+    locale: storefrontClient.locale,
   };
 }
 
-export function Layout({children}: {children?: React.ReactNode}) {
+export function Layout({ children }: { children: ReactNode }) {
   const nonce = useNonce();
-  const data = useRouteLoaderData<RootLoader>('root');
-  const previewMode = usePreviewMode();
+  const navigate = useNavigate();
+  // Absent when the root loader failed (error page only).
+  const rootData = useRouteLoaderData<typeof loader>("root");
 
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="stylesheet" href={resetStyles}></link>
-        <link rel="stylesheet" href={appStyles}></link>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {rootData ? (
+          <ShopifyScripts
+            nonce={nonce}
+            i18n={{ ...rootData.locale, currency: rootData.currency }}
+            shop={rootData.shopIdentity.scriptShop}
+            analytics={{ channel: rootData.shopIdentity.analyticsShop.channel }}
+            shopifyAnalytics={rootData.shopIdentity.shopifyAnalytics}
+            consent={analyticsConsent}
+            navigate={navigate}
+            routes={routeTemplates}
+          />
+        ) : null}
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-surface text-on-surface font-body flex min-h-svh flex-col antialiased">
+        <a
+          href="#main-content"
+          className="focus-visible:bg-interactive focus-visible:text-interactive-text sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:start-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded focus-visible:px-4 focus-visible:py-2"
+        >
+          Skip to content
+        </a>
         {children}
-        {previewMode ? (
-          <VisualEditing
-            action="/api/preview"
-            // filter={filter}
-            studioUrl={data?.studioOrigin}
-          />
-        ) : null}
-        <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
@@ -179,47 +145,48 @@ export function Layout({children}: {children?: React.ReactNode}) {
   );
 }
 
-export default function App() {
-  const data = useRouteLoaderData<RootLoader>('root');
-
-  if (!data) {
-    return <Outlet />;
-  }
-
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <Analytics.Provider
-      cart={data.cart}
-      shop={data.shop}
-      consent={data.consent}
-    >
-      <PageLayout {...data}>
-        <Outlet />
-      </PageLayout>
-    </Analytics.Provider>
+    <CartProvider initialData={loaderData.cartData}>
+      <PageViewedTracker />
+      <CartAnalyticsTracker />
+      <AnnouncementBar />
+      <Header shopInfo={loaderData.shopInfo} />
+      <Outlet />
+      <Footer shopInfo={loaderData.shopInfo} />
+      <CartDrawer />
+      <SearchDrawer />
+    </CartProvider>
   );
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError();
-  let errorMessage = 'Unknown error';
-  let errorStatus = 500;
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  let message = "Oops!";
+  let details = "An unexpected error occurred.";
+  let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error?.data?.message ?? error.data;
-    errorStatus = error.status;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
+    message = error.status === 404 ? "404" : "Error";
+    details =
+      error.status === 404 ? "The requested page could not be found." : error.statusText || details;
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message;
+    stack = error.stack;
   }
 
   return (
-    <div className="route-error">
-      <h1>Oops</h1>
-      <h2>{errorStatus}</h2>
-      {errorMessage && (
-        <fieldset>
-          <pre>{errorMessage}</pre>
-        </fieldset>
-      )}
-    </div>
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="max-w-page px-margin mx-auto w-full flex-1 py-12"
+    >
+      <h1 className="type-display text-on-surface">{message}</h1>
+      <p className="text-on-surface-secondary mt-4">{details}</p>
+      {stack ? (
+        <pre className="border-border mt-6 w-full overflow-x-auto rounded border p-4 text-sm">
+          <code>{stack}</code>
+        </pre>
+      ) : null}
+    </main>
   );
 }

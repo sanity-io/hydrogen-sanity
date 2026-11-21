@@ -1,117 +1,76 @@
-import {useLoaderData, data, type HeadersFunction} from 'react-router';
-import type {Route} from './+types/cart';
-import type {CartQueryDataReturn} from '@shopify/hydrogen';
-import {CartForm} from '@shopify/hydrogen';
-import {CartMain} from '~/components/CartMain';
+import { ShopPayButton } from "@shopify/hydrogen/react";
+import { useEffect } from "react";
 
-export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Cart`}];
-};
+import { publishCartViewed } from "~/components/AnalyticsTrackers";
+import { CartLineItem } from "~/components/CartDrawer";
+import { useCart } from "~/lib/cart";
+import { formatPrice } from "~/lib/money";
+import { formatPageTitle, getShopNameFromRootMatch } from "~/lib/storefront-shop";
 
-export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;
+import type { Route } from "./+types/cart";
 
-export async function action({request, context}: Route.ActionArgs) {
-  const {cart} = context;
-
-  const formData = await request.formData();
-
-  const {action, inputs} = CartForm.getFormInput(formData);
-
-  if (!action) {
-    throw new Error('No action provided');
-  }
-
-  let status = 200;
-  let result: CartQueryDataReturn;
-
-  switch (action) {
-    case CartForm.ACTIONS.LinesAdd:
-      result = await cart.addLines(inputs.lines);
-      break;
-    case CartForm.ACTIONS.LinesUpdate:
-      result = await cart.updateLines(inputs.lines);
-      break;
-    case CartForm.ACTIONS.LinesRemove:
-      result = await cart.removeLines(inputs.lineIds);
-      break;
-    case CartForm.ACTIONS.DiscountCodesUpdate: {
-      const formDiscountCode = inputs.discountCode;
-
-      // User inputted discount code
-      const discountCodes = (
-        formDiscountCode ? [formDiscountCode] : []
-      ) as string[];
-
-      // Combine discount codes already applied on cart
-      discountCodes.push(...inputs.discountCodes);
-
-      result = await cart.updateDiscountCodes(discountCodes);
-      break;
-    }
-    case CartForm.ACTIONS.GiftCardCodesUpdate: {
-      const formGiftCardCode = inputs.giftCardCode;
-
-      // User inputted gift card code
-      const giftCardCodes = (
-        formGiftCardCode ? [formGiftCardCode] : []
-      ) as string[];
-
-      // Combine gift card codes already applied on cart
-      giftCardCodes.push(...inputs.giftCardCodes);
-
-      result = await cart.updateGiftCardCodes(giftCardCodes);
-      break;
-    }
-    case CartForm.ACTIONS.GiftCardCodesRemove: {
-      const appliedGiftCardIds = inputs.giftCardCodes as string[];
-      result = await cart.removeGiftCardCodes(appliedGiftCardIds);
-      break;
-    }
-    case CartForm.ACTIONS.BuyerIdentityUpdate: {
-      result = await cart.updateBuyerIdentity({
-        ...inputs.buyerIdentity,
-      });
-      break;
-    }
-    default:
-      throw new Error(`${action} cart action is not defined`);
-  }
-
-  const cartId = result?.cart?.id;
-  const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
-  const {cart: cartResult, errors, warnings} = result;
-
-  const redirectTo = formData.get('redirectTo') ?? null;
-  if (typeof redirectTo === 'string') {
-    status = 303;
-    headers.set('Location', redirectTo);
-  }
-
-  return data(
-    {
-      cart: cartResult,
-      errors,
-      warnings,
-      analytics: {
-        cartId,
-      },
-    },
-    {status, headers},
-  );
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: formatPageTitle("Cart", getShopNameFromRootMatch(matches[0])) }];
 }
 
-export async function loader({context}: Route.LoaderArgs) {
-  const {cart} = context;
-  return await cart.get();
-}
+export default function CartRoute() {
+  const cart = useCart((state) => state.data);
+  const loading = useCart((state) => state.loading);
+  const lines = cart.lines.nodes;
 
-export default function Cart() {
-  const cart = useLoaderData<typeof loader>();
+  useEffect(() => {
+    publishCartViewed(cart);
+  }, [cart]);
 
   return (
-    <div className="cart">
-      <h1>Cart</h1>
-      <CartMain layout="page" cart={cart} />
-    </div>
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="max-w-page px-margin mx-auto w-full flex-1 py-12"
+    >
+      <h1 id="cart-page-title" tabIndex={-1} className="type-display text-on-surface mb-8">
+        Cart
+      </h1>
+      {loading ? <p className="text-on-surface-secondary">Loading cart…</p> : null}
+      {!loading && lines.length === 0 ? (
+        <div>
+          <p className="text-on-surface font-medium">Your cart is empty.</p>
+          <p className="text-on-surface-secondary mt-2 text-sm">
+            Looks like you haven&apos;t added anything to your cart yet.
+          </p>
+        </div>
+      ) : null}
+      {lines.length > 0 ? (
+        <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+          <ul role="list" className="divide-border divide-y">
+            {lines.map((line) => (
+              <CartLineItem key={line.id} line={line} emptyCartFocusId="cart-page-title" />
+            ))}
+          </ul>
+          <aside className="border-border h-fit rounded border p-4" aria-label="Cart summary">
+            <div className="flex items-center justify-between">
+              <span className="text-on-surface text-sm font-medium">Estimated total</span>
+              <span className="text-on-surface text-base font-medium">
+                {formatPrice(cart.cost.totalAmount)}
+              </span>
+            </div>
+            <p className="text-on-surface-secondary mt-3 text-xs">
+              Taxes and shipping calculated at checkout
+            </p>
+            {cart.checkoutUrl ? (
+              <div className="mt-4 grid gap-3">
+                <ShopPayButton width="100%" borderRadius="8px" />
+                <a
+                  href={cart.checkoutUrl}
+                  className="rounded-button button-primary focus-visible:outline-accent inline-flex h-11 w-full items-center justify-center gap-2 px-4 text-sm font-medium no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:active:scale-[0.97]"
+                >
+                  Checkout
+                </a>
+              </div>
+            ) : null}
+          </aside>
+        </div>
+      ) : null}
+    </main>
   );
 }
