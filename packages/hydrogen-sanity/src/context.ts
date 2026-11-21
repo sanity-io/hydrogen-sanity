@@ -191,6 +191,18 @@ export interface SanityContext {
 }
 
 /**
+ * Resolves whether the client stega-encodes a result, the way `@sanity/client` merges the
+ * per-call `stega` option over the client configuration.
+ */
+function isStegaEnabled(configEnabled: boolean | undefined, option: unknown): boolean {
+  if (typeof option === 'boolean') return option
+  if (typeof option === 'object' && option !== null && 'enabled' in option) {
+    return option.enabled === true
+  }
+  return configEnabled === true
+}
+
+/**
  * Fetches a query in the shape that `@sanity/react-loader`'s `loadQuery` returns.
  *
  * This does not call react-loader's `loadQuery`: it reads a module-level client that
@@ -302,16 +314,18 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
   /**
    * Scopes a cache entry to the method (`loadQuery` and `fetch` cache different shapes), the
-   * client configuration and the perspective, so two contexts never share an entry.
+   * client configuration, the perspective and stega, so two contexts never share an entry.
+   * The client stega-encodes results before they reach the cache, so a call with `stega: false`
+   * must not read an encoded entry.
    */
   function cacheKey(
     method: 'loadQuery' | 'fetch',
     query: string,
     params: QueryParams | QueryWithoutParams,
-    perspective: ClientPerspective | undefined,
+    options: {perspective?: ClientPerspective | undefined; stega?: unknown} | undefined,
   ): CachedRunKey {
     const config = client.config()
-    const resolvedPerspective = perspective ?? config.perspective ?? 'published'
+    const resolvedPerspective = options?.perspective ?? config.perspective ?? 'published'
     return [
       'hydrogen-sanity',
       method,
@@ -320,6 +334,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       config.dataset ?? null,
       config.apiVersion,
       Array.isArray(resolvedPerspective) ? resolvedPerspective.join(',') : resolvedPerspective,
+      isStegaEnabled(config.stega?.enabled, options?.stega),
       query,
       JSON.stringify(params ?? {}),
     ]
@@ -378,7 +393,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       return await cachedRun(
         {
-          key: cacheKey('loadQuery', query, params, loaderOptions?.perspective),
+          key: cacheKey('loadQuery', query, params, loaderOptions),
           strategy: cacheStrategy,
           shouldCache: shouldCacheResult,
         },
@@ -413,7 +428,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       return await cachedRun(
         {
-          key: cacheKey('fetch', query, params, fetchOptions.perspective),
+          key: cacheKey('fetch', query, params, fetchOptions),
           strategy: cacheStrategy,
           shouldCache: shouldCacheResult,
         },

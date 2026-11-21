@@ -167,6 +167,31 @@ describe('the Sanity request context', () => {
     expect(fetch).toHaveBeenCalledTimes(2)
   })
 
+  it("stega-encoded and plain results don't share cache entries", async () => {
+    const {waitUntil, flush} = createWaitUntil()
+    const stegaClient = createClient({
+      projectId,
+      dataset: 'my-dataset',
+      stega: {enabled: true, studioUrl: '/studio'},
+    })
+    const sanity = await createSanityContext({
+      request,
+      cache: new MapCache(),
+      waitUntil,
+      client: stegaClient,
+    })
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue({result: true, ms: 1})
+
+    await sanity.fetch(query, params)
+    await flush()
+    await sanity.fetch(query, params, {stega: false})
+    await flush()
+    // `{enabled: true}` resolves to the same encoding as the client default
+    await sanity.fetch(query, params, {stega: {enabled: true}})
+
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
   it("contexts for different datasets don't share cache entries", async () => {
     const cache = new MapCache()
     const {waitUntil, flush} = createWaitUntil()
