@@ -134,6 +134,24 @@ describe('the Sanity request context', () => {
     expect(fetch).toHaveBeenCalledOnce()
     expect(ttls(store)).toEqual([1 + 9])
   })
+
+  it('fetch calls should ask the API CDN for fresh content by default', async () => {
+    const sanity = await createSanityContext({request, client})
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue({result: true, ms: 1})
+
+    await sanity.fetch<boolean>(query, params, {tag: 'home'})
+
+    expect(fetch).toHaveBeenCalledWith(query, params, {cacheMode: 'noStale', tag: 'home'})
+  })
+
+  it('fetch calls should allow opting out of fresh API CDN content', async () => {
+    const sanity = await createSanityContext({request, client})
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue({result: true, ms: 1})
+
+    await sanity.fetch<boolean>(query, params, {cacheMode: undefined})
+
+    expect(fetch).toHaveBeenCalledWith(query, params, {cacheMode: undefined})
+  })
 })
 
 describe('when configured for preview', () => {
