@@ -23,7 +23,7 @@ describe.each([
   ])('serves %s from the cache on the second run', async (_, value) => {
     const {run, flush} = setup()
     const fn = vi.fn(async () => value)
-    const options = {key: 'query-hash', strategy: Cache.long(), shouldCache: () => true}
+    const options = {key: ['query-hash'], strategy: Cache.long(), shouldCache: () => true}
 
     expect(await run(options, fn)).toEqual(value)
     await flush()
@@ -35,7 +35,7 @@ describe.each([
     const {run} = setup()
     const shouldCache = vi.fn(() => true)
 
-    await run({key: 'query-hash', strategy: Cache.long(), shouldCache}, async () => [1, 2])
+    await run({key: ['query-hash'], strategy: Cache.long(), shouldCache}, async () => [1, 2])
 
     expect(shouldCache).toHaveBeenCalledWith([1, 2])
   })
@@ -43,7 +43,7 @@ describe.each([
   it('runs again when `shouldCache` rejects the result', async () => {
     const {run, flush} = setup()
     const fn = vi.fn(async () => ({title: 'Home'}))
-    const options = {key: 'query-hash', strategy: Cache.long(), shouldCache: () => false}
+    const options = {key: ['query-hash'], strategy: Cache.long(), shouldCache: () => false}
 
     await run(options, fn)
     await flush()
@@ -54,7 +54,7 @@ describe.each([
   it('runs again with `Cache.none()`', async () => {
     const {run, flush} = setup()
     const fn = vi.fn(async () => ({title: 'Home'}))
-    const options = {key: 'query-hash', strategy: Cache.none(), shouldCache: () => true}
+    const options = {key: ['query-hash'], strategy: Cache.none(), shouldCache: () => true}
 
     await run(options, fn)
     await flush()
