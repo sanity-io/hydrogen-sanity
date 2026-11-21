@@ -160,6 +160,35 @@ export interface SanityContext {
 }
 
 /**
+ * Fetches a query in the shape that `@sanity/react-loader`'s `loadQuery` returns.
+ *
+ * This does not call react-loader's `loadQuery`: it reads a module-level client that
+ * `setServerClient` replaces, so concurrent requests in one worker would share it, and a
+ * public request could read drafts with a preview request's token.
+ */
+async function fetchQueryResponse<T>(
+  client: SanityClient,
+  query: string,
+  params: QueryParams | QueryWithoutParams | undefined,
+  options: LoadQueryOptions<T> | undefined,
+  previewEnabled: boolean,
+): Promise<QueryResponseInitial<T>> {
+  const perspective: ClientPerspective =
+    options?.perspective ?? client.config().perspective ?? 'published'
+  const {result, resultSourceMap} = await client.fetch<T>(query, params ?? {}, {
+    filterResponse: false,
+    perspective,
+    ...(options?.useCdn === undefined ? {} : {useCdn: options.useCdn}),
+    ...(options?.stega === undefined ? {} : {stega: options.stega}),
+    ...(options?.headers === undefined ? {} : {headers: options.headers}),
+    ...(options?.tag === undefined ? {} : {tag: options.tag}),
+    // Preview responses feed `useQuery` and overlays, which need keyed source map paths.
+    ...(previewEnabled ? {useCdn: false, resultSourceMap: 'withKeyArraySelector'} : {}),
+  })
+  return {data: result, sourceMap: resultSourceMap, perspective}
+}
+
+/**
  * @public
  */
 export async function createSanityContext(
@@ -278,9 +307,6 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params: QueryParams | QueryWithoutParams,
       loaderOptions?: LoadQueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> {
-      const {setServerClient} = await import('@sanity/react-loader')
-      setServerClient(client)
-
       // Warn users to migrate to `query` method when using loadQuery outside preview mode
       if (!previewEnabled && process.env.NODE_ENV === 'development' && !didWarnAboutLoadQuery) {
         console.warn(
@@ -289,14 +315,17 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
         didWarnAboutLoadQuery = true
       }
 
+      const run = () =>
+        fetchQueryResponse<ClientReturn<Query, Result>>(
+          client,
+          query,
+          params,
+          loaderOptions,
+          previewEnabled,
+        )
+
       if (!cachedRun || previewEnabled) {
-        const {loadQuery} = await import('@sanity/react-loader')
-        // Override the singleton's possibly-stale perspective with the per-request value.
-        const resolvedOptions =
-          previewEnabled && !loaderOptions?.perspective
-            ? {...loaderOptions, perspective: client.config().perspective as ClientPerspective}
-            : loaderOptions
-        return await loadQuery<ClientReturn<Query, Result>>(query, params, resolvedOptions)
+        return await run()
       }
 
       const cacheStrategy =
@@ -309,10 +338,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
           strategy: cacheStrategy,
           shouldCache: shouldCacheResult,
         },
-        async (): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> => {
-          const {loadQuery} = await import('@sanity/react-loader')
-          return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
-        },
+        run,
       )
     },
 

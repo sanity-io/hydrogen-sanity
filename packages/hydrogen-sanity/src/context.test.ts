@@ -1,5 +1,4 @@
 import {createClient, SanityClient} from '@sanity/client'
-import type {QueryStore} from '@sanity/react-loader'
 import {Cache} from '@shopify/hydrogen'
 import groq from 'groq'
 import {isValidElement} from 'react'
@@ -20,18 +19,8 @@ const cache = vi.hoisted(() => ({
   put: vi.fn().mockResolvedValue(undefined),
 }))
 
-const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
-const setServerClient = vi.hoisted(() => vi.fn())
-
-vi.mock('@sanity/react-loader', async (importOriginal) => {
-  const module = await importOriginal<typeof import('@sanity/react-loader')>()
-
-  return {
-    ...module,
-    loadQuery,
-    setServerClient,
-  }
-})
+// Every client that `loadQuery` uses, including the preview client, inherits this method
+const loadQuery = vi.spyOn(SanityClient.prototype, 'fetch')
 
 const projectId = 'my-project-id'
 const client = createClient({projectId, dataset: 'my-dataset'})
@@ -48,6 +37,7 @@ function ttls(store: MapStore) {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  loadQuery.mockResolvedValue({result: null, resultSourceMap: undefined, ms: 1})
 })
 
 describe('the Sanity request context', () => {
@@ -686,49 +676,52 @@ describe('lazy-initialize loaders', () => {
     vi.clearAllMocks()
   })
 
-  it("shouldn't call `setServerClient` during context creation", async () => {
-    await createSanityContext({
-      request,
-      cache,
-      client,
-    })
-
-    expect(setServerClient).not.toHaveBeenCalled()
-  })
-
-  it('should call `setServerClient` on every `loadQuery` invocation', async () => {
-    const context = await createSanityContext({
-      request,
-      cache,
-      client,
-    })
-
-    await context.loadQuery<boolean>(query, params)
-    expect(setServerClient).toHaveBeenCalledTimes(1)
-
-    await context.loadQuery<boolean>(query, params)
-    expect(setServerClient).toHaveBeenCalledTimes(2)
-  })
-
-  it('should call `setServerClient` with the preview-configured client', async () => {
+  it('reads with its own client while another request is in preview', async () => {
     const previewSession = new PreviewSession()
     previewSession.set('projectId', projectId)
+    previewSession.set('perspective', 'drafts')
 
-    const context = await createSanityContext({
+    const publicContext = await createSanityContext({request, cache, client})
+    const previewContext = await createSanityContext({
       request,
       cache,
       client,
-      preview: {
-        token: 'my-token',
-        session: previewSession,
-      },
+      preview: {token: 'my-token', session: previewSession},
     })
 
-    await context.loadQuery<boolean>(query, params)
+    // Interleave the two requests the way concurrent requests share one worker
+    await Promise.all([
+      publicContext.loadQuery<boolean>(query, params),
+      previewContext.loadQuery<boolean>(query, params),
+      publicContext.loadQuery<boolean>(query, params),
+    ])
 
-    const calledWithClient = setServerClient.mock.calls[0][0]
-    expect(calledWithClient.config().useCdn).toBe(false)
-    expect(calledWithClient.config().token).toBe('my-token')
+    // Each call must pair its own request's token with its own request's perspective
+    const reads = loadQuery.mock.calls.map(([, , options], index) => {
+      const calledOn = loadQuery.mock.contexts[index]
+      const token = calledOn instanceof SanityClient ? calledOn.config().token : 'not a client'
+      return {token, perspective: options?.perspective}
+    })
+    expect(reads).toHaveLength(3)
+    expect(reads).toEqual(
+      expect.arrayContaining([
+        {token: undefined, perspective: 'published'},
+        {token: 'my-token', perspective: ['drafts']},
+      ]),
+    )
+    expect(reads.filter(({token}) => token === undefined)).toHaveLength(2)
+  })
+
+  it('returns the response in the shape that `useQuery` hydrates from', async () => {
+    const sourceMap = {documents: [], paths: [], mappings: {}}
+    loadQuery.mockResolvedValueOnce({result: true, resultSourceMap: sourceMap, ms: 1})
+    const context = await createSanityContext({request, client})
+
+    await expect(context.loadQuery<boolean>(query, params)).resolves.toEqual({
+      data: true,
+      sourceMap,
+      perspective: 'published',
+    })
   })
 
   it('should display warning when `loadQuery` called outside preview mode in development', async () => {
