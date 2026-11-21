@@ -48,6 +48,16 @@ describe('the Sanity request context', () => {
     expect(sanity.client).toSatisfy((contextClient) => contextClient instanceof SanityClient)
   })
 
+  it('`query` works when it is destructured from the context', async () => {
+    const sanity = await createSanityContext({request, client})
+    const response = {result: true, ms: 1}
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValueOnce(response)
+    const {query: destructuredQuery} = sanity
+
+    await expect(destructuredQuery(query, params)).resolves.toBe(response)
+    expect(fetch).toHaveBeenCalledOnce()
+  })
+
   it('queries should be served from the cache on the second call', async () => {
     const {waitUntil, flush} = createWaitUntil()
     const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})

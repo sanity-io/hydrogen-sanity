@@ -297,7 +297,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     providerValue.studioUrl = studioUrl
   }
 
-  return {
+  const sanity = {
     /**
      * Loads a Sanity query with client-side loader support and Hydrogen cache integration.
      * Bypasses Hydrogen cache in preview mode.
@@ -389,12 +389,13 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       params?: QueryParams | QueryWithoutParams,
       queryOptions?: QueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>> {
+      // Read the methods from `sanity`, not `this`, so a destructured `query` still works.
       if (previewEnabled) {
         // Preview mode doesn't cache, so the `hydrogen` options don't apply
         const loadQueryOptions = queryOptions && {...queryOptions, hydrogen: undefined}
-        return await this.loadQuery<Result, Query>(query, params ?? {}, loadQueryOptions)
+        return await sanity.loadQuery<Result, Query>(query, params ?? {}, loadQueryOptions)
       }
-      return await this.fetch<Result, Query>(query, params, queryOptions)
+      return await sanity.fetch<Result, Query>(query, params, queryOptions)
     },
 
     /** The configured Sanity client instance */
@@ -416,4 +417,6 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       )
     },
   } satisfies SanityContext
+
+  return sanity
 }
