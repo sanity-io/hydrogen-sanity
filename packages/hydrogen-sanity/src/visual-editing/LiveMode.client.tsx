@@ -7,6 +7,8 @@ import {useSanityProviderValue} from '../provider'
 import {isServer} from '../utils'
 import {useRefresh} from './hooks/refresh'
 
+let didWarnAboutStudioUrlFunction = false
+
 export interface LiveModeProps extends Omit<StegaConfig, 'enabled'> {
   /**
    * Fires when a connection is established to the Studio.
@@ -48,6 +50,17 @@ function LiveModeClient(props: LiveModeProps): ReactNode {
 
   // Default to the server client's `studioUrl`, so it isn't configured twice
   const studioUrl = stegaPropsWithoutDefaults.studioUrl ?? sanityProvider.studioUrl
+  if (
+    studioUrl === undefined &&
+    sanityProvider.studioUrlIsFunction &&
+    process.env.NODE_ENV === 'development' &&
+    !didWarnAboutStudioUrlFunction
+  ) {
+    console.warn(
+      "The server client's `stega.studioUrl` is a function, which can't be sent to the browser. Pass the same function to `<VisualEditing studioUrl>` (or `<LiveMode studioUrl>`), or click-to-edit stays off.",
+    )
+    didWarnAboutStudioUrlFunction = true
+  }
   const stegaProps =
     studioUrl === undefined ? stegaPropsWithoutDefaults : {...stegaPropsWithoutDefaults, studioUrl}
 
