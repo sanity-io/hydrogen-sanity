@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import {cleanup, render, screen} from '@testing-library/react'
+import {renderToString} from 'react-dom/server'
 import {afterEach, beforeEach, expect, it, vi} from 'vitest'
 
 import {usePreviewMode} from './preview/hooks'
@@ -121,4 +122,19 @@ it('provides noop encodeDataAttribute with correct shape', () => {
 
   expect(screen.getByTestId('attr').textContent).toBe('undefined')
   expect(screen.getByTestId('scope').textContent).toBe('function')
+})
+
+it('renders the loader result, not its envelope, on the server in preview mode', () => {
+  mockUsePreviewMode.mockReturnValue(true)
+
+  const html = renderToString(
+    <Query
+      query="*[_type == 'page'][0]"
+      options={{initial: {data: mockQueryData, sourceMap: undefined, perspective: 'drafts'}}}
+    >
+      {(data) => <h1>{data?.title}</h1>}
+    </Query>,
+  )
+
+  expect(html).toContain('Test Title')
 })

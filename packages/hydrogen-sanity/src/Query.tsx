@@ -41,6 +41,17 @@ const QueryClient = isServer()
       props: QueryClientProps<Result, Query>,
     ) => ReactNode)
 
+/**
+ * Whether `initial` is the `QueryResponseInitial` envelope (`{data, sourceMap, perspective}`)
+ * that `query` and `loadQuery` return in preview mode, rather than the query result itself.
+ */
+function isQueryResponseInitial<T>(
+  initial: T | QueryResponseInitial<T>,
+  isPreviewMode: boolean,
+): initial is QueryResponseInitial<T> {
+  return isPreviewMode && initial !== null && typeof initial === 'object' && 'data' in initial
+}
+
 const noopEncodeDataAttribute: EncodeDataAttributeFunction = Object.assign(() => undefined, {
   scope: () => noopEncodeDataAttribute,
 })
@@ -91,5 +102,9 @@ export function Query<Result = Any, Query extends string = string>({
   }
 
   // Render static data in non-preview mode or during hydration
-  return children(options.initial as ClientReturn<Query, Result>, noopEncodeDataAttribute)
+  const {initial} = options
+  return children(
+    isQueryResponseInitial(initial, isPreviewMode) ? initial.data : initial,
+    noopEncodeDataAttribute,
+  )
 }
