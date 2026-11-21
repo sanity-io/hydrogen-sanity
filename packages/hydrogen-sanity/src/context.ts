@@ -51,12 +51,13 @@ export type CreateSanityContextOptions = {
   client: SanityClient | ClientConfig
 
   /**
-   * The default caching strategy for `query`, `fetch` and `loadQuery` subrequests.
+   * The default caching strategy for `query`, `fetch` and `loadQuery` subrequests. Set it to
+   * `Cache.none()` to turn off caching. A `hydrogen.cache` strategy passed to a call overrides it.
    * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
    *
    * @defaultValue `Cache.long()`
    */
-  defaultStrategy?: CachingStrategy | null
+  defaultStrategy?: CachingStrategy
 
   /**
    * Enables preview mode. Leave it `undefined` when the preview token or session secret isn't
@@ -390,7 +391,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       }
 
       const cacheStrategy =
-        loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
+        loaderOptions?.hydrogen?.cache ?? defaultStrategy ?? DEFAULT_CACHE_STRATEGY
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
       return await cachedRun(
@@ -425,7 +426,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       }
 
       const cacheStrategy =
-        fetchOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
+        fetchOptions.hydrogen?.cache ?? defaultStrategy ?? DEFAULT_CACHE_STRATEGY
       const shouldCacheResult = fetchOptions.hydrogen?.shouldCacheResult ?? (() => true)
 
       return await cachedRun(
