@@ -1,9 +1,9 @@
 # hydrogen-sanity
 
 > [!TIP]
-> **Upgrading from v6?** See the [migration guide](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v6-to-v7.md) for breaking changes and new features. 🎉
+> **Upgrading from v7?** See the [migration guide](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v7-to-v8.md) for the move to Hydrogen 2026.10.
 
-[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires React `^19.2.3` and `@shopify/hydrogen` `>=2025.7.3`.
+[Sanity.io](https://www.sanity.io) toolkit for [Hydrogen](https://hydrogen.shopify.dev/). Requires React `^19.2.3` and `@shopify/hydrogen` `~2026.10.0`. On Hydrogen 2026.4 and earlier, use `hydrogen-sanity` 7.x and its [README](https://github.com/sanity-io/hydrogen-sanity/blob/v7.1.0/packages/hydrogen-sanity/README.md).
 
 Learn more about [getting started with Sanity](https://www.sanity.io/docs/getting-started).
 
@@ -87,98 +87,81 @@ export default defineConfig({
 Create the Sanity context and pass it through to your application, and optionally, configure the preview mode if you plan to setup Visual Editing
 
 > [!NOTE]
-> The examples below are up-to-date as of `npm create @shopify/hydrogen@2026.4.4`
+> The examples below are up-to-date as of the Hydrogen 2026.10 React Router template (`@shopify/hydrogen@2026.10.3`). The [example storefront](../../examples/storefront) is a complete integration.
 
-```diff
-// ./lib/context.ts
+Create a function that makes the Sanity context for each request:
 
-// ...all other imports
-+ import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
+```ts
+// ./app/lib/sanity/context.ts
 
-// Define the additional context object
-const additionalContext = {
-  // Additional context for custom properties, CMS clients, 3P SDKs, etc.
-  // These will be available as both context.propertyName and context.get(propertyContext)
-  // Example of complex objects that could be added:
-  // cms: await createCMSClient(env),
-  // reviews: await createReviewsClient(env),
-} as const;
+import type {CacheInstance} from '@shopify/hydrogen'
+import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
 
-// Automatically augment HydrogenAdditionalContext with the additional context type
-type AdditionalContextType = typeof additionalContext;
+import type {Env} from '~/lib/env'
 
-declare global {
-  interface HydrogenAdditionalContext extends AdditionalContextType {
-+
-+ // Augment `HydrogenAdditionalContext` with the Sanity context
-+     sanity: SanityContext;
-  }
-}
-
-export async function createHydrogenRouterContext(
+export function createRequestSanityContext(
   request: Request,
   env: Env,
-  executionContext: ExecutionContext,
-) {
-  // ... Leave all other functions as-is
-  const waitUntil = executionContext.waitUntil.bind(executionContext)
-  const [cache, session] = await Promise.all([
-    caches.open('hydrogen'),
-    AppSession.init(request, [env.SESSION_SECRET]),
-  ])
-
-+ // Initialize the Sanity context
-+ const sanity = await createSanityContext({
-+   request,
-+
-+   // To use the Hydrogen cache for queries
-+   cache,
-+   waitUntil,
-+
-+   // Sanity client configuration
-+   client: {
-+     projectId: env.SANITY_PROJECT_ID,
-+     dataset: env.SANITY_DATASET || 'production',
-+     apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
-+     useCdn: process.env.NODE_ENV === 'production',
-+   },
-+
-+   // You can also initialize a client and pass it instead
-+   // client: createClient({
-+   //   projectId: env.SANITY_PROJECT_ID,
-+   //   dataset: env.SANITY_DATASET,
-+   //   apiVersion: env.SANITY_API_VERSION,
-+   //   useCdn: process.env.NODE_ENV === 'production',
-+   // }),
-+
-+   // Optionally, set a default cache strategy, defaults to `CacheLong`
-+   // strategy: CacheShort() | null,
-+ })
-
-
-+ // Make `sanity` available to loaders and actions in the request context
-const hydrogenContext = createHydrogenContext(
-  {
-    env,
+  cache: CacheInstance,
+  waitUntil: ExecutionContext['waitUntil'],
+): Promise<SanityContext> {
+  return createSanityContext({
     request,
+
+    // To use the Hydrogen cache for queries
     cache,
     waitUntil,
-    session,
-    i18n: {language: 'EN', country: 'US'},
-    cart: {
-      queryFragment: CART_QUERY_FRAGMENT,
-    },
- },
-+   {
-+     ...additionalContext
-+     sanity,
-+   } as const,
-+ )
-+
-return hydrogenContext
-}
 
+    // Sanity client configuration
+    client: {
+      projectId: env.SANITY_PROJECT_ID,
+      dataset: env.SANITY_DATASET || 'production',
+      apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
+      useCdn: process.env.NODE_ENV === 'production',
+    },
+
+    // You can also initialize a client and pass it instead
+    // client: createClient({
+    //   projectId: env.SANITY_PROJECT_ID,
+    //   dataset: env.SANITY_DATASET,
+    //   apiVersion: env.SANITY_API_VERSION,
+    //   useCdn: process.env.NODE_ENV === 'production',
+    // }),
+
+    // Optionally, set a default cache strategy. Defaults to `Cache.long()`
+    // defaultStrategy: Cache.short(), // or `null`
+  })
+}
 ```
+
+Then set `context.sanity` in `server.ts`, before React Router handles the request:
+
+```diff
+// ./server.ts
+
+  import {envContext} from '~/lib/env'
++ import {createRequestSanityContext} from '~/lib/sanity/context'
+
+  // ...
+
+      const routerContext = new RouterContextProvider()
+      routerContext.cache = await caches.open('hydrogen-v1')
+      routerContext.set(envContext, env)
+      routerContext.env = env
+      routerContext.waitUntil = executionContext.waitUntil.bind(executionContext)
++     routerContext.sanity = await createRequestSanityContext(
++       request,
++       env,
++       routerContext.cache,
++       routerContext.waitUntil,
++     )
+
+      const handleRequest = createRequestHandler(serverBuild, process.env.NODE_ENV)
+      return handleRequest(request, routerContext as never)
+```
+
+> [!IMPORTANT]
+> Set `context.sanity` in `server.ts`, not in the root `middleware`. Middleware can't add properties to the router context, and `entry.server.tsx` and the [preview mode route](#preview-mode-route) read `context.sanity`.
 
 Learn more about [Sanity's JavaScript client configuration](https://www.sanity.io/docs/js-client).
 
@@ -194,34 +177,51 @@ SANITY_PROJECT_ID=""
 SANITY_DATASET=""
 # (Optional) Sanity API version
 SANITY_API_VERSION=""
+# Studio URL for click-to-edit, e.g. "https://my.sanity.studio" or "/studio" if embedded
+SANITY_STUDIO_ORIGIN=""
 # Sanity token to authenticate requests in "preview" mode
 # must have `viewer` role or higher access
 # Create in sanity.io/manage
 SANITY_PREVIEW_TOKEN=""
 ```
 
+Preview mode also uses the template's `SESSION_SECRET` to sign the preview session cookie.
+
 ### Satisfy TypeScript
 
-Update the environment variables in `Env` to include the ones you created above:
+Add the environment variables you created above to `Env`:
 
 > [!NOTE]
 > If you plan to reference any environment variables in the client bundle, say for your embedded Studio configuration, you must prefix them with either `PUBLIC_` or `SANITY_STUDIO_`
 
 ```diff
+// ./app/lib/env.ts
+
+export type Env = {
+  // ...other environment variables
+  SESSION_SECRET?: string
++ SANITY_PROJECT_ID: string
++ SANITY_DATASET?: string
++ SANITY_API_VERSION?: string
++ SANITY_STUDIO_ORIGIN: string
++ SANITY_PREVIEW_TOKEN?: string
+}
+```
+
+Then add `sanity` to the router context type:
+
+```diff
 // ./env.d.ts
 
-declare global {
-  // ...other types
+  import type {CacheInstance} from '@shopify/hydrogen'
++ import type {SanityContext} from 'hydrogen-sanity'
 
-  interface Env extends HydrogenEnv {
-    // ...other environment variables
-
-+   SANITY_PROJECT_ID: string
-+   SANITY_DATASET?: string
-+   SANITY_API_VERSION?: string
-+   SANITY_PREVIEW_TOKEN: string
+  type ReactRouterExampleContext = {
+    cache: CacheInstance
+    env: Env
+    waitUntil: ExecutionContext['waitUntil']
++   sanity: SanityContext
   }
-}
 ```
 
 ### Set up the Sanity provider
@@ -240,17 +240,17 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
--  context: AppLoadContext,
-+  context: HydrogenRouterContextProvider,
+  context: RouterContextProvider,
 ) {
+  const env = context.get(envContext)
 + const {SanityProvider} = context.sanity
 
   // ... CSP setup etc ...
 
   const body = await renderToReadableStream(
-    <NonceProvider>
+    <NonceProvider value={csp.nonce}>
 +     <SanityProvider>
-        <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
+        <ServerRouter context={reactRouterContext} url={request.url} nonce={csp.nonce} />
 +     </SanityProvider>
     </NonceProvider>,
     // ... render options
@@ -348,7 +348,6 @@ const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]{
 export async function loader({context}: LoaderFunctionArgs) {
   const initial = await context.sanity.query(HOMEPAGE_QUERY, undefined, {
     tag: 'homepage',
-    hydrogen: {debug: {displayName: 'query Homepage'}},
   })
 
   return {initial}
@@ -416,8 +415,7 @@ Both methods accept the same options as their underlying implementations:
 const page = await context.sanity.query<HomePage>(queryString, params, {
   // Hydrogen caching options
   hydrogen: {
-    cache: CacheShort(),
-    debug: {displayName: 'query Homepage'},
+    cache: Cache.short(),
   },
   // Sanity request options
   tag: 'home',
@@ -441,11 +439,9 @@ const page = await context.sanity.query<HomePage>(queryString, params, {
 - Manual loader integration with real-time Studio updates when preview mode is active
 - Uses `useQuery` hooks for client-side re-rendering with Sanity Studio
 
-Query Sanity's API and use Hydrogen's cache to store the response (defaults to `CacheLong` caching strategy). When Sanity preview mode is active, `loadQuery` automatically bypasses the cache.
+Query Sanity's API and use Hydrogen's cache to store the response (defaults to the `Cache.long()` caching strategy). When Sanity preview mode is active, `loadQuery` automatically bypasses the cache.
 
 Learn more about configuring [caching in Hydrogen](https://shopify.dev/docs/custom-storefronts/hydrogen/caching).
-
-Sanity queries appear in Hydrogen's [Subrequest Profiler](https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler). By default, they're titled `Sanity query`. You can give your queries more descriptive titles by using the request option below.
 
 ```ts
 export async function loader({context, params}: LoaderFunctionArgs) {
@@ -465,15 +461,9 @@ If you need to pass any additional options to the request provide `queryOptions`
 const page = await context.sanity.loadQuery<HomePage>(query, params, {
   // Optionally customize the cache strategy for this request
   hydrogen: {
-    cache: CacheShort(),
+    cache: Cache.short(),
     // Or disable caching for this request
-    // cache: CacheNone(),
-
-    // If you'd like to add a custom display title that will
-    // display in the Subrequest Profiler, you can pass that here:
-    // debug: {
-    //   displayName: 'query Homepage'
-    // },
+    // cache: Cache.none(),
 
     // You can also pass a function do determine whether or not to cache the response
     // shouldCacheResult(value){
@@ -508,8 +498,7 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 
   const page = await context.sanity.fetch<HomePage>(query, params, {
     hydrogen: {
-      cache: CacheShort(),
-      debug: {displayName: 'fetch Homepage'},
+      cache: Cache.short(),
     },
     tag: 'home',
   })
@@ -716,29 +705,27 @@ Enabling preview mode provides real-time content editing with visual overlays in
 For Visual Editing to work, you need to configure Sanity preview mode in your context. Preview mode is a session-based state that gets activated when users visit your storefront through Sanity Studio's Presentation tool or through a preview link shared from Studio. First, initialize the preview session:
 
 ```diff
-// ./lib/context.ts
+// ./app/lib/sanity/context.ts
 
-// ...all other imports
+import type {CacheInstance} from '@shopify/hydrogen'
 import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
-+ import {PreviewSession} from 'hydrogen-sanity/preview/session'
 + import {isPreviewEnabled} from 'hydrogen-sanity/preview'
++ import {PreviewSession} from 'hydrogen-sanity/preview/session'
 
-export async function createHydrogenRouterContext(
+- export function createRequestSanityContext(
++ export async function createRequestSanityContext(
   request: Request,
   env: Env,
-  executionContext: ExecutionContext,
-) {
-  // ... Leave all other functions as-is
-  const waitUntil = executionContext.waitUntil.bind(executionContext)
-- const [cache, session] = await Promise.all([
-+ const [cache, session, previewSession] = await Promise.all([
-    caches.open('hydrogen'),
-    AppSession.init(request, [env.SESSION_SECRET]),
-+   // Initialize the preview session
-+   PreviewSession.init(request, [env.SESSION_SECRET]),
-  ])
+  cache: CacheInstance,
+  waitUntil: ExecutionContext['waitUntil'],
+): Promise<SanityContext> {
++ // Initialize the preview session. Without the secret and token, render published content only
++ const previewSession =
++   env.SESSION_SECRET && env.SANITY_PREVIEW_TOKEN
++     ? await PreviewSession.init(request, [env.SESSION_SECRET])
++     : undefined
 
-  const sanity = await createSanityContext({
+  return createSanityContext({
     request,
     cache,
     waitUntil,
@@ -751,7 +738,7 @@ export async function createHydrogenRouterContext(
 
 +     // Enable stega encoding only when in preview mode
 +     stega: {
-+       enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
++       enabled: previewSession ? isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession) : false,
 +       // Where the Studio is hosted — required for click-to-edit / `encodeDataAttribute`.
 +       // Full URL (`https://my.sanity.studio`) or base path if embedded (`/studio`).
 +       studioUrl: env.SANITY_STUDIO_ORIGIN,
@@ -759,13 +746,16 @@ export async function createHydrogenRouterContext(
     },
 
 +   // Preview configuration
-+   preview: {
-+     token: env.SANITY_PREVIEW_TOKEN,
-+     session: previewSession,
-+   },
++   preview:
++     previewSession && env.SANITY_PREVIEW_TOKEN
++       ? {token: env.SANITY_PREVIEW_TOKEN, session: previewSession}
++       : undefined,
   })
 }
 ```
+
+> [!NOTE]
+> `PreviewSession` is a dedicated cookie session. It doesn't share the template's customer account session.
 
 > [!NOTE]
 > **Stega encoding** enables click-to-edit functionality by encoding content source information directly into strings. Learn more about [Content Source Maps and stega](https://www.sanity.io/docs/visual-editing/stega).
@@ -781,17 +771,18 @@ Set up your root route to enable Visual Editing across the entire application wh
 + import {usePreviewMode} from 'hydrogen-sanity/preview'
 + import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 
-export async function loader(args: Route.LoaderArgs) {
+export async function loader({context}: Route.LoaderArgs) {
+  const env = context.get(envContext)
   // ...rest of loader
-+ return {
-+   // ...rest of loader data
-+   studioOrigin: args.context.env.SANITY_STUDIO_ORIGIN,
-+ }
+  return {
+    // ...rest of loader data
++   studioOrigin: env.SANITY_STUDIO_ORIGIN,
+  }
 }
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce()
-  const data = useRouteLoaderData<RootLoader>('root')
+  const data = useRouteLoaderData<typeof loader>('root')
 + const previewMode = usePreviewMode()
 
   return (
@@ -913,6 +904,19 @@ Add this route to your project like below, or view the source to copy and modify
 export {action, loader} from 'hydrogen-sanity/preview/route'
 ```
 
+Then register it in your route config:
+
+```diff
+// ./app/routes.ts
+
+export default [
+  index('routes/home.tsx'),
+  // ...other routes
++ route('api/preview', 'routes/api.preview.ts'),
+  route('*', 'routes/catchall.tsx'),
+] satisfies RouteConfig
+```
+
 ### Set up CORS for front-end domains
 
 If your Sanity Studio is not embedded in your Hydrogen App, you will need to add a Cross-Origin Resource Sharing (CORS) origin to your project for every URL where your app is hosted or running in development.
@@ -937,35 +941,42 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
--  context: AppLoadContext,
-+  context: HydrogenRouterContextProvider,
+  context: RouterContextProvider,
 ) {
-+ const {env, sanity} = context
+  const env = context.get(envContext)
 + const projectId = env.SANITY_PROJECT_ID
-+ const studioHostname = env.SANITY_STUDIO_HOSTNAME || 'http://localhost:3333'
-+ const isPreviewEnabled = sanity.preview?.enabled
++ const isPreviewEnabled = context.sanity.preview?.enabled
 
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    // If your storefront and Studio are on separate domains...
-    // ...allow Sanity assets loaded from the CDN to be loaded in your storefront
-+   defaultSrc: ['https://cdn.sanity.io'],
-    // ...allow the blur placeholders of `Image` (`data:` URLs)
-+   imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://cdn.sanity.io', 'data:'],
-    // ...allow Studio to load your storefront in Presentation's iframe
-+   frameAncestors: isPreviewEnabled ? [studioHostname] : [],
+  const csp = createContentSecurityPolicy({
+    shop: {
+      storeDomain: getStoreDomain(env),
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
+    },
++   directives: {
+      // If your storefront and Studio are on separate domains...
+      // ...allow Sanity assets loaded from the CDN to be loaded in your storefront
++     defaultSrc: ['https://cdn.sanity.io'],
+      // ...allow the blur placeholders of `Image` (`data:` URLs)
++     imgSrc: ['https://cdn.sanity.io', 'data:'],
+      // ...allow Studio to load your storefront in Presentation's iframe
++     frameAncestors: isPreviewEnabled ? [env.SANITY_STUDIO_ORIGIN] : [],
 
-    // If you've embedded your Studio in your storefront...
-    // ...allow Sanity assets to be loaded in your storefront and allow user avatars in Studio
-+   defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
-    // ...allow client-side requests for Studio to do realtime collaboration
-+   connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
-    // ...allow embedded Studio to load storefront
-+   frameAncestors: [`'self'`],
+      // If you've embedded your Studio in your storefront...
+      // ...allow Sanity assets to be loaded in your storefront and allow user avatars in Studio
++     defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
+      // ...allow client-side requests for Studio to do realtime collaboration
++     connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
+      // ...allow embedded Studio to load storefront
++     frameAncestors: [`'self'`],
++   },
   })
 
-  // ...and the rest
+  // ...render, then apply the headers
+  csp.applyResponseHeaders(responseHeaders)
 }
 ```
+
+Hydrogen merges `directives` with the Shopify directives, so you list only the Sanity sources.
 
 ### Set up Presentation tool
 
@@ -1029,77 +1040,38 @@ If you prefer not to use `hydrogen-sanity`, you can configure [`@sanity/client`]
 The following example configures Sanity Client and provides it in the request context.
 
 ```diff
-// ./lib/context.ts
+// ./server.ts
 
-// ...all other imports
 + import {createClient} from '@sanity/client'
-+ import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
 
-// Define the additional context object
-const additionalContext = {
-  // Additional context for custom properties, CMS clients, 3P SDKs, etc.
-  // These will be available as both context.propertyName and context.get(propertyContext)
-  // Example of complex objects that could be added:
-  // cms: await createCMSClient(env),
-  // reviews: await createReviewsClient(env),
-} as const;
+  // ...
 
+      routerContext.waitUntil = executionContext.waitUntil.bind(executionContext)
++     routerContext.sanity = createClient({
++       projectId: env.SANITY_PROJECT_ID,
++       dataset: env.SANITY_DATASET,
++       apiVersion: env.SANITY_API_VERSION ?? 'v2025-02-19',
++       useCdn: process.env.NODE_ENV === 'production',
++     })
+```
 
-// Automatically augment HydrogenAdditionalContext with the additional context type
-type AdditionalContextType = typeof additionalContext;
+```diff
+// ./env.d.ts
 
-declare global {
-  interface HydrogenAdditionalContext extends AdditionalContextType {
-+
-+ // Augment `HydrogenAdditionalContext` with the Sanity context
-+     sanity: SanityContext;
-+     withCache: WithCache;
++ import type {SanityClient} from '@sanity/client'
+
+  type ReactRouterExampleContext = {
+    cache: CacheInstance
+    env: Env
+    waitUntil: ExecutionContext['waitUntil']
++   sanity: SanityClient
   }
-}
-
-export async function createHydrogenRouterContext(
-  request: Request,
-  env: Env,
-  executionContext: ExecutionContext,
-) {
-  // ... all other functions
-+ const withCache = createWithCache({cache, waitUntil, request})
-
-+ // Create the Sanity Client
-+ const sanity = createClient({
-+   projectId: env.SANITY_PROJECT_ID,
-+   dataset: env.SANITY_DATASET,
-+   apiVersion: env.SANITY_API_VERSION ?? 'v2025-02-19',
-+   useCdn: process.env.NODE_ENV === 'production',
-+ })
-
- const hydrogenContext = createHydrogenContext(
-   {
-     env,
-     request,
-     cache,
-     waitUntil,
-     session,
-     i18n: {language: 'EN', country: 'US'},
-     cart: {
-       queryFragment: CART_QUERY_FRAGMENT,
-     },
-   },
-+   {
-+     ...additionalContext,
-+     sanity,
-+     withCache,
-+   } as const,
-+ )
-+
-+ return hydrogenContext
-}
 ```
 
 Then, in your loaders and actions you'll have access to Sanity Client in context:
 
 ```ts
-export async function loader({context, params}: LoaderArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   const {sanity} = context
   const homepage = await sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
 
@@ -1107,23 +1079,22 @@ export async function loader({context, params}: LoaderArgs) {
 }
 ```
 
-To cache your query responses in Hydrogen, use the [`withCache` utility](https://shopify.dev/docs/custom-storefronts/hydrogen/caching/third-party#hydrogen-s-built-in-withcache-utility):
+To cache your query responses in Hydrogen, use `createRunWithCache`. Hydrogen 2026.10 caches only plain objects, so wrap the query result:
 
 ```ts
-export async function loader({context, params}: LoaderArgs) {
-  const {withCache, sanity} = context
+import {Cache, createRunWithCache} from '@shopify/hydrogen'
 
-  const homepage = await withCache.run(
-    {
-      cacheKey: 'home',
-      cacheStrategy: CacheLong(),
-      // Avoid caching a miss
-      shouldCacheResult: (result) => Boolean(result),
-    },
-    () => sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'}),
-  )
+export async function loader({context}: Route.LoaderArgs) {
+  const {cache, waitUntil, sanity} = context
+  const runWithCache = createRunWithCache({cache, waitUntil})
 
-  return {homepage}
+  const {data} = await runWithCache({key: 'home', strategy: Cache.long()}, async () => {
+    const homepage = await sanity.fetch(`*[_type == "page" && _id == $id][0]`, {id: 'home'})
+    // Avoid caching a miss
+    return {data: {homepage}, shouldCache: Boolean(homepage)}
+  })
+
+  return {homepage: data.homepage}
 }
 ```
 
@@ -1132,6 +1103,7 @@ export async function loader({context, params}: LoaderArgs) {
 - [From `v3` to `v4`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v3-to-v4.md)
 - [From `v4` to `v5`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v4-to-v5.md)
 - [From `v6` to `v7`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v6-to-v7.md)
+- [From `v7` to `v8`](https://github.com/sanity-io/hydrogen-sanity/blob/main/packages/hydrogen-sanity/MIGRATE-v7-to-v8.md)
 
 ## License
 
