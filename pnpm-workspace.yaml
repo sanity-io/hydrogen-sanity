@@ -8,3 +8,13 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - '@sanity/client@7.28.0'
   - '@sanity/image-url@2.2.0'
+# semantic-release's plugins load the `conventionalcommits` preset from their own directory, which
+# otherwise reaches the hoisted v10. v10 writes empty release notes with release-notes-generator 14.
+# Pin the v8 that `@sanity/semantic-release-preset` depends on.
+packageExtensions:
+  '@semantic-release/commit-analyzer':
+    dependencies:
+      conventional-changelog-conventionalcommits: ^8.0.0
+  '@semantic-release/release-notes-generator':
+    dependencies:
+      conventional-changelog-conventionalcommits: ^8.0.0

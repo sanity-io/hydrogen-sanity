@@ -24,5 +24,10 @@ export default {
       channel: '6',
       range: '6.x.x',
     },
+    {
+      name: 'v7',
+      channel: '7',
+      range: '7.x.x',
+    },
   ],
 }

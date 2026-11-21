@@ -1,79 +1,162 @@
-import type {
-  PredictiveSearchQuery,
-  RegularSearchQuery,
-} from 'storefrontapi.generated';
+import { gql, parseCollectionParams, type StorefrontApi } from "@shopify/hydrogen";
+import type { StorefrontClient } from "@shopify/hydrogen";
+import type { ProductFilter as StorefrontApiProductFilter } from "@shopify/hydrogen/storefront-api-types";
 
-type ResultWithItems<Type extends 'predictive' | 'regular', Items> = {
-  type: Type;
-  term: string;
-  error?: string;
-  result: {total: number; items: Items};
+import { PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
+
+export const SEARCH_PAGE_SIZE = 9;
+
+export const SEARCH_QUERY = gql(
+  `
+    query SearchPage(
+      $term: String!
+      $first: Int!
+      $after: String
+      $sortKey: SearchSortKeys
+      $reverse: Boolean
+      $productFilters: [ProductFilter!]
+    ) {
+      shop {
+        paymentSettings {
+          currencyCode
+        }
+      }
+      search(
+        query: $term
+        types: [PRODUCT]
+        first: $first
+        after: $after
+        sortKey: $sortKey
+        reverse: $reverse
+        productFilters: $productFilters
+      ) {
+        totalCount
+        productFilters {
+          id
+          label
+          type
+          presentation
+          values {
+            id
+            label
+            count
+            input
+            swatch {
+              color
+              image {
+                previewImage {
+                  url
+                  altText
+                }
+              }
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          __typename
+          ... on Product {
+            ...ProductCard
+          }
+        }
+      }
+    }
+  `,
+  [PRODUCT_CARD_FRAGMENT],
+);
+
+type SearchQueryResult = StorefrontApi.ResultOf<typeof SEARCH_QUERY>;
+type SearchQueryVariables = StorefrontApi.VariablesOf<typeof SEARCH_QUERY>;
+type SearchNode = SearchQueryResult["search"]["nodes"][number];
+type SearchProductNode = Extract<SearchNode, { __typename: "Product" }>;
+type SearchFilters = SearchQueryResult["search"]["productFilters"];
+type SearchPageInfo = SearchQueryResult["search"]["pageInfo"];
+type SearchCurrencyCode = SearchQueryResult["shop"]["paymentSettings"]["currencyCode"];
+
+type SearchPageEmptyData = {
+  performed: false;
+  searchTerm: string;
+  products: [];
+  availableFilters: [];
+  pageInfo: { hasNextPage: false; endCursor: null };
+  currencyCode: null;
+  totalCount: 0;
+  dataSearch: string;
+  origin: string;
 };
 
-export type RegularSearchReturn = ResultWithItems<
-  'regular',
-  RegularSearchQuery
->;
-export type PredictiveSearchReturn = ResultWithItems<
-  'predictive',
-  NonNullable<PredictiveSearchQuery['predictiveSearch']>
->;
+type SearchPagePerformedData = {
+  performed: true;
+  searchTerm: string;
+  products: SearchProductNode[];
+  availableFilters: SearchFilters;
+  pageInfo: SearchPageInfo;
+  currencyCode: SearchCurrencyCode;
+  totalCount: number;
+  dataSearch: string;
+  origin: string;
+};
 
-/**
- * Returns the empty state of a predictive search result to reset the search state.
- */
-export function getEmptyPredictiveSearchResult(): PredictiveSearchReturn['result'] {
-  return {
-    total: 0,
-    items: {
-      articles: [],
-      collections: [],
+export type SearchPageData = SearchPageEmptyData | SearchPagePerformedData;
+
+export async function loadSearchPage({
+  storefrontClient,
+  request,
+}: {
+  storefrontClient: StorefrontClient;
+  request: Request;
+}): Promise<SearchPageData> {
+  const url = new URL(request.url);
+  const searchTerm = (url.searchParams.get("q") ?? "").trim();
+
+  if (!searchTerm) {
+    return {
+      performed: false,
+      searchTerm,
       products: [],
-      pages: [],
-      queries: [],
-    },
-  };
-}
-
-interface UrlWithTrackingParams {
-  /** The base URL to which the tracking parameters will be appended. */
-  baseUrl: string;
-  /** The trackingParams returned by the Storefront API. */
-  trackingParams?: string | null;
-  /** Any additional query parameters to be appended to the URL. */
-  params?: Record<string, string>;
-  /** The search term to be appended to the URL. */
-  term: string;
-}
-
-/**
- * A utility function that appends tracking parameters to a URL. Tracking parameters are
- * used internally by Shopify to enhance search results and admin dashboards.
- * @example
- * ```ts
- * const baseUrl = 'www.example.com';
- * const trackingParams = 'utm_source=shopify&utm_medium=shopify_app&utm_campaign=storefront';
- * const params = { foo: 'bar' };
- * const term = 'search term';
- * const url = urlWithTrackingParams({ baseUrl, trackingParams, params, term });
- * console.log(url);
- * // Output: 'https://www.example.com?foo=bar&q=search%20term&utm_source=shopify&utm_medium=shopify_app&utm_campaign=storefront'
- * ```
- */
-export function urlWithTrackingParams({
-  baseUrl,
-  trackingParams,
-  params: extraParams,
-  term,
-}: UrlWithTrackingParams) {
-  let search = new URLSearchParams({
-    ...extraParams,
-    q: encodeURIComponent(term),
-  }).toString();
-
-  if (trackingParams) {
-    search = `${search}&${trackingParams}`;
+      availableFilters: [],
+      pageInfo: { hasNextPage: false, endCursor: null },
+      currencyCode: null,
+      totalCount: 0,
+      dataSearch: url.searchParams.toString(),
+      origin: url.origin,
+    };
   }
 
-  return `${baseUrl}?${search}`;
+  const browse = parseCollectionParams(url.searchParams);
+  const after = url.searchParams.get("after") || undefined;
+  const sortKey = browse.sortKey === "PRICE" ? "PRICE" : "RELEVANCE";
+
+  const variables: SearchQueryVariables = {
+    term: searchTerm,
+    first: SEARCH_PAGE_SIZE,
+    after,
+    productFilters:
+      browse.filters.length > 0 ? (browse.filters as StorefrontApiProductFilter[]) : undefined,
+    sortKey,
+    reverse: sortKey === "PRICE" ? browse.reverse || undefined : undefined,
+  };
+
+  const { data } = await storefrontClient.graphql(SEARCH_QUERY, { variables });
+
+  if (!data?.search) throw new Response("Search unavailable", { status: 502 });
+
+  const products = data.search.nodes.filter(
+    (node): node is SearchProductNode => node.__typename === "Product",
+  );
+
+  return {
+    performed: true,
+    searchTerm,
+    products,
+    availableFilters: data.search.productFilters,
+    pageInfo: data.search.pageInfo,
+    currencyCode: data.shop.paymentSettings.currencyCode,
+    totalCount: data.search.totalCount,
+    dataSearch: url.searchParams.toString(),
+    origin: url.origin,
+  };
 }

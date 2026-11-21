@@ -1,54 +1,46 @@
-import {ServerRouter} from 'react-router';
-import {isbot} from 'isbot';
-import {renderToReadableStream} from 'react-dom/server';
-import {
-  createContentSecurityPolicy,
-  type HydrogenRouterContextProvider,
-} from '@shopify/hydrogen';
-import type {EntryContext} from 'react-router';
+import { createContentSecurityPolicy } from "@shopify/hydrogen";
+import { isbot } from "isbot";
+import { renderToReadableStream } from "react-dom/server";
+import { ServerRouter, type EntryContext, type RouterContextProvider } from "react-router";
+
+import { NonceProvider } from "~/lib/csp";
+import { envContext } from "~/lib/env";
+import { getMockShopDomain, getStoreDomain, shouldUseMockShop } from "~/lib/shop";
 
 export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
-  context: HydrogenRouterContextProvider,
+  context: RouterContextProvider,
 ) {
-  const {env, sanity} = context;
-  const {preview, SanityProvider} = sanity;
-  const isPreviewEnabled = preview?.enabled;
+  const env = context.get(envContext);
+  const { preview, SanityProvider } = context.sanity;
 
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    defaultSrc: ['https://cdn.sanity.io'],
-    // `data:` allows the blur placeholders of Sanity images
-    imgSrc: [
-      "'self'",
-      'https://cdn.shopify.com',
-      'https://cdn.sanity.io',
-      'data:',
-    ],
+  const csp = createContentSecurityPolicy({
     shop: {
-      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      storeDomain: shouldUseMockShop(env) ? getMockShopDomain(env) : getStoreDomain(env),
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
     },
-    frameAncestors: [
-      'https://www.sanity.io',
-      ...(isPreviewEnabled ? [env.SANITY_STUDIO_ORIGIN] : []),
-    ],
+    directives: {
+      defaultSrc: ["https://cdn.sanity.io"],
+      // `data:` allows the blur placeholders of Sanity images
+      imgSrc: ["https://cdn.sanity.io", "data:"],
+      frameAncestors: [
+        "https://www.sanity.io",
+        ...(preview?.enabled ? [env.SANITY_STUDIO_ORIGIN] : []),
+      ],
+    },
   });
 
   const body = await renderToReadableStream(
-    <NonceProvider>
+    <NonceProvider value={csp.nonce}>
       <SanityProvider>
-        <ServerRouter
-          context={reactRouterContext}
-          url={request.url}
-          nonce={nonce}
-        />
+        <ServerRouter context={reactRouterContext} url={request.url} nonce={csp.nonce} />
       </SanityProvider>
     </NonceProvider>,
     {
-      nonce,
+      nonce: csp.nonce,
       signal: request.signal,
       onError(error) {
         console.error(error);
@@ -57,12 +49,12 @@ export default async function handleRequest(
     },
   );
 
-  if (isbot(request.headers.get('user-agent'))) {
+  if (isbot(request.headers.get("user-agent"))) {
     await body.allReady;
   }
 
-  responseHeaders.set('Content-Type', 'text/html');
-  responseHeaders.set('Content-Security-Policy', header);
+  responseHeaders.set("Content-Type", "text/html");
+  csp.applyResponseHeaders(responseHeaders);
 
   return new Response(body, {
     headers: responseHeaders,
