@@ -2,15 +2,43 @@ import {validatePreviewUrl} from '@sanity/preview-url-secret'
 import {type ActionFunction, type AppLoadContext, type LoaderFunction, redirect} from 'react-router'
 
 import type {SanityContext} from '../context'
-import {sanitizePerspective} from '../utils'
-import {isHydrogenSession, isSanityPreviewSession} from '../utils'
+import {isHydrogenSession, isSanityPreviewSession, sanitizePerspective} from '../utils'
 
-function getSession(context: AppLoadContext) {
-  const preview = (context.sanity as SanityContext)?.preview
-  const session =
-    preview && 'session' in preview && preview.session ? preview.session : context.session
-  return session
+const PREVIEW_NOT_CONFIGURED =
+  'Preview mode is not configured: pass `preview: {token, session}` to `createSanityContext`. The example storefront sets it only when both `SANITY_PREVIEW_TOKEN` and `SESSION_SECRET` are set.'
+
+function isSanityContext(value: unknown): value is SanityContext {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'client' in value &&
+    'query' in value &&
+    typeof value.query === 'function'
+  )
 }
+
+/**
+ * Reads `context.sanity`. The route reads it as a property, so `server.ts` must set it.
+ */
+function getSanity(context: AppLoadContext): SanityContext {
+  const sanity: unknown = context.sanity
+  if (!isSanityContext(sanity)) {
+    throw new Error(
+      '`context.sanity` is not set. Create it with `createSanityContext` in `server.ts` and return it as `sanity` from the request context.',
+    )
+  }
+  return sanity
+}
+
+/**
+ * Prefers the dedicated preview session, and falls back to the app's own `context.session`.
+ */
+function getSession(sanity: SanityContext, context: AppLoadContext): unknown {
+  return sanity.preview?.session ?? context.session
+}
+
+const INVALID_SESSION =
+  'The preview session must have `get`, `set`, `unset` and `commit` methods. Pass a `PreviewSession` from `hydrogen-sanity/preview/session` as `preview.session`.'
 
 /**
  * Route action handler for preview mode management.
@@ -21,7 +49,9 @@ export const action: ActionFunction = async ({context, request}) => {
     case 'POST':
     case 'DELETE': {
       try {
-        const session = getSession(context)
+        // Leaving preview mode must work even when `context.sanity` is missing
+        const sanity: unknown = context.sanity
+        const session = isSanityContext(sanity) ? getSession(sanity, context) : context.session
 
         const headers = new Headers()
         if (isSanityPreviewSession(session)) {
@@ -48,9 +78,10 @@ export const action: ActionFunction = async ({context, request}) => {
 
     case 'PUT': {
       try {
-        const sanity = context.sanity as SanityContext
+        const sanity = getSanity(context)
 
         if (!sanity.preview) {
+          console.warn(PREVIEW_NOT_CONFIGURED)
           return new Response('Preview mode is not enabled in this environment.', {status: 403})
         }
 
@@ -58,17 +89,9 @@ export const action: ActionFunction = async ({context, request}) => {
           throw new Error('Enabling preview mode requires a token.')
         }
 
-        if (!sanity.preview) {
-          return new Response('Preview mode is not enabled in this environment.', {status: 403})
-        }
-
-        if (!sanity.preview.token) {
-          throw new Error('Enabling preview mode requires a token.')
-        }
-
-        const session = getSession(context)
+        const session = getSession(sanity, context)
         if (!isHydrogenSession(session)) {
-          throw new Error('Session is not an instance of HydrogenSession')
+          throw new Error(INVALID_SESSION)
         }
 
         const projectId = sanity.client.config().projectId
@@ -76,13 +99,22 @@ export const action: ActionFunction = async ({context, request}) => {
           throw new Error('No `projectId` found in the client config.')
         }
 
+        // Only a session that entered preview mode through the loader may change its perspective
         const sessionProjectId = session.get('projectId')
-        if (sessionProjectId && sessionProjectId !== projectId) {
+        if (!sessionProjectId) {
+          return new Response('Preview mode is not active.', {status: 403})
+        }
+        if (sessionProjectId !== projectId) {
           return new Response('Invalid projectId', {status: 400})
         }
 
         const formData = await request.formData()
-        const perspective = sanitizePerspective(formData.get('perspective'))
+        let perspective: ReturnType<typeof sanitizePerspective>
+        try {
+          perspective = sanitizePerspective(formData.get('perspective'))
+        } catch {
+          return new Response('Invalid perspective', {status: 400})
+        }
         session.set('perspective', Array.isArray(perspective) ? perspective.join(',') : perspective)
 
         return new Response('OK', {
@@ -113,10 +145,10 @@ export const action: ActionFunction = async ({context, request}) => {
  */
 export const loader: LoaderFunction = async ({context, request}) => {
   try {
-    const session = getSession(context)
-    const sanity = context.sanity as SanityContext
+    const sanity = getSanity(context)
 
     if (!sanity.preview) {
+      console.warn(PREVIEW_NOT_CONFIGURED)
       return new Response('Preview mode is not enabled in this environment.', {status: 403})
     }
 
@@ -129,8 +161,9 @@ export const loader: LoaderFunction = async ({context, request}) => {
       throw new Error('No `projectId` found in the client config.')
     }
 
+    const session = getSession(sanity, context)
     if (!isHydrogenSession(session)) {
-      throw new Error('Session is not an instance of HydrogenSession')
+      throw new Error(INVALID_SESSION)
     }
 
     const clientWithToken = sanity.client.withConfig({

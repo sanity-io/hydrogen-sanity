@@ -471,6 +471,77 @@ describe('the preview route', () => {
       expect((response as Response).status).toBe(400)
       expect(await (response as Response).text()).toMatchInlineSnapshot(`"Invalid projectId"`)
     })
+
+    it("doesn't write a perspective into a session that isn't in preview mode", async () => {
+      const formData = new FormData()
+      formData.set('perspective', 'drafts')
+      const request = new Request('https://example.com', {method: 'PUT', body: formData})
+      const previewSession = new PreviewSession()
+
+      const sanity = await createSanityContext({
+        request: new Request('https://example.com'),
+        client: {projectId, dataset},
+        preview: {token, session: previewSession},
+      })
+
+      const response = await action({
+        context: {session: new Session(), sanity},
+        request,
+        params: {},
+        pattern: '',
+        url: new URL('https://example.com'),
+      })
+
+      expect(response).toBeInstanceOf(Response)
+      expect((response as Response).status).toBe(403)
+      expect(previewSession.get('perspective')).toBeUndefined()
+    })
+
+    it('rejects an invalid perspective with a 400', async () => {
+      const formData = new FormData()
+      formData.set('perspective', '<b>')
+      const request = new Request('https://example.com', {method: 'PUT', body: formData})
+      const previewSession = new PreviewSession()
+      previewSession.set('projectId', projectId)
+
+      const sanity = await createSanityContext({
+        request: new Request('https://example.com'),
+        client: {projectId, dataset},
+        preview: {token, session: previewSession},
+      })
+      mockSanitizePerspective.mockImplementationOnce(() => {
+        throw new TypeError('Invalid perspective')
+      })
+
+      const response = await action({
+        context: {session: new Session(), sanity},
+        request,
+        params: {},
+        pattern: '',
+        url: new URL('https://example.com'),
+      })
+
+      expect(response).toBeInstanceOf(Response)
+      expect((response as Response).status).toBe(400)
+      expect(previewSession.get('perspective')).toBeUndefined()
+    })
+  })
+
+  it('logs that `context.sanity` must be set in `server.ts` when it is missing', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    await expect(
+      loader({
+        context: {session: new Session()},
+        request: new Request('https://example.com'),
+        params: {},
+        pattern: '',
+        url: new URL('https://example.com'),
+      }),
+    ).rejects.toBeInstanceOf(Response)
+    expect(String(error.mock.calls[0]?.[0])).toContain('server.ts')
+
+    error.mockRestore()
   })
 
   it('rejects unsupported HTTP methods', async () => {
