@@ -26,8 +26,7 @@ Learn more about [getting started with Sanity](https://www.sanity.io/docs/gettin
   - [Set up the Sanity provider](#set-up-the-sanity-provider)
 - [Interacting with Sanity data](#interacting-with-sanity-data)
   - [Recommended: Using `query` and `Query` together](#recommended-using-query-and-query-together)
-  - [Alternative: Cached queries using `loadQuery`](#alternative-cached-queries-using-loadquery)
-    - [Additional `loadQuery` options](#additional-loadquery-options)
+  - [Lower level: `loadQuery` in preview mode](#lower-level-loadquery-in-preview-mode)
   - [Alternative: Direct queries using `fetch`](#alternative-direct-queries-using-fetch)
   - [Alternative: Using `client` directly](#alternative-using-client-directly)
   - [Using Sanity TypeGen](#using-sanity-typegen)
@@ -117,7 +116,7 @@ export function createRequestSanityContext(
     client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET || 'production',
-      apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
+      apiVersion: env.SANITY_API_VERSION || 'v2025-02-19',
     },
 
     // You can also initialize a client and pass it instead
@@ -347,7 +346,7 @@ const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]{
   }
 }`)
 
-export async function loader({context}: LoaderFunctionArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   const initial = await context.sanity.query(HOMEPAGE_QUERY, undefined, {
     tag: 'homepage',
   })
@@ -361,7 +360,7 @@ export async function loader({context}: LoaderFunctionArgs) {
 ```tsx
 import {Query} from 'hydrogen-sanity'
 
-export default function HomePage({loaderData}: {loaderData: {initial: any}}) {
+export default function HomePage({loaderData}: Route.ComponentProps) {
   const {initial} = loaderData
 
   return (
@@ -406,7 +405,22 @@ export default function HomePage({loaderData}: {loaderData: {initial: any}}) {
 > [!NOTE]
 > The `encodeDataAttribute` function enables click-to-edit functionality in Sanity Studio's Presentation tool. It's only available when Sanity preview mode is active (managed via preview session) and returns `undefined` otherwise.
 >
-> It also requires `studioUrl` configured **on the client**, via the `studioUrl` prop on `<VisualEditing>` (or `<LiveMode>`) — see [Add Visual Editing component](#add-visual-editing-component). A missing client-side `studioUrl` is the most common reason it returns `undefined`.
+> It also requires `stega.studioUrl` in the server client configuration — see [Configure preview mode](#configure-preview-mode). `<VisualEditing>` reads it from the server, so you don't pass it again.
+
+In preview mode `query` returns `{data, sourceMap, perspective}` for `Query`; otherwise it returns the result. To check the result in the loader, for example to return a 404, use `isQueryResponseInitial`:
+
+```ts
+import {isQueryResponseInitial} from 'hydrogen-sanity'
+
+export async function loader({context, params}: Route.LoaderArgs) {
+  const initial = await context.sanity.query(PAGE_QUERY, {slug: params.slug})
+  const page = isQueryResponseInitial(initial) ? initial.data : initial
+
+  if (!page) throw new Response('Not found', {status: 404})
+
+  return {initial}
+}
+```
 
 **Advanced Options**
 
@@ -414,10 +428,12 @@ Both methods accept the same options as their underlying implementations:
 
 ```ts
 // In your loader
-const page = await context.sanity.query<HomePage>(queryString, params, {
+const initial = await context.sanity.query<HomePage>(queryString, params, {
   // Hydrogen caching options
   hydrogen: {
     cache: Cache.short(),
+    // Skip caching a miss
+    shouldCacheResult: (page) => page !== null,
   },
   // Sanity request options
   tag: 'home',
@@ -427,62 +443,36 @@ const page = await context.sanity.query<HomePage>(queryString, params, {
 <Query
   query={queryString}
   params={params}
-  options={initial}
+  options={{initial}}
   fallback={<div>Loading...</div>} // React Suspense props
 >
   {(data) => <YourComponent data={data} />}
 </Query>
 ```
 
-### Alternative: Cached queries using `loadQuery`
+### Lower level: `loadQuery` in preview mode
 
-**Best for**: Full control over preview mode behavior and loader integration (alternative to `query`/`Query`)
-
-- Manual loader integration with real-time Studio updates when preview mode is active
-- Uses `useQuery` hooks for client-side re-rendering with Sanity Studio
-
-Query Sanity's API and use Hydrogen's cache to store the response (defaults to the `Cache.long()` caching strategy). When Sanity preview mode is active, `loadQuery` automatically bypasses the cache.
-
-Learn more about configuring [caching in Hydrogen](https://shopify.dev/docs/custom-storefronts/hydrogen/caching).
+`query` calls `loadQuery` for you in preview mode. Call it yourself only when you render with the `useQuery` hook instead of the `Query` component. It returns `{data, sourceMap, perspective}`, which `useQuery` takes as `initial`:
 
 ```ts
-export async function loader({context, params}: LoaderFunctionArgs) {
-  const query = `*[_type == "page" && _id == $id][0]`
-  const params = {id: 'home'}
-  const initial = await context.sanity.loadQuery(query, params)
+import {useQuery} from 'hydrogen-sanity'
 
+export async function loader({context}: Route.LoaderArgs) {
+  const initial = await context.sanity.loadQuery(PAGE_QUERY, {id: 'home'})
   return {initial}
+}
+
+export default function Page({loaderData}: Route.ComponentProps) {
+  const {data, encodeDataAttribute} = useQuery(
+    PAGE_QUERY,
+    {id: 'home'},
+    {initial: loaderData.initial},
+  )
+  // ...
 }
 ```
 
-#### Additional `loadQuery` options
-
-If you need to pass any additional options to the request provide `queryOptions` like so:
-
-```ts
-const page = await context.sanity.loadQuery<HomePage>(query, params, {
-  // Optionally customize the cache strategy for this request
-  hydrogen: {
-    cache: Cache.short(),
-    // Or disable caching for this request
-    // cache: Cache.none(),
-
-    // You can also pass a function do determine whether or not to cache the response
-    // shouldCacheResult(value){
-    //  return true
-    // },
-  },
-
-  // ...as well as other request options
-  // tag: 'home',
-  // headers: {
-  //   'Accept-Encoding': 'br, gzip, *',
-  // },
-})
-```
-
-> [!TIP]
-> Learn more about [request tagging](https://www.sanity.io/docs/reference-api-request-tags).
+`loadQuery` takes the same `hydrogen` options as `query`. Outside preview mode it logs a warning in development: use `query` or `fetch` there.
 
 ### Alternative: Direct queries using `fetch`
 
@@ -494,16 +484,21 @@ const page = await context.sanity.loadQuery<HomePage>(query, params, {
 For Sanity queries that don't need loader integration, there is a `fetch` method that also integrates with Hydrogen's cache:
 
 ```ts
-export async function loader({context, params}: LoaderFunctionArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   const query = `*[_type == "page" && _id == $id][0]`
-  const params = {id: 'home'}
 
-  const page = await context.sanity.fetch<HomePage>(query, params, {
-    hydrogen: {
-      cache: Cache.short(),
+  const page = await context.sanity.fetch<HomePage>(
+    query,
+    {id: 'home'},
+    {
+      hydrogen: {
+        cache: Cache.short(),
+        // Skip caching a miss
+        shouldCacheResult: (page) => page !== null,
+      },
+      tag: 'home',
     },
-    tag: 'home',
-  })
+  )
 
   return {page}
 }
@@ -514,19 +509,17 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 The Sanity client (either instantiated from your configuration or passed through directly) is also available in your app's context. It is recommended to use `query` for data fetching; but the Sanity client can be used for mutations within actions, for example:
 
 ```ts
-export async function action({context, request}: ActionFunctionArgs) {
+export async function action({context, request}: Route.ActionArgs) {
   if (!isAuthenticated(request)) {
     return redirect('/login')
   }
 
-  return context.sanity
-    .withConfig({
-      token: context.env.SANITY_WRITE_TOKEN,
-    })
-    .client.create({
-      _type: 'comment',
-      text: request.body.get('text'),
-    })
+  const env = context.get(envContext)
+  const formData = await request.formData()
+
+  return context.sanity.client
+    .withConfig({token: env.SANITY_WRITE_TOKEN})
+    .create({_type: 'comment', text: String(formData.get('text'))})
 }
 ```
 
@@ -546,11 +539,11 @@ Now your queries will have automatic type inference:
 ```ts
 import {defineQuery} from 'groq'
 
-const HOMEPAGE_QUERY = defineQuery(`*[_id == "home"][0]`)
+const PAGE_QUERY = defineQuery(`*[_type == "page" && slug.current == $slug][0]`)
 
-export async function loader({context, params}: LoaderFunctionArgs) {
-  const params = {id: 'home'}
-  const initial = await context.sanity.loadQuery(HOMEPAGE_QUERY, params)
+export async function loader({context, params}: Route.LoaderArgs) {
+  // `initial` and the `$slug` param are typed from the query
+  const initial = await context.sanity.query(PAGE_QUERY, {slug: params.slug})
 
   return {initial}
 }
@@ -563,7 +556,7 @@ export async function loader({context, params}: LoaderFunctionArgs) {
 ```ts
 import post from './post.groq' with {type: 'text'}
 
-export async function loader({context, params}: LoaderFunctionArgs) {
+export async function loader({context, params}: Route.LoaderArgs) {
   // Typed from `post.groq`, and `{slug}` is checked against its `$slug` placeholder
   const initial = await context.sanity.query(post, {slug: params.handle})
 
@@ -735,7 +728,7 @@ import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
     client: {
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET || 'production',
-      apiVersion: env.SANITY_API_VERSION || 'v2024-08-08',
+      apiVersion: env.SANITY_API_VERSION || 'v2025-02-19',
 
 +     // Enable stega encoding only when in preview mode
 +     stega: {
@@ -772,18 +765,8 @@ Set up your root route to enable Visual Editing across the entire application wh
 + import {usePreviewMode} from 'hydrogen-sanity/preview'
 + import {VisualEditing} from 'hydrogen-sanity/visual-editing'
 
-export async function loader({context}: Route.LoaderArgs) {
-  const env = context.get(envContext)
-  // ...rest of loader
-  return {
-    // ...rest of loader data
-+   studioOrigin: env.SANITY_STUDIO_ORIGIN,
-  }
-}
-
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce()
-  const data = useRouteLoaderData<typeof loader>('root')
 + const previewMode = usePreviewMode()
 
   return (
@@ -798,12 +781,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {/* ...rest of the root layout */}
 
 +       {/* Conditionally render `VisualEditing` component only when in preview mode */}
-+       {previewMode ? (
-+         <VisualEditing
-+           action="/api/preview"
-+           studioUrl={data?.studioOrigin}
-+         />
-+       ) : null}
++       {previewMode ? <VisualEditing action="/api/preview" /> : null}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
@@ -812,13 +790,10 @@ export function Layout({children}: {children?: React.ReactNode}) {
 }
 ```
 
-> [!IMPORTANT]
-> **`studioUrl` and `filter` must be set on both the server and the client.** Visual Editing runs a separate Sanity client in the browser, so its stega config comes from `<VisualEditing>` (or `<LiveMode>`) props, not your server context. A missing client-side `studioUrl` is the most common reason `encodeDataAttribute` returns `undefined`.
+> [!NOTE]
+> `<VisualEditing>` (and `<LiveMode>`) runs a separate Sanity client in the browser. It reads `studioUrl` from the server client's `stega.studioUrl` when that's a string, so you set it once.
 >
-> - **Server**: `env.SANITY_STUDIO_ORIGIN` directly.
-> - **Client**: return `studioOrigin` from the root `loader` and read it with `useRouteLoaderData`, as shown above.
->
-> `filter` is a function, so it can't go through the loader — define it once in a shared module, like the example storefront's [`stega.ts`](../../examples/storefront/app/lib/sanity/stega.ts), and import it into both `context.ts` and `root.tsx`. A function-valued `studioUrl` needs the same treatment.
+> A `stega.filter` function, or a function-valued `studioUrl`, can't cross from the server. Define it once in a shared module, like the example storefront's [`stega.ts`](../../examples/storefront/app/lib/sanity/stega.ts), and pass it to both `createSanityContext` and `<VisualEditing filter={filter} />`.
 
 #### Visual Editing configuration options
 
@@ -839,7 +814,7 @@ The component automatically detects when you're using client-side loaders (`Quer
 <VisualEditing action="/api/preview" />
 ```
 
-**Stega clipboard and misuse reporting** (requires `hydrogen-sanity` 7.0.0 or later):
+**Stega clipboard and misuse reporting:**
 
 ```tsx
 <VisualEditing
@@ -954,21 +929,10 @@ export default async function handleRequest(
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
     },
 +   directives: {
-      // If your storefront and Studio are on separate domains...
-      // ...allow Sanity assets loaded from the CDN to be loaded in your storefront
-+     defaultSrc: ['https://cdn.sanity.io'],
-      // ...allow the blur placeholders of `Image` (`data:` URLs)
+      // Sanity Image CDN, and the blur placeholders of `Image` (`data:` URLs)
 +     imgSrc: ['https://cdn.sanity.io', 'data:'],
-      // ...allow Studio to load your storefront in Presentation's iframe
+      // Allow Studio to load your storefront in Presentation's iframe
 +     frameAncestors: isPreviewEnabled ? [env.SANITY_STUDIO_ORIGIN] : [],
-
-      // If you've embedded your Studio in your storefront...
-      // ...allow Sanity assets to be loaded in your storefront and allow user avatars in Studio
-+     defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
-      // ...allow client-side requests for Studio to do realtime collaboration
-+     connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
-      // ...allow embedded Studio to load storefront
-+     frameAncestors: [`'self'`],
 +   },
   })
 
@@ -978,6 +942,20 @@ export default async function handleRequest(
 ```
 
 Hydrogen merges `directives` with the Shopify directives, so you list only the Sanity sources.
+
+If you embed the Studio in your storefront, it also needs these sources:
+
+```ts
+directives: {
+  // Sanity assets, and user avatars in the Studio
+  defaultSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com'],
+  imgSrc: ['https://cdn.sanity.io', 'https://lh3.googleusercontent.com', 'data:'],
+  // Real-time collaboration in the Studio
+  connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
+  // The embedded Studio loads the storefront from the same origin
+  frameAncestors: [`'self'`],
+},
+```
 
 ### Set up Presentation tool
 
@@ -1016,9 +994,7 @@ You should now be able to view your Hydrogen app in the Presentation Tool, click
 
 > [!NOTE]
 >
-> If you're able to see Presentation working locally, but not when you've deployed your application, check that your session cookie is using `sameSite: 'none'` and `secure: true`.
->
-> Since Presentation displays your site in an iframe, the session cookie by default won't be sent through. You can learn more about session cookie configuation in [MDN's documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value).
+> Presentation loads your storefront in an iframe, so the preview session cookie is a third-party cookie there. `PreviewSession` already sets `sameSite: 'none'` and `secure: true`. If preview works locally but not after you deploy, check that the deployment has `SESSION_SECRET` and `SANITY_PREVIEW_TOKEN`, and that the browser doesn't block third-party cookies for the storefront's domain.
 
 ### Troubleshooting
 
@@ -1033,6 +1009,9 @@ Presentation will throw this error if it can't establish a connection to your st
 3. If you've followed the instructions above, the `VisualEditing` component will be conditionally rendered if the app has been successfully put into preview mode.
 4. If you're using a session cookie, check your browser devtools and confirm that the cookie has been set as expected.
 5. Since Presentation loads your storefront in an `iframe`, double check your cookie and CSP configuration.
+6. The preview mode route logs the cause of a failure in the server log, for example a missing `context.sanity` or `SANITY_PREVIEW_TOKEN`.
+
+Do overlays show, but clicking doesn't open the document? `encodeDataAttribute` returns `undefined` when the server client has no `stega.studioUrl`. See [Configure preview mode](#configure-preview-mode).
 
 ## Using `@sanity/client` directly
 
