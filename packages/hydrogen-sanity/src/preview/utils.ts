@@ -1,5 +1,4 @@
-import type {HydrogenSession} from '@shopify/hydrogen'
-
+import type {HydrogenSession} from '../types'
 import type {SanityPreviewSession} from './session'
 
 /**

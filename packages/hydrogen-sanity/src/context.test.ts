@@ -1,16 +1,15 @@
 import {createClient, SanityClient} from '@sanity/client'
 import type {QueryStore} from '@sanity/react-loader'
-import {CacheShort, type WithCache} from '@shopify/hydrogen'
+import {Cache} from '@shopify/hydrogen'
 import groq from 'groq'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createSanityContext} from './context'
-import {PreviewSession} from './fixtures'
+import {createWaitUntil, MapCache, MapStore, PreviewSession} from './fixtures'
 import type {SanityProviderValue} from './provider'
-import {hashQuery} from './utils'
 
-// Mock the global caches object
-const cache = vi.hoisted<Cache>(() => ({
+// A Web Cache API cache that never returns an entry, for tests that don't exercise caching
+const cache = vi.hoisted(() => ({
   add: vi.fn().mockResolvedValue(undefined),
   addAll: vi.fn().mockResolvedValue(undefined),
   delete: vi.fn().mockResolvedValue(true),
@@ -22,21 +21,6 @@ const cache = vi.hoisted<Cache>(() => ({
 
 const loadQuery = vi.hoisted<QueryStore['loadQuery']>(() => vi.fn().mockResolvedValue(null))
 const setServerClient = vi.hoisted(() => vi.fn())
-let withCache = vi.hoisted<WithCache | null>(() => null)
-
-vi.mock('@shopify/hydrogen', async (importOriginal) => {
-  const module = await importOriginal<typeof import('@shopify/hydrogen')>()
-  withCache = module.createWithCache({
-    cache,
-    waitUntil: () => Promise.resolve(),
-    request: new Request('https://example.com'),
-  })
-
-  return {
-    ...module,
-    createWithCache: vi.fn().mockReturnValue(withCache),
-  }
-})
 
 vi.mock('@sanity/react-loader', async (importOriginal) => {
   const module = await importOriginal<typeof import('@sanity/react-loader')>()
@@ -48,12 +32,18 @@ vi.mock('@sanity/react-loader', async (importOriginal) => {
   }
 })
 
-const runWithCache = vi.spyOn(withCache!, 'run')
 const projectId = 'my-project-id'
 const client = createClient({projectId, dataset: 'my-dataset'})
 const query = groq`true`
 const params = {}
-const hashedQuery = await hashQuery(query, params)
+
+/**
+ * The TTL of each entry in a key-value store. Hydrogen keeps an entry for the strategy's
+ * `maxAge` plus `staleWhileRevalidate`, so the TTL shows which strategy cached it.
+ */
+function ttls(store: MapStore) {
+  return Array.from(store.entries.values(), ({ttl}) => ttl)
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -61,46 +51,88 @@ beforeEach(() => {
 
 describe('the Sanity request context', () => {
   const request = new Request('https://example.com')
-  let sanity: Awaited<ReturnType<typeof createSanityContext>>
 
-  beforeEach(async () => {
-    sanity = await createSanityContext({request, cache, client})
-  })
-
-  it('should return a client', () => {
+  it('should return a client', async () => {
+    const sanity = await createSanityContext({request, cache, client})
     expect(sanity.client).toSatisfy((contextClient) => contextClient instanceof SanityClient)
   })
 
-  it('queries should get cached using the default caching strategy', async () => {
-    const defaultStrategy = CacheShort()
+  it('queries should be served from the cache on the second call', async () => {
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
 
-    const contextWithDefaultStrategy = await createSanityContext({
+    await sanity.loadQuery<boolean>(query, params)
+    await flush()
+    await sanity.loadQuery<boolean>(query, params)
+
+    expect(loadQuery).toHaveBeenCalledOnce()
+  })
+
+  it('queries should get cached using `Cache.long()` by default', async () => {
+    const store = new MapStore()
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: store, waitUntil, client})
+
+    await sanity.loadQuery<boolean>(query, params)
+    await flush()
+
+    expect(ttls(store)).toEqual([3600 + 82800])
+  })
+
+  it('queries should get cached using the default caching strategy', async () => {
+    const store = new MapStore()
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({
       request,
-      cache,
+      cache: store,
+      waitUntil,
       client,
-      defaultStrategy,
+      defaultStrategy: Cache.short(),
     })
 
-    await contextWithDefaultStrategy.loadQuery<boolean>(query, params)
-    expect(runWithCache).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: defaultStrategy}),
-      expect.any(Function),
-    )
-    expect(cache.put).toHaveBeenCalledOnce()
+    await sanity.loadQuery<boolean>(query, params)
+    await flush()
+
+    expect(ttls(store)).toEqual([1 + 9])
   })
 
   it('queries should use the cache strategy passed in `loadQuery`', async () => {
-    const strategy = CacheShort()
-    await sanity.loadQuery<boolean>(query, params, {
-      hydrogen: {cache: strategy},
-    })
-    expect(runWithCache).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({cacheKey: hashedQuery, cacheStrategy: strategy}),
-      expect.any(Function),
-    )
-    expect(cache.put).toHaveBeenCalledOnce()
+    const store = new MapStore()
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: store, waitUntil, client})
+
+    await sanity.loadQuery<boolean>(query, params, {hydrogen: {cache: Cache.short()}})
+    await flush()
+
+    expect(ttls(store)).toEqual([1 + 9])
+  })
+
+  it("queries shouldn't get cached when `shouldCacheResult` returns false", async () => {
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
+    const options = {hydrogen: {shouldCacheResult: () => false}}
+
+    await sanity.loadQuery<boolean>(query, params, options)
+    await flush()
+    await sanity.loadQuery<boolean>(query, params, options)
+
+    expect(loadQuery).toHaveBeenCalledTimes(2)
+  })
+
+  it('fetch calls should get cached using the cache strategy passed in `fetch`', async () => {
+    const store = new MapStore()
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: store, waitUntil, client})
+    const response = {result: {title: 'Home'}, resultSourceMap: undefined, ms: 100}
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue(response)
+    const options = {hydrogen: {cache: Cache.short()}}
+
+    await sanity.fetch(query, params, options)
+    await flush()
+
+    expect(await sanity.fetch(query, params, options)).toEqual(response)
+    expect(fetch).toHaveBeenCalledOnce()
+    expect(ttls(store)).toEqual([1 + 9])
   })
 })
 
@@ -110,11 +142,17 @@ describe('when configured for preview', () => {
   previewSession.set('projectId', projectId)
 
   let sanity: Awaited<ReturnType<typeof createSanityContext>>
+  let store: MapStore
+  let flush: () => Promise<unknown>
 
   beforeEach(async () => {
+    store = new MapStore()
+    const writes = createWaitUntil()
+    flush = writes.flush
     sanity = await createSanityContext({
       request,
-      cache,
+      cache: store,
+      waitUntil: writes.waitUntil,
       client,
       preview: {
         token: 'my-token',
@@ -144,8 +182,11 @@ describe('when configured for preview', () => {
 
   it(`shouldn't cache queries`, async () => {
     await sanity.loadQuery<boolean>(query)
-    expect(loadQuery).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalledOnce()
+    await flush()
+    await sanity.loadQuery<boolean>(query)
+
+    expect(loadQuery).toHaveBeenCalledTimes(2)
+    expect(store.entries.size).toBe(0)
   })
 
   it(`shouldn't cache fetch calls`, async () => {
@@ -154,9 +195,13 @@ describe('when configured for preview', () => {
       resultSourceMap: undefined,
       ms: 100,
     })
+
     await sanity.fetch<boolean>(query)
-    expect(spy).toHaveBeenCalledOnce()
-    expect(cache.put).not.toHaveBeenCalledOnce()
+    await flush()
+    await sanity.fetch<boolean>(query)
+
+    expect(spy).toHaveBeenCalledTimes(2)
+    expect(store.entries.size).toBe(0)
   })
 })
 
