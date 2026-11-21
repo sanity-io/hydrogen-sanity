@@ -29,6 +29,7 @@ import { envContext } from "~/lib/env";
 import { predictiveSearchHandlers } from "~/lib/predictive-search-handlers";
 import { loadRootLayout } from "~/lib/root-layout";
 import { routeTemplates } from "~/lib/route-templates";
+import { filter } from "~/lib/sanity/stega";
 import { createEphemeralSessionManager } from "~/lib/session";
 import { analyticsConsent, resolveShopIdentity } from "~/lib/shop";
 import { createRequestStorefrontClient, storefrontClientContext } from "~/lib/storefront";
@@ -104,7 +105,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     shopIdentity: resolveShopIdentity(env, layout.shopId),
     currency: layout.currency,
     locale: storefrontClient.locale,
-    studioOrigin: env.SANITY_STUDIO_ORIGIN,
   };
 }
 
@@ -144,7 +144,9 @@ export function Layout({ children }: { children: ReactNode }) {
         </a>
         {children}
         {previewMode ? (
-          <VisualEditing action="/api/preview" studioUrl={rootData?.studioOrigin} />
+          // `studioUrl` defaults to the server client's `stega.studioUrl`. `filter` is a function,
+          // so it can't cross from the server and is passed here too.
+          <VisualEditing action="/api/preview" filter={filter} />
         ) : null}
         <Sanity nonce={nonce} />
         <ScrollRestoration nonce={nonce} />
