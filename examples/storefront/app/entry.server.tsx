@@ -15,17 +15,29 @@ export default async function handleRequest(
   context: RouterContextProvider,
 ) {
   const env = context.get(envContext);
+  const { preview, SanityProvider } = context.sanity;
 
   const csp = createContentSecurityPolicy({
     shop: {
       storeDomain: shouldUseMockShop(env) ? getMockShopDomain(env) : getStoreDomain(env),
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
     },
+    directives: {
+      defaultSrc: ["https://cdn.sanity.io"],
+      // `data:` allows the blur placeholders of Sanity images
+      imgSrc: ["https://cdn.sanity.io", "data:"],
+      frameAncestors: [
+        "https://www.sanity.io",
+        ...(preview?.enabled ? [env.SANITY_STUDIO_ORIGIN] : []),
+      ],
+    },
   });
 
   const body = await renderToReadableStream(
     <NonceProvider value={csp.nonce}>
-      <ServerRouter context={reactRouterContext} url={request.url} nonce={csp.nonce} />
+      <SanityProvider>
+        <ServerRouter context={reactRouterContext} url={request.url} nonce={csp.nonce} />
+      </SanityProvider>
     </NonceProvider>,
     {
       nonce: csp.nonce,
