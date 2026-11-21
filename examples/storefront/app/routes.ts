@@ -9,5 +9,6 @@ export default [
   route("search", "routes/search.tsx"),
   route("account", "routes/account.tsx"),
   route("robots.txt", "routes/robots.ts"),
+  route("api/preview", "routes/api.preview.ts"),
   route("*", "routes/catchall.tsx"),
 ] satisfies RouteConfig;

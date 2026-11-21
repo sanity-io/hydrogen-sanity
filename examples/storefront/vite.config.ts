@@ -2,6 +2,7 @@ import { reactRouter } from "@react-router/dev/vite";
 import { localHttps } from "@shopify/hydrogen/vite";
 import { oxygen } from "@shopify/mini-oxygen/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { sanity } from "hydrogen-sanity/vite";
 import { defineConfig } from "vite";
 
 const oxygenPlugins = oxygen();
@@ -9,9 +10,12 @@ const enabled = process.env.npm_lifecycle_event === "dev:https";
 const httpsOptions = { enabled };
 
 export default defineConfig({
-  plugins: [localHttps(httpsOptions), tailwindcss(), ...oxygenPlugins, reactRouter()],
+  plugins: [localHttps(httpsOptions), tailwindcss(), ...oxygenPlugins, reactRouter(), sanity()],
   resolve: {
     tsconfigPaths: true,
+    // Monorepo only: the linked `hydrogen-sanity` resolves its own `@shopify/hydrogen` dev
+    // dependency. Dedupe makes it use this app's copy. An app that installs from npm has one copy.
+    dedupe: ["@shopify/hydrogen"],
   },
   build: {
     // Allow a strict Content-Security-Policy
