@@ -44,6 +44,8 @@ Call `PreviewSession.init(request, [env.SESSION_SECRET])` in the same module, be
 
 This applies to `hydrogen.cache` in `query`, `loadQuery` and `fetch`, and to the `defaultStrategy` option. The default stays `Cache.long()`.
 
+`defaultStrategy` no longer accepts `null`. In v7, `null` fell back to `CacheLong()`. Leave the option out to use the default, or set it to `Cache.none()` to turn off caching.
+
 ## Remove deprecated options
 
 v8 removes the `hydrogen.debug` option from `query`, `loadQuery` and `fetch`. Hydrogen 2026.10 has no Subrequest Profiler, so the option had no effect. Delete it from your calls.

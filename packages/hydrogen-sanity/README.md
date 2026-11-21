@@ -126,8 +126,9 @@ export function createRequestSanityContext(
     //   apiVersion: env.SANITY_API_VERSION,
     // }),
 
-    // Optionally, set a default cache strategy. Defaults to `Cache.long()`
-    // defaultStrategy: Cache.short(), // or `null`
+    // Optionally, set a default cache strategy, or `Cache.none()` to turn off caching.
+    // Defaults to `Cache.long()`
+    // defaultStrategy: Cache.short(),
   })
 }
 ```

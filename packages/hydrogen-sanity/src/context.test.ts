@@ -97,6 +97,47 @@ describe('the Sanity request context', () => {
     expect(ttls(store)).toEqual([1 + 9])
   })
 
+  it("queries shouldn't get cached when the default strategy is `Cache.none()`", async () => {
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({
+      request,
+      cache: new MapCache(),
+      waitUntil,
+      client,
+      defaultStrategy: Cache.none(),
+    })
+
+    await sanity.loadQuery<boolean>(query, params)
+    await flush()
+    await sanity.loadQuery<boolean>(query, params)
+
+    expect(loadQuery).toHaveBeenCalledTimes(2)
+  })
+
+  it("the default strategy doesn't accept `null`", async () => {
+    // v7 accepted `null` and fell back to the default, which read as "no cache"
+    // @ts-expect-error -- use `Cache.none()` to turn off caching
+    const sanity = await createSanityContext({request, client, defaultStrategy: null})
+    expect(sanity.client).toBeInstanceOf(SanityClient)
+  })
+
+  it('a strategy passed in a call overrides the default strategy', async () => {
+    const store = new MapStore()
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({
+      request,
+      cache: store,
+      waitUntil,
+      client,
+      defaultStrategy: Cache.none(),
+    })
+
+    await sanity.loadQuery<boolean>(query, params, {hydrogen: {cache: Cache.short()}})
+    await flush()
+
+    expect(ttls(store)).toEqual([1 + 9])
+  })
+
   it('queries should use the cache strategy passed in `loadQuery`', async () => {
     const store = new MapStore()
     const {waitUntil, flush} = createWaitUntil()
