@@ -102,7 +102,14 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
   // Handle perspective changes from Studio
   const handlePerspectiveChange = useEffectEvent((perspective: ClientPerspective) => {
     // Sanitize perspective (filters out undefined/empty values from upstream bug)
-    const cleanPerspective = sanitizePerspective(perspective)
+    let cleanPerspective: ReturnType<typeof sanitizePerspective>
+    try {
+      cleanPerspective = sanitizePerspective(perspective)
+    } catch (error) {
+      // Keep the current perspective rather than throw inside the Studio message handler
+      console.warn('Ignoring an invalid perspective from Sanity Studio.', error)
+      return
+    }
 
     const formData = new FormData()
     formData.set(

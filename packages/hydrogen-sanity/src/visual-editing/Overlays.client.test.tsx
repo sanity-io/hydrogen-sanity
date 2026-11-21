@@ -114,3 +114,32 @@ it('should return null (no visual output)', () => {
 
   expect(container.firstChild).toBeNull()
 })
+
+it('ignores an invalid perspective from Studio instead of throwing', async () => {
+  const {isMaybePresentation} = await import('@sanity/presentation-comlink')
+  vi.mocked(isMaybePresentation).mockReturnValue(true)
+  const {useSubmit} = await import('react-router')
+  const submit = vi.fn()
+  vi.mocked(useSubmit).mockReturnValue(submit)
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+  render(
+    <BrowserRouter>
+      <OverlaysClient />
+    </BrowserRouter>,
+  )
+  window.dispatchEvent(
+    new MessageEvent('message', {
+      data: {type: 'presentation/perspective', data: {perspective: [undefined]}},
+    }),
+  )
+
+  expect(submit).not.toHaveBeenCalled()
+  expect(warn).toHaveBeenCalledWith(
+    'Ignoring an invalid perspective from Sanity Studio.',
+    expect.any(TypeError),
+  )
+
+  warn.mockRestore()
+  vi.mocked(isMaybePresentation).mockReturnValue(false)
+})
