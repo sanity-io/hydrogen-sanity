@@ -1,6 +1,7 @@
 import {type ReactNode, type Ref, useCallback} from 'react'
 
-import {getImageProps, type GetImagePropsOptions} from './getImageProps'
+import {useSanityProjectConfig} from '../provider'
+import {type GetImagePropsOptions, getImagePropsForProject} from './getImageProps'
 
 export interface ImageProps extends GetImagePropsOptions {
   ref?: Ref<HTMLImageElement>
@@ -15,7 +16,7 @@ export interface ImageProps extends GetImagePropsOptions {
  * is applied, the CDN crop is positioned around the hotspot when
  * `aspectRatio` differs, and `placeholder="blur"` uses
  * `asset->metadata.lqip`. The project and dataset come from the Sanity
- * provider. See {@link getImageProps} for every option.
+ * provider. See `getImageProps` for every option.
  *
  * @example
  * ```tsx
@@ -23,7 +24,7 @@ export interface ImageProps extends GetImagePropsOptions {
  * ```
  */
 export function Image({ref, onLoad, ...options}: ImageProps): ReactNode {
-  const {props} = getImageProps(options)
+  const {props} = getImagePropsForProject(options, useSanityProjectConfig())
   const hasPlaceholder =
     options.placeholder === 'blur' && options.style?.backgroundImage === undefined
 
