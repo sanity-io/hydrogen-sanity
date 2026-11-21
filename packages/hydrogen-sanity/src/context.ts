@@ -62,15 +62,6 @@ interface RequestInit {
      * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
      */
     cache?: CachingStrategy
-
-    /**
-     * Optional debugging information to be displayed in the subrequest profiler.
-     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
-     * @deprecated Has no effect. Hydrogen 2026.10 has no Subrequest Profiler.
-     */
-    debug?: {
-      displayName: string
-    }
   }
 }
 
@@ -90,15 +81,6 @@ export type LoadQueryOptions<T> = Pick<
     cache?: CachingStrategy
 
     /**
-     * Optional debugging information to be displayed in the subrequest profiler.
-     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
-     * @deprecated Has no effect. Hydrogen 2026.10 has no Subrequest Profiler.
-     */
-    debug?: {
-      displayName: string
-    }
-
-    /**
      * Whether to cache the result of the query or not.
      * @defaultValue `() => true`
      */
@@ -113,15 +95,6 @@ export type FetchOptions<T> = HydrogenResponseQueryOptions & {
      * @see https://shopify.dev/docs/custom-storefronts/hydrogen/caching#caching-strategies
      */
     cache?: CachingStrategy
-
-    /**
-     * Optional debugging information to be displayed in the subrequest profiler.
-     * @see https://shopify.dev/docs/custom-storefronts/hydrogen/debugging/subrequest-profiler#how-to-provide-more-debug-information-for-a-request
-     * @deprecated Has no effect. Hydrogen 2026.10 has no Subrequest Profiler.
-     */
-    debug?: {
-      displayName: string
-    }
 
     /**
      * Whether to cache the result of the query or not.

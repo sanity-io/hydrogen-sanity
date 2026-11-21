@@ -1,6 +1,6 @@
 # Migrating from v7 to v8
 
-v8 requires Hydrogen 2026.10. The `hydrogen-sanity` API doesn't change. On Hydrogen 2026.4 and earlier, stay on `hydrogen-sanity` 7.x.
+v8 requires Hydrogen 2026.10 and removes the APIs that 7.x deprecated. On Hydrogen 2026.4 and earlier, stay on `hydrogen-sanity` 7.x.
 
 Hydrogen 2026.10 removes `createHydrogenContext`, `HydrogenAdditionalContext`, `createWithCache`, `CacheLong()`/`CacheShort()`/`CacheNone()`, `HydrogenSession` and the Subrequest Profiler. Upgrade Hydrogen first, then change the Sanity setup below. The [README](./README.md#usage) and the [example storefront](../../examples/storefront) have the complete setup.
 
@@ -44,7 +44,9 @@ Call `PreviewSession.init(request, [env.SESSION_SECRET])` in the same module, be
 
 This applies to `hydrogen.cache` in `query`, `loadQuery` and `fetch`, and to the `defaultStrategy` option. The default stays `Cache.long()`.
 
-`hydrogen.debug.displayName` is deprecated and has no effect, because Hydrogen 2026.10 has no Subrequest Profiler. You can remove it.
+## Remove deprecated options
+
+v8 removes the `hydrogen.debug` option from `query`, `loadQuery` and `fetch`. Hydrogen 2026.10 has no Subrequest Profiler, so the option had no effect. Delete it from your calls.
 
 ## Update the Content Security Policy
 
