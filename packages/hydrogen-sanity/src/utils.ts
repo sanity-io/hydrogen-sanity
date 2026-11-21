@@ -73,10 +73,14 @@ export function supportsPerspectiveStack(apiVersion: string): boolean {
  * value can't break the request.
  */
 export function getPerspective(session: SanityPreviewSession | HydrogenSession): ClientPerspective {
+  const stored = session.get('perspective')
   try {
-    const perspective = sanitizePerspective(session.get('perspective'))
+    const perspective = sanitizePerspective(stored)
     return Array.isArray(perspective) ? perspective : [perspective]
-  } catch {
+  } catch (error) {
+    if (stored && process.env.NODE_ENV === 'development') {
+      console.warn('Using the `drafts` perspective instead of the stored perspective.', error)
+    }
     return ['drafts']
   }
 }
