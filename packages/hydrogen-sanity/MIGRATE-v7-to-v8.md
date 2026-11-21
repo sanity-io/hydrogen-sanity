@@ -24,7 +24,7 @@ routerContext.sanity = await createRequestSanityContext(
 )
 ```
 
-Don't set it in the root `middleware`. Middleware can't add properties to the router context, and `entry.server.tsx` and `hydrogen-sanity/preview/route` read `context.sanity`.
+Set it in `server.ts`, not in the root `middleware`. `hydrogen-sanity/preview/route` reads `context.sanity` as a property, and with middleware enabled React Router types the context as read-only inside middleware, which stores values with `context.set()` instead.
 
 Replace the `HydrogenAdditionalContext` augmentation with a `sanity: SanityContext` property on the router context type in `env.d.ts`.
 

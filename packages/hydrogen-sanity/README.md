@@ -161,7 +161,7 @@ Then set `context.sanity` in `server.ts`, before React Router handles the reques
 ```
 
 > [!IMPORTANT]
-> Set `context.sanity` in `server.ts`, not in the root `middleware`. Middleware can't add properties to the router context, and `entry.server.tsx` and the [preview mode route](#preview-mode-route) read `context.sanity`.
+> Set `context.sanity` in `server.ts`, before the request handler runs. The [preview mode route](#preview-mode-route) reads it as a property, and with middleware enabled React Router types the context as read-only inside middleware, which stores values with `context.set()` instead.
 
 Learn more about [Sanity's JavaScript client configuration](https://www.sanity.io/docs/js-client).
 
