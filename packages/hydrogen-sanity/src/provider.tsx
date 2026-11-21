@@ -22,6 +22,11 @@ export interface SanityProviderValue
    * as the default `studioUrl` of `VisualEditing` and `LiveMode`.
    */
   studioUrl?: string
+  /**
+   * Whether the server client's `stega.studioUrl` is a function. A function can't be serialized,
+   * so `VisualEditing` and `LiveMode` need it as a prop.
+   */
+  studioUrlIsFunction?: boolean
 }
 
 const GLOBAL_KEY = Symbol.for('Sanity Provider')

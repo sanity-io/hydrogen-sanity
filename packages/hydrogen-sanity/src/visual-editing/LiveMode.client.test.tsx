@@ -103,3 +103,28 @@ it('defaults `studioUrl` to the server client value', async () => {
   const baseClient = vi.mocked(createClient).mock.results[0]?.value
   expect(baseClient.withConfig).toHaveBeenCalledWith({stega: {enabled: true, studioUrl: '/studio'}})
 })
+
+it('warns in development when the server `studioUrl` is a function and no prop is passed', () => {
+  vi.stubEnv('NODE_ENV', 'development')
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+  vi.mocked(useSanityProviderValue).mockReturnValueOnce({
+    projectId: 'test-project',
+    dataset: 'production',
+    apiHost: 'https://api.sanity.io',
+    perspective: 'drafts',
+    apiVersion: '2025-02-19',
+    previewEnabled: true,
+    stegaEnabled: true,
+    studioUrlIsFunction: true,
+  })
+
+  render(
+    <BrowserRouter>
+      <LiveModeClient />
+    </BrowserRouter>,
+  )
+
+  expect(warn).toHaveBeenCalledWith(expect.stringContaining('`stega.studioUrl` is a function'))
+  warn.mockRestore()
+  vi.unstubAllEnvs()
+})

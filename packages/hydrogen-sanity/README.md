@@ -405,7 +405,7 @@ export default function HomePage({loaderData}: Route.ComponentProps) {
 > [!NOTE]
 > The `encodeDataAttribute` function enables click-to-edit functionality in Sanity Studio's Presentation tool. It's only available when Sanity preview mode is active (managed via preview session) and returns `undefined` otherwise.
 >
-> It also requires `stega.studioUrl` in the server client configuration — see [Configure preview mode](#configure-preview-mode). `<VisualEditing>` reads it from the server, so you don't pass it again.
+> It also requires `stega.studioUrl` in the server client configuration — see [Configure preview mode](#configure-preview-mode). When it's a string, `<VisualEditing>` reads it from the server, so you don't pass it again. A function-valued `studioUrl` must also be passed to `<VisualEditing>`, see [Add Visual Editing component](#add-visual-editing-component).
 
 In preview mode `query` returns `{data, sourceMap, perspective}` for `Query`; otherwise it returns the result. To check the result in the loader, for example to return a 404, use `isQueryResponseInitial`:
 
@@ -791,9 +791,15 @@ export function Layout({children}: {children?: React.ReactNode}) {
 ```
 
 > [!NOTE]
-> `<VisualEditing>` (and `<LiveMode>`) runs a separate Sanity client in the browser. It reads `studioUrl` from the server client's `stega.studioUrl` when that's a string, so you set it once.
+> `<VisualEditing>` (and `<LiveMode>`) runs a separate Sanity client in the browser. When the server client's `stega.studioUrl` is a string, it uses that value, so you set it once.
 >
-> A `stega.filter` function, or a function-valued `studioUrl`, can't cross from the server. Define it once in a shared module, like the example storefront's [`stega.ts`](../../examples/storefront/app/lib/sanity/stega.ts), and pass it to both `createSanityContext` and `<VisualEditing filter={filter} />`.
+> Functions can't cross from the server. If `stega.studioUrl` is a function (a `ResolveStudioUrl`), or you set a `stega.filter`, define them once in a shared module, like the example storefront's [`stega.ts`](../../examples/storefront/app/lib/sanity/stega.ts). Pass them to both `createSanityContext` and `<VisualEditing>`:
+>
+> ```tsx
+> <VisualEditing action="/api/preview" studioUrl={resolveStudioUrl} filter={filter} />
+> ```
+>
+> In development, `<VisualEditing>` warns when the server `studioUrl` is a function and the prop is missing.
 
 #### Visual Editing configuration options
 
@@ -1011,7 +1017,7 @@ Presentation will throw this error if it can't establish a connection to your st
 5. Since Presentation loads your storefront in an `iframe`, double check your cookie and CSP configuration.
 6. The preview mode route logs the cause of a failure in the server log, for example a missing `context.sanity` or `SANITY_PREVIEW_TOKEN`.
 
-Do overlays show, but clicking doesn't open the document? `encodeDataAttribute` returns `undefined` when the server client has no `stega.studioUrl`. See [Configure preview mode](#configure-preview-mode).
+Do overlays show, but clicking doesn't open the document? `encodeDataAttribute` returns `undefined` when the server client has no `stega.studioUrl`, or when it's a function that isn't also passed to `<VisualEditing studioUrl>`. See [Configure preview mode](#configure-preview-mode).
 
 ## Using `@sanity/client` directly
 

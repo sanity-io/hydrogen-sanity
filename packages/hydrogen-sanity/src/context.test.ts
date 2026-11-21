@@ -859,6 +859,20 @@ describe('studioUrl serialization', () => {
     expect(providerValueOf(context).studioUrl).toBe('/studio')
   })
 
+  it('flags a function `studioUrl` instead of serializing it', async () => {
+    const session = new PreviewSession()
+    session.set('projectId', projectId)
+    const context = await createSanityContext({
+      request,
+      client: client.withConfig({stega: {enabled: true, studioUrl: () => '/studio'}}),
+      preview: {token: 'my-token', session},
+    })
+    const value = providerValueOf(context)
+
+    expect(value.studioUrl).toBeUndefined()
+    expect(value.studioUrlIsFunction).toBe(true)
+  })
+
   it("doesn't expose `studioUrl` outside preview mode", async () => {
     const context = await createSanityContext({request, client: stegaClient})
 

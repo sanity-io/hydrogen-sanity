@@ -58,16 +58,16 @@ Remove `useCdn: false` and `useCdn: process.env.NODE_ENV === 'production'` from 
 
 To opt out for one request, pass `cacheMode: undefined`.
 
-## Remove the client-side `studioUrl`
+## Remove a string `studioUrl` from the client
 
-`<VisualEditing>` and `<LiveMode>` now read `studioUrl` from the server client's `stega.studioUrl` when it's a string. Remove the `studioOrigin` value from the root loader and the `studioUrl` prop:
+`<VisualEditing>` and `<LiveMode>` now read `studioUrl` from the server client's `stega.studioUrl` when it's a string. If it's a string, remove the `studioOrigin` value from the root loader and the `studioUrl` prop:
 
 ```diff
 - <VisualEditing action="/api/preview" studioUrl={data?.studioOrigin} />
 + <VisualEditing action="/api/preview" />
 ```
 
-Keep passing a `stega.filter` function, or a function-valued `studioUrl`, as a prop. Functions can't cross from the server.
+If `stega.studioUrl` is a function, keep passing it as the `studioUrl` prop, and keep passing a `stega.filter` function as the `filter` prop. Functions can't cross from the server. In development, `<VisualEditing>` warns when the server `studioUrl` is a function and the prop is missing.
 
 ## Check `shouldCacheResult` in `fetch` and `query`
 
