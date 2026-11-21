@@ -48,6 +48,8 @@ This applies to `hydrogen.cache` in `query`, `loadQuery` and `fetch`, and to the
 
 v8 removes the `hydrogen.debug` option from `query`, `loadQuery` and `fetch`. Hydrogen 2026.10 has no Subrequest Profiler, so the option had no effect. Delete it from your calls.
 
+The `refreshDefault` callback of the `refresh` prop on `VisualEditing` and `Overlays` no longer reads the deprecated `livePreviewEnabled` flag from Studio. It skips revalidation for mutations when a `Query` component or `useQuery` hook is mounted, and revalidates in all other cases.
+
 ## Update the Content Security Policy
 
 `createContentSecurityPolicy` takes `{shop, directives}` and returns `csp.applyResponseHeaders()`. Hydrogen merges `directives` with the Shopify sources, so list only the Sanity sources. See [Modify storefront's Content Security Policy](./README.md#modify-storefronts-content-security-policy-csp).

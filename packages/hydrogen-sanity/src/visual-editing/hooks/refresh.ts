@@ -2,6 +2,7 @@ import type {HistoryRefresh} from '@sanity/visual-editing'
 import {startTransition, useCallback, useEffect, useEffectEvent, useState} from 'react'
 import {useRevalidator} from 'react-router'
 
+import {useHasActiveLoaders} from '../registry'
 import type {Revalidator} from '../types'
 
 /**
@@ -18,6 +19,7 @@ export function useRefresh(): {
   ) => (payload: HistoryRefresh) => false | Promise<void>
 } {
   const revalidator = useRevalidator()
+  const hasActiveLoaders = useHasActiveLoaders()
   const [revalidatorPromise, setRevalidatorPromise] = useState<(() => void) | null>(null)
   const [revalidatorLoading, setRevalidatorLoading] = useState(false)
 
@@ -50,7 +52,7 @@ export function useRefresh(): {
       return (payload: HistoryRefresh) => {
         function refreshDefault() {
           // Only skip revalidation for mutations when client loaders are active
-          if (payload.source === 'mutation' && payload.livePreviewEnabled) {
+          if (payload.source === 'mutation' && hasActiveLoaders) {
             // Client loaders (useQuery) will handle the update via comlink
             return false
           }
@@ -70,7 +72,7 @@ export function useRefresh(): {
           : refreshDefault()
       }
     },
-    [revalidator],
+    [revalidator, hasActiveLoaders],
   )
 
   return {

@@ -16,6 +16,7 @@ vi.mock('react-router', async () => {
 
 import {useRevalidator} from 'react-router'
 
+import {registerQuery} from '../registry'
 import type {Revalidator} from '../types'
 import {useRefresh} from './refresh'
 
@@ -33,31 +34,34 @@ describe('useRefresh', () => {
     mockUseRevalidator.mockReturnValue(mockRevalidator)
   })
 
-  it('should skip revalidation for mutations when client loaders are active', async () => {
-    // IDEAL: When useQuery hooks are present, they handle real-time updates via comlink
-    // CURRENT: Relies on livePreviewEnabled as proxy (which may be unreliable upstream)
-    const {result} = renderHook(() => useRefresh(), {wrapper})
-    const refreshFunction = result.current.refreshHandler()
+  it('should skip revalidation for mutations when client loaders are active', () => {
+    // Mounted useQuery hooks receive mutations through comlink
+    const unregister = registerQuery('test-query')
+    try {
+      const {result} = renderHook(() => useRefresh(), {wrapper})
+      const refreshFunction = result.current.refreshHandler()
 
-    const refreshResult = refreshFunction({
-      source: 'mutation',
-      livePreviewEnabled: true, // Should indicate client loaders are active
-      document: {_type: 'product', _id: 'test-id', _rev: 'test-rev'},
-    })
+      const refreshResult = refreshFunction({
+        source: 'mutation',
+        livePreviewEnabled: false, // Deprecated upstream; must not decide the outcome
+        document: {_type: 'product', _id: 'test-id', _rev: 'test-rev'},
+      })
 
-    expect(refreshResult).toBe(false)
-    expect(mockRevalidator.revalidate).not.toHaveBeenCalled()
+      expect(refreshResult).toBe(false)
+      expect(mockRevalidator.revalidate).not.toHaveBeenCalled()
+    } finally {
+      unregister()
+    }
   })
 
   it('should revalidate for mutations when no client loaders are active', () => {
-    // IDEAL: When no useQuery hooks are present, server revalidation is essential
-    // CURRENT: Relies on livePreviewEnabled as proxy (which may be unreliable upstream)
+    // Without useQuery hooks, only server revalidation updates the page
     const {result} = renderHook(() => useRefresh(), {wrapper})
     const refreshFunction = result.current.refreshHandler()
 
     const refreshPromise = refreshFunction({
       source: 'mutation',
-      livePreviewEnabled: false, // Should indicate no client loaders are active
+      livePreviewEnabled: true, // Deprecated upstream; must not decide the outcome
       document: {_type: 'product', _id: 'test-id', _rev: 'test-rev'},
     })
 
@@ -66,14 +70,19 @@ describe('useRefresh', () => {
   })
 
   it('should always revalidate for manual refreshes', () => {
-    // IDEAL: Manual refreshes always need server revalidation regardless of client loaders
-    const {result} = renderHook(() => useRefresh(), {wrapper})
-    const refreshFunction = result.current.refreshHandler()
+    // Manual refreshes need server revalidation even when client loaders are active
+    const unregister = registerQuery('test-query')
+    try {
+      const {result} = renderHook(() => useRefresh(), {wrapper})
+      const refreshFunction = result.current.refreshHandler()
 
-    const refreshPromise = refreshFunction({source: 'manual', livePreviewEnabled: false})
+      const refreshPromise = refreshFunction({source: 'manual', livePreviewEnabled: false})
 
-    expect(refreshPromise).toBeInstanceOf(Promise)
-    expect(mockRevalidator.revalidate).toHaveBeenCalled()
+      expect(refreshPromise).toBeInstanceOf(Promise)
+      expect(mockRevalidator.revalidate).toHaveBeenCalled()
+    } finally {
+      unregister()
+    }
   })
 
   it('should always revalidate for perspective changes', () => {
