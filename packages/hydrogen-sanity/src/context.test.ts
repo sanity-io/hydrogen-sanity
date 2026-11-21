@@ -135,6 +135,57 @@ describe('the Sanity request context', () => {
     expect(ttls(store)).toEqual([1 + 9])
   })
 
+  it("fetch calls shouldn't get cached when `shouldCacheResult` returns false", async () => {
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
+    const response = {result: null, ms: 1}
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue(response)
+    const shouldCacheResult = vi.fn(() => false)
+    const options = {hydrogen: {shouldCacheResult}}
+
+    await sanity.fetch(query, params, options)
+    await flush()
+    await sanity.fetch(query, params, options)
+
+    expect(fetch).toHaveBeenCalledTimes(2)
+    // Receives the fetch result, not a loader envelope
+    expect(shouldCacheResult).toHaveBeenCalledWith(response)
+  })
+
+  it("`loadQuery` and `fetch` don't share cache entries", async () => {
+    const {waitUntil, flush} = createWaitUntil()
+    const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
+    vi.mocked(loadQuery).mockResolvedValueOnce({data: true, sourceMap: undefined})
+    const response = {result: true, ms: 1}
+    const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue(response)
+
+    await sanity.loadQuery<boolean>(query, params)
+    await flush()
+
+    expect(await sanity.fetch(query, params)).toEqual(response)
+    expect(fetch).toHaveBeenCalledOnce()
+  })
+
+  it("contexts for different datasets don't share cache entries", async () => {
+    const cache = new MapCache()
+    const {waitUntil, flush} = createWaitUntil()
+    const production = await createSanityContext({request, cache, waitUntil, client})
+    const staging = await createSanityContext({
+      request,
+      cache,
+      waitUntil,
+      client: client.withConfig({dataset: 'staging'}),
+    })
+    const stagingResponse = {result: 'staging', ms: 1}
+    vi.spyOn(production.client, 'fetch').mockResolvedValue({result: 'production', ms: 1})
+    vi.spyOn(staging.client, 'fetch').mockResolvedValue(stagingResponse)
+
+    await production.fetch(query, params)
+    await flush()
+
+    expect(await staging.fetch(query, params)).toEqual(stagingResponse)
+  })
+
   it('fetch calls should ask the API CDN for fresh content by default', async () => {
     const sanity = await createSanityContext({request, client})
     const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue({result: true, ms: 1})

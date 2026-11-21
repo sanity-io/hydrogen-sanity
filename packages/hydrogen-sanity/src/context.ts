@@ -14,14 +14,14 @@ import type {QueryResponseInitial} from '@sanity/react-loader'
 import type {CacheInstance, CachingStrategy} from '@shopify/hydrogen'
 import {createElement, type PropsWithChildren, type ReactNode} from 'react'
 
-import {createCachedRun} from './cache'
+import {createCachedRun, type CachedRunKey} from './cache'
 import {DEFAULT_API_VERSION, DEFAULT_CACHE_STRATEGY} from './constants'
 import type {SanityPreviewSession} from './preview/session'
 import {isPreviewEnabled} from './preview/utils'
 import {SanityProvider, type SanityProviderValue} from './provider'
 import type {HydrogenSession, WaitUntil} from './types'
 import {getPerspective, getPerspectiveFromUrl} from './utils'
-import {hashQuery, supportsPerspectiveStack} from './utils'
+import {supportsPerspectiveStack} from './utils'
 
 let didWarnAboutNoApiVersion = false
 let didWarnAboutNoPerspectiveSupport = false
@@ -97,12 +97,19 @@ export type FetchOptions<T> = HydrogenResponseQueryOptions & {
     cache?: CachingStrategy
 
     /**
-     * Whether to cache the result of the query or not.
+     * Whether to cache the query result. Return `false` to skip caching, for example for an
+     * empty result.
      * @defaultValue `() => true`
      */
-    shouldCacheResult?: (value: QueryResponseInitial<T>) => boolean
+    shouldCacheResult?: (value: T) => boolean
   }
 }
+
+/**
+ * Options for `query`. Outside preview mode `query` calls `fetch`, so `shouldCacheResult`
+ * receives the query result. Preview mode doesn't cache.
+ */
+export type QueryOptions<T> = Omit<LoadQueryOptions<T>, 'hydrogen'> & FetchOptions<T>
 
 export interface SanityContext {
   /**
@@ -123,7 +130,7 @@ export interface SanityContext {
   fetch<Result = Any, Query extends string = string>(
     query: Query,
     params?: ClientParams<Query, QueryParams | QueryWithoutParams>,
-    options?: FetchOptions<Result>,
+    options?: FetchOptions<ClientReturn<Query, Result>>,
   ): Promise<ClientReturn<Query, Result>>
 
   /**
@@ -133,7 +140,7 @@ export interface SanityContext {
   query<Result = Any, Query extends string = string>(
     query: Query,
     params?: ClientParams<Query, QueryParams | QueryWithoutParams>,
-    options?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
+    options?: QueryOptions<ClientReturn<Query, Result>>,
   ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>>
 
   /**
@@ -220,6 +227,31 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     }
   }
 
+  /**
+   * Scopes a cache entry to the method (`loadQuery` and `fetch` cache different shapes), the
+   * client configuration and the perspective, so two contexts never share an entry.
+   */
+  function cacheKey(
+    method: 'loadQuery' | 'fetch',
+    query: string,
+    params: QueryParams | QueryWithoutParams,
+    perspective: ClientPerspective | undefined,
+  ): CachedRunKey {
+    const config = client.config()
+    const resolvedPerspective = perspective ?? config.perspective ?? 'published'
+    return [
+      'hydrogen-sanity',
+      method,
+      config.apiHost,
+      config.projectId ?? null,
+      config.dataset ?? null,
+      config.apiVersion,
+      Array.isArray(resolvedPerspective) ? resolvedPerspective.join(',') : resolvedPerspective,
+      query,
+      JSON.stringify(params ?? {}),
+    ]
+  }
+
   // Server client will be initialized lazily on first loadQuery call
   const {apiHost, projectId, dataset, apiVersion} = client.config()
   const providerValue: SanityProviderValue = {
@@ -265,11 +297,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       const cacheStrategy =
         loaderOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
-      const queryHash = await hashQuery(query, params)
       const shouldCacheResult = loaderOptions?.hydrogen?.shouldCacheResult ?? (() => true)
 
       return await cachedRun(
-        {key: queryHash, strategy: cacheStrategy, shouldCache: shouldCacheResult},
+        {
+          key: cacheKey('loadQuery', query, params, loaderOptions?.perspective),
+          strategy: cacheStrategy,
+          shouldCache: shouldCacheResult,
+        },
         async (): Promise<QueryResponseInitial<ClientReturn<Query, Result>>> => {
           const {loadQuery} = await import('@sanity/react-loader')
           return await loadQuery<ClientReturn<Query, Result>>(query, params, loaderOptions)
@@ -285,7 +320,7 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
       query: Query,
       params: QueryParams | QueryWithoutParams = {},
       options?: Pick<
-        FetchOptions<Result>,
+        FetchOptions<ClientReturn<Query, Result>>,
         'perspective' | 'hydrogen' | 'useCdn' | 'headers' | 'tag' | 'cacheMode'
       >,
     ): Promise<ClientReturn<Query, Result>> {
@@ -300,10 +335,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
 
       const cacheStrategy =
         fetchOptions?.hydrogen?.cache || defaultStrategy || DEFAULT_CACHE_STRATEGY
-      const queryHash = await hashQuery(query, params)
+      const shouldCacheResult = fetchOptions.hydrogen?.shouldCacheResult ?? (() => true)
 
       return await cachedRun(
-        {key: queryHash, strategy: cacheStrategy, shouldCache: () => true},
+        {
+          key: cacheKey('fetch', query, params, fetchOptions.perspective),
+          strategy: cacheStrategy,
+          shouldCache: shouldCacheResult,
+        },
         async (): Promise<ClientReturn<Query, Result>> => {
           return await client.fetch<ClientReturn<Query, Result>>(query, params, fetchOptions)
         },
@@ -318,9 +357,14 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     async query<Result = Any, Query extends string = string>(
       query: Query,
       params?: QueryParams | QueryWithoutParams,
-      queryOptions?: LoadQueryOptions<ClientReturn<Query, Result>> & FetchOptions<Result>,
+      queryOptions?: QueryOptions<ClientReturn<Query, Result>>,
     ): Promise<QueryResponseInitial<ClientReturn<Query, Result>> | ClientReturn<Query, Result>> {
-      return await (previewEnabled ? this.loadQuery : this.fetch)(query, params, queryOptions)
+      if (previewEnabled) {
+        // Preview mode doesn't cache, so the `hydrogen` options don't apply
+        const loadQueryOptions = queryOptions && {...queryOptions, hydrogen: undefined}
+        return await this.loadQuery<Result, Query>(query, params ?? {}, loadQueryOptions)
+      }
+      return await this.fetch<Result, Query>(query, params, queryOptions)
     },
 
     /** The configured Sanity client instance */

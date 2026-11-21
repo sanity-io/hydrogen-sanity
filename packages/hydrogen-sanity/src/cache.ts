@@ -2,8 +2,11 @@ import {type CacheInstance, type CachingStrategy, createRunWithCache} from '@sho
 
 import type {WaitUntil} from './types'
 
+/** A cache key. Include every value that changes the cached data. */
+export type CachedRunKey = readonly (string | number | boolean | null)[]
+
 export type CachedRunOptions<T> = {
-  key: string
+  key: CachedRunKey
   strategy: CachingStrategy
   shouldCache: (value: T) => boolean
 }
