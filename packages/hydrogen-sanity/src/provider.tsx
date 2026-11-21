@@ -17,6 +17,11 @@ export interface SanityProviderValue
   extends SanityProjectConfig, Required<Pick<InitializedClientConfig, 'perspective'>> {
   previewEnabled: boolean
   stegaEnabled: boolean
+  /**
+   * The server client's `stega.studioUrl`, when it's a string. Set only in preview mode, and used
+   * as the default `studioUrl` of `VisualEditing` and `LiveMode`.
+   */
+  studioUrl?: string
 }
 
 const GLOBAL_KEY = Symbol.for('Sanity Provider')

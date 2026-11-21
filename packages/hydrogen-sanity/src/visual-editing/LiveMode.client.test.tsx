@@ -5,6 +5,7 @@ import {render} from '@testing-library/react'
 import {BrowserRouter} from 'react-router'
 import {beforeEach, expect, it, vi} from 'vitest'
 
+import {useSanityProviderValue} from '../provider'
 import LiveModeClient from './LiveMode.client'
 
 // Mock external dependencies
@@ -78,4 +79,27 @@ it('should return null (no visual output)', () => {
   )
 
   expect(container.firstChild).toBeNull()
+})
+
+it('defaults `studioUrl` to the server client value', async () => {
+  const {createClient} = await import('@sanity/client')
+  vi.mocked(useSanityProviderValue).mockReturnValueOnce({
+    projectId: 'test-project',
+    dataset: 'production',
+    apiHost: 'https://api.sanity.io',
+    perspective: 'drafts',
+    apiVersion: '2025-02-19',
+    previewEnabled: true,
+    stegaEnabled: true,
+    studioUrl: '/studio',
+  })
+
+  render(
+    <BrowserRouter>
+      <LiveModeClient />
+    </BrowserRouter>,
+  )
+
+  const baseClient = vi.mocked(createClient).mock.results[0]?.value
+  expect(baseClient.withConfig).toHaveBeenCalledWith({stega: {enabled: true, studioUrl: '/studio'}})
 })

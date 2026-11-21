@@ -42,9 +42,14 @@ if (isServer()) {
  * @see https://www.sanity.io/docs/introduction-to-visual-editing
  */
 function LiveModeClient(props: LiveModeProps): ReactNode {
-  const {onConnect, onDisconnect, ...stegaProps} = props
+  const {onConnect, onDisconnect, ...stegaPropsWithoutDefaults} = props
 
   const sanityProvider = useSanityProviderValue()
+
+  // Default to the server client's `studioUrl`, so it isn't configured twice
+  const studioUrl = stegaPropsWithoutDefaults.studioUrl ?? sanityProvider.studioUrl
+  const stegaProps =
+    studioUrl === undefined ? stegaPropsWithoutDefaults : {...stegaPropsWithoutDefaults, studioUrl}
 
   // Keep stegaProps reference-stable to avoid recreating the client on every
   // render. Adjusted during render, not in an effect, per React's guidance.
