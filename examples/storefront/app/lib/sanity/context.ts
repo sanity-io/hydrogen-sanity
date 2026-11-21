@@ -30,7 +30,6 @@ export async function createRequestSanityContext(
       projectId: env.SANITY_PROJECT_ID,
       dataset: env.SANITY_DATASET,
       apiVersion: "2025-02-19",
-      useCdn: false,
       stega: {
         enabled: previewSession ? isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession) : false,
         filter,
