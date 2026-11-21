@@ -156,15 +156,15 @@ describe('the Sanity request context', () => {
   it("`loadQuery` and `fetch` don't share cache entries", async () => {
     const {waitUntil, flush} = createWaitUntil()
     const sanity = await createSanityContext({request, cache: new MapCache(), waitUntil, client})
-    vi.mocked(loadQuery).mockResolvedValueOnce({data: true, sourceMap: undefined})
     const response = {result: true, ms: 1}
     const fetch = vi.spyOn(sanity.client, 'fetch').mockResolvedValue(response)
 
     await sanity.loadQuery<boolean>(query, params)
     await flush()
 
+    // A shared entry would return the loader envelope here without a second request
     expect(await sanity.fetch(query, params)).toEqual(response)
-    expect(fetch).toHaveBeenCalledOnce()
+    expect(fetch).toHaveBeenCalledTimes(2)
   })
 
   it("contexts for different datasets don't share cache entries", async () => {
