@@ -2,7 +2,7 @@ import {stegaClean} from '@sanity/client/stega'
 import type {CropMode, FitMode, ImageUrlBuilder} from '@sanity/image-url'
 import type {ComponentPropsWithoutRef, CSSProperties} from 'react'
 
-import {getSanityProviderValue} from '../provider'
+import {getSanityProviderValue, type SanityProjectConfig} from '../provider'
 import {hrefOf, type ImageLoader, imageLoader} from './imageLoader'
 import {resolveImageDimensions} from './resolveImageDimensions'
 import {
@@ -143,6 +143,18 @@ type QueryParams = Record<string, string | number>
  * ```
  */
 export function getImageProps(options: GetImagePropsOptions): {props: ImageAttributes} {
+  return getImagePropsForProject(options, getSanityProviderValue())
+}
+
+/**
+ * `getImageProps` with the project configuration passed in. `Image` reads the configuration from
+ * the Sanity provider's React context, which is per request on the server.
+ * @internal
+ */
+export function getImagePropsForProject(
+  options: GetImagePropsOptions,
+  project: SanityProjectConfig | undefined,
+): {props: ImageAttributes} {
   const {
     src,
     projectId,
@@ -196,7 +208,7 @@ export function getImageProps(options: GetImagePropsOptions): {props: ImageAttri
     }
   } else {
     const built = withBuilderQueryParams(
-      imageBuilderFor(source, projectOptions(projectId, dataset)),
+      imageBuilderFor(source, projectOptions(project, projectId, dataset)),
       queryParams,
     )
     builder = built.builder
@@ -323,10 +335,13 @@ const FILL_STYLE: CSSProperties = {
   objectFit: 'cover',
 }
 
-function projectOptions(projectId?: string, dataset?: string): ImageProjectOptions {
+function projectOptions(
+  project: SanityProjectConfig | undefined,
+  projectId?: string,
+  dataset?: string,
+): ImageProjectOptions {
   if (projectId || dataset) return {projectId, dataset}
-  const provider = getSanityProviderValue()
-  return {projectId: provider?.projectId, dataset: provider?.dataset, apiHost: provider?.apiHost}
+  return {projectId: project?.projectId, dataset: project?.dataset, apiHost: project?.apiHost}
 }
 
 /**
