@@ -2,6 +2,7 @@ import {createClient, SanityClient} from '@sanity/client'
 import type {QueryStore} from '@sanity/react-loader'
 import {Cache} from '@shopify/hydrogen'
 import groq from 'groq'
+import {isValidElement} from 'react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {createSanityContext} from './context'
@@ -805,5 +806,34 @@ describe('lazy-initialize loaders', () => {
 
     warnSpy.mockRestore()
     process.env.NODE_ENV = originalNodeEnv
+  })
+})
+
+describe('studioUrl serialization', () => {
+  const request = new Request('https://example.com')
+  const stegaClient = client.withConfig({stega: {enabled: true, studioUrl: '/studio'}})
+
+  function providerValueOf(context: Awaited<ReturnType<typeof createSanityContext>>) {
+    const element = context.SanityProvider({children: null})
+    if (!isValidElement<{value: SanityProviderValue}>(element)) throw new Error('Not an element')
+    return element.props.value
+  }
+
+  it('passes the server `studioUrl` to the client in preview mode', async () => {
+    const session = new PreviewSession()
+    session.set('projectId', projectId)
+    const context = await createSanityContext({
+      request,
+      client: stegaClient,
+      preview: {token: 'my-token', session},
+    })
+
+    expect(providerValueOf(context).studioUrl).toBe('/studio')
+  })
+
+  it("doesn't expose `studioUrl` outside preview mode", async () => {
+    const context = await createSanityContext({request, client: stegaClient})
+
+    expect(providerValueOf(context).studioUrl).toBeUndefined()
   })
 })

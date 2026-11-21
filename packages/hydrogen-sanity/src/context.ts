@@ -263,6 +263,10 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     perspective: client.config().perspective || 'published',
     stegaEnabled: client.config().stega?.enabled ?? false,
   }
+  const studioUrl = client.config().stega?.studioUrl
+  if (previewEnabled && typeof studioUrl === 'string') {
+    providerValue.studioUrl = studioUrl
+  }
 
   return {
     /**
