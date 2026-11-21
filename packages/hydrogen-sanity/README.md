@@ -69,17 +69,18 @@ pnpm install hydrogen-sanity @sanity/client
 
 ### Add Vite plugin
 
-Add the Vite plugin to your `vite.config.ts`:
+Add the Vite plugin to your `vite.config.ts`, after the React Router plugin:
 
-```ts
-import {defineConfig} from 'vite'
-import {hydrogen} from '@shopify/hydrogen/vite'
-import {sanity} from 'hydrogen-sanity/vite'
+```diff
+// ./vite.config.ts
 
-export default defineConfig({
-  plugins: [hydrogen(), sanity() /** ... */],
-  // ... other config
-})
++ import {sanity} from 'hydrogen-sanity/vite'
+
+  export default defineConfig({
+-   plugins: [localHttps(httpsOptions), tailwindcss(), ...oxygenPlugins, reactRouter()],
++   plugins: [localHttps(httpsOptions), tailwindcss(), ...oxygenPlugins, reactRouter(), sanity()],
+    // ... other config
+  })
 ```
 
 ## Usage
@@ -583,7 +584,7 @@ export default defineCliConfig({
 })
 ```
 
-Register the mapper in `tsconfig.json`, and add its Vite plugin next to the Hydrogen and Sanity plugins so `.groq` imports also load at runtime:
+Register the mapper in `tsconfig.json`, and add its Vite plugin next to the React Router and Sanity plugins so `.groq` imports also load at runtime:
 
 ```jsonc
 // tsconfig.json
@@ -606,7 +607,7 @@ Register the mapper in `tsconfig.json`, and add its Vite plugin next to the Hydr
 import groqFiles from '@sanity-labs/groq-content-mapper/vite'
 
 export default defineConfig({
-  plugins: [hydrogen(), sanity(), groqFiles() /* ... */],
+  plugins: [/* ... */ reactRouter(), sanity(), groqFiles()],
 })
 ```
 
@@ -615,7 +616,7 @@ export default defineConfig({
 
 ## Working with images
 
-`Image` renders images from the [Sanity Image CDN](https://www.sanity.io/docs/image-urls) with right-sized, auto-formatted (AVIF/WebP) `srcset` candidates. It takes the same sizing props as Hydrogen's `<Image>` (`width`, `height`, `aspectRatio`, `sizes`, `loader`, `srcSetOptions`), so it sits naturally next to Shopify images.
+`Image` renders images from the [Sanity Image CDN](https://www.sanity.io/docs/image-urls) with right-sized, auto-formatted (AVIF/WebP) `srcset` candidates. Size it with `width`, `height`, `aspectRatio`, `sizes`, `loader` and `srcSetOptions`.
 
 Pass the whole image value from a GROQ query:
 
@@ -640,7 +641,7 @@ function Hero({image}: {image: HERO_QUERY_RESULT['image']}) {
 
 - `src` accepts image objects (`{asset, crop, hotspot}`) in every shape Sanity TypeGen generates, asset documents (`asset->{_id, url}`), asset references and ids, and Sanity Image CDN URLs (`asset->url`, or a URL built with `useImageUrl`). Stega-encoded values from preview mode are cleaned automatically, so don't `stegaClean()` them first.
 - The crop set in the Studio is applied. When `aspectRatio` (or a fixed `width` and `height`) differs from the cropped image, the CDN crop is positioned around the hotspot.
-- `width` and `height` are optional. Without them the image is fluid (`width: 100%`), its `width`/`height` attributes come from the CDN URL or the asset filename (adjusted for the crop), and `srcset` candidates stop at the size of the source image. A numeric `width` renders a fixed-size image with `1x`, `2x` and `3x` candidates, like Hydrogen's `<Image>`.
+- `width` and `height` are optional. Without them the image is fluid (`width: 100%`), its `width`/`height` attributes come from the CDN URL or the asset filename (adjusted for the crop), and `srcset` candidates stop at the size of the source image. A numeric `width` renders a fixed-size image with `1x`, `2x` and `3x` candidates.
 - `placeholder="blur"` shows `asset->metadata.lqip` while the image loads, or a `blurDataURL` you pass. Allow `data:` in your [CSP](#modify-storefronts-content-security-policy-csp) `imgSrc` for it to render.
 - `fill` makes the image cover its parent (which needs `position: relative`), and `object-position` defaults to the hotspot. The same default applies to `style={{objectFit: 'cover'}}`. An explicit `style.objectPosition` wins.
 - `queryParams` adds more [image transformations](https://www.sanity.io/docs/image-urls), e.g. `queryParams={{sat: -100}}`. `fit`, `crop` and `fp-x`/`fp-y` are applied before the crop and hotspot are computed. Sizing params (`w`, `h`, `rect`) are ignored.
@@ -921,7 +922,7 @@ export default [
 
 If your Sanity Studio is not embedded in your Hydrogen App, you will need to add a Cross-Origin Resource Sharing (CORS) origin to your project for every URL where your app is hosted or running in development.
 
-Add `http://localhost:3000` to the CORS origins in your Sanity project settings at [sanity.io/manage](https://sanity.io/manage). Learn more about [CORS configuration in Sanity](https://www.sanity.io/docs/front-ends-and-cors).
+Add `http://localhost:5173` (or `https://local.tryhydrogen.dev:5173` with `npm run dev:https`) to the CORS origins in your Sanity project settings at [sanity.io/manage](https://sanity.io/manage). Learn more about [CORS configuration in Sanity](https://www.sanity.io/docs/front-ends-and-cors).
 
 ### Modify storefront's Content Security Policy (CSP)
 
