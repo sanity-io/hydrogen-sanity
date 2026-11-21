@@ -19,6 +19,7 @@ export {
 } from './image'
 export {Sanity, useSanityProviderValue} from './provider'
 export {Query, type QueryProps} from './Query'
+export {isQueryResponseInitial} from './queryResult'
 export {getPerspectiveFromUrl} from './utils'
 export {useQuery} from './visual-editing/useQuery'
 export {createDataAttribute} from '@sanity/core-loader/create-data-attribute'
