@@ -311,11 +311,16 @@ You can find the latest version in the Sanity changelog: https://www.sanity.io/c
     async fetch<Result = Any, Query extends string = string>(
       query: Query,
       params: QueryParams | QueryWithoutParams = {},
-      fetchOptions?: Pick<
-        LoadQueryOptions<Result>,
-        'perspective' | 'hydrogen' | 'useCdn' | 'headers' | 'tag'
+      options?: Pick<
+        FetchOptions<Result>,
+        'perspective' | 'hydrogen' | 'useCdn' | 'headers' | 'tag' | 'cacheMode'
       >,
     ): Promise<ClientReturn<Query, Result>> {
+      // Hydrogen's cache already serves stale content while it revalidates, so a stale API CDN
+      // response would stack a second window of staleness. The client applies `cacheMode` only
+      // to API CDN requests. Pass `cacheMode: undefined` to opt out.
+      const fetchOptions: NonNullable<typeof options> = {cacheMode: 'noStale', ...options}
+
       if (!cachedRun || previewEnabled) {
         return await client.fetch<ClientReturn<Query, Result>>(query, params, fetchOptions)
       }
