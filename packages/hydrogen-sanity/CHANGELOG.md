@@ -5,6 +5,51 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.0.0](https://github.com/sanity-io/hydrogen-sanity/compare/v7.1.0...v8.0.0) (2026-11-23)
+
+### ⚠ BREAKING CHANGES
+
+- `defaultStrategy` no longer accepts `null`. Leave it out to use `Cache.long()`, or
+  pass `Cache.none()` to turn off caching.
+- `loadQuery` no longer calls `setServerClient` from `@sanity/react-loader`. If your
+  app calls that package's `loadQuery` directly, call `setServerClient` yourself.
+- In `fetch` and `query`, `hydrogen.shouldCacheResult` receives the query result
+  instead of `{data}`. Cache keys change, so the first requests after the upgrade miss the cache.
+- `refreshDefault` skips revalidation for mutations while a `Query` component or
+  `useQuery` hook is mounted, and revalidates otherwise.
+- `query`, `loadQuery`, `fetch` and `Query` no longer accept `hydrogen.debug`.
+  Hydrogen 2026.10 has no Subrequest Profiler.
+- `query` and `fetch` ask the API CDN for fresh content. Keep the client's default
+  `useCdn: true`, and pass `cacheMode: undefined` to opt out for one request.
+- Requires `@shopify/hydrogen` ~2026.10.0. Hydrogen 2026.4 and earlier stay on
+  hydrogen-sanity 7.x. The `cache` option of `createSanityContext` takes Hydrogen's `CacheInstance`,
+  so pass the router context's `cache`.
+
+### Features
+
+- add `isQueryResponseInitial` to narrow `query` results in loaders ([35903be](https://github.com/sanity-io/hydrogen-sanity/commit/35903beae0e3c75b1f328b8e6350d1f593530c89))
+- default the `studioUrl` of `VisualEditing` and `LiveMode` to the server's `stega.studioUrl` ([87158f9](https://github.com/sanity-io/hydrogen-sanity/commit/87158f961bd2004e81ac849bd4bdf7b29f38494e))
+- remove the deprecated `hydrogen.debug` option ([e5d5275](https://github.com/sanity-io/hydrogen-sanity/commit/e5d5275cc704de72764a6e2ad2216edbaa53b2f2))
+- require Hydrogen 2026.10 ([d84846c](https://github.com/sanity-io/hydrogen-sanity/commit/d84846c96710a6a25e2c20d2f08d2d914ec4dcb9))
+- send `cacheMode: 'noStale'` from `query` and `fetch` by default ([85f4c70](https://github.com/sanity-io/hydrogen-sanity/commit/85f4c705af790c05a0e17dca98938384d85fe171))
+- stop reading Studio's deprecated `livePreviewEnabled` flag in `refreshDefault` ([c28cfb7](https://github.com/sanity-io/hydrogen-sanity/commit/c28cfb7251b9d24a74b4e3e8bde4a2bad51a54a7))
+
+### Bug Fixes
+
+- accept only a caching strategy for `defaultStrategy` ([d9fe031](https://github.com/sanity-io/hydrogen-sanity/commit/d9fe0319b9abe507e86e4d90a21e4265b32b631b))
+- accept only perspective and release names, and use `drafts` for an invalid session perspective ([055f999](https://github.com/sanity-io/hydrogen-sanity/commit/055f99993a42fbc17a7c949ad8496d228cb9d3b7))
+- apply `shouldCacheResult` in `fetch` and scope cache keys to the method and client config ([dd6fca3](https://github.com/sanity-io/hydrogen-sanity/commit/dd6fca36b24762e15ad6faa731efc216d043d75d))
+- change the perspective only in an active preview session, and explain preview route errors ([f7188c4](https://github.com/sanity-io/hydrogen-sanity/commit/f7188c46374f370d482a223daf7a2a1dedc0a88c))
+- ignore an invalid perspective from Presentation in `Overlays` instead of throwing ([19e678a](https://github.com/sanity-io/hydrogen-sanity/commit/19e678a4cbf1e01876c1b62df674d4405e1b6aa6))
+- keep stega and non-stega query results in separate cache entries ([397bc8c](https://github.com/sanity-io/hydrogen-sanity/commit/397bc8c0d762be2feee30b46d52a527f29175b4f))
+- render `Query` with the query result, not `{data, sourceMap}`, before hydration in preview ([53b963f](https://github.com/sanity-io/hydrogen-sanity/commit/53b963f87618756de9ad3e40bb381f8335840aa4))
+- stop sharing the provider value across server requests and escape `<` in the `Sanity` script ([8ffaadb](https://github.com/sanity-io/hydrogen-sanity/commit/8ffaadbc48cc8603e9eaa9ebd16e03e652fd2b18))
+- support destructuring `query` from `context.sanity` ([e502dfb](https://github.com/sanity-io/hydrogen-sanity/commit/e502dfbc3066618c017aedeabd11286abf73dac3))
+- use the request's client in `loadQuery`, not `@sanity/react-loader`'s shared server client ([6751750](https://github.com/sanity-io/hydrogen-sanity/commit/675175026a920cc382a4057df954372b1fc74658))
+- **visual-editing:** call a custom refresh once per event ([28f52b2](https://github.com/sanity-io/hydrogen-sanity/commit/28f52b234128c645742e3057383cfe4f5faf23d5))
+- warn in development when a function `stega.studioUrl` isn't passed to `VisualEditing` ([b72f734](https://github.com/sanity-io/hydrogen-sanity/commit/b72f734ce0020bd720416a29e6e5d06eb97781e5))
+- warn in development when the stored preview perspective is invalid ([6c8848b](https://github.com/sanity-io/hydrogen-sanity/commit/6c8848b0a5f4042c980c783339763f8b6005089f))
+
 ## [7.1.0](https://github.com/sanity-io/hydrogen-sanity/compare/v7.0.0...v7.1.0) (2026-11-20)
 
 ### Features
