@@ -84,7 +84,8 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
   const submit = useSubmit()
   const revalidator = useRevalidator()
   const {refreshHandler} = useRefresh()
-  const refreshFn = refreshHandler(refresh)
+  // The plain default. `dispatchRefresh` wraps it with `refresh`, so it must not call `refresh`.
+  const refreshDefault = refreshHandler()
   const historyAdapter = useHistory()
   const hasActiveLoaders = useHasActiveLoaders()
   const hasSuspiciousStegaCallback = typeof onSuspiciousStegaProp === 'function'
@@ -124,31 +125,33 @@ function OverlaysClient(props: OverlaysProps): ReactNode {
     })
 
     // Always trigger refresh for perspective changes (server revalidation needed)
-    refreshFn({
+    dispatchRefresh({
       source: 'manual',
       livePreviewEnabled: false, // Force server revalidation for perspective changes
-    } as const)
+    })
   })
 
-  const handleRefresh = useEffectEvent((payload: HistoryRefresh): false | Promise<void> => {
+  function dispatchRefresh(payload: HistoryRefresh): false | Promise<void> {
     // Prioritize userland refresh function if provided
     if (refresh) {
-      return refresh(payload, () => refreshFn(payload), revalidator)
+      return refresh(payload, () => refreshDefault(payload), revalidator)
     }
 
     switch (payload.source) {
       case 'manual':
         // Always handle manual refresh events (like perspective changes)
-        return refreshFn(payload)
+        return refreshDefault(payload)
 
       default:
         // For other refresh events, check if active loaders should handle them
         if (hasActiveLoaders) {
           return false // Let client loaders handle mutations (live mode active)
         }
-        return refreshFn(payload) // Server revalidation for server-only setups
+        return refreshDefault(payload) // Server revalidation for server-only setups
     }
-  })
+  }
+
+  const handleRefresh = useEffectEvent(dispatchRefresh)
 
   const onSuspiciousStega = useEffectEvent((reports: SuspiciousStegaReport[]) => {
     onSuspiciousStegaProp?.(reports)
