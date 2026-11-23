@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+import type {HistoryRefresh} from '@sanity/visual-editing'
 import {render} from '@testing-library/react'
 import {BrowserRouter} from 'react-router'
 import {beforeEach, expect, it, vi} from 'vitest'
@@ -142,4 +143,34 @@ it('ignores an invalid perspective from Studio instead of throwing', async () =>
 
   warn.mockRestore()
   vi.mocked(isMaybePresentation).mockReturnValue(false)
+})
+
+it('calls a custom `refresh` once per event, with the plain default as `refreshDefault`', async () => {
+  const {useRefresh} = await import('./hooks/refresh')
+  const defaultRefresh = vi.fn((): false => false)
+  // Mirror the real hook: a custom refresh passed to `refreshHandler` wraps the default
+  vi.mocked(useRefresh).mockReturnValue({
+    refreshHandler: (customRefresh) => (payload) =>
+      customRefresh
+        ? customRefresh(payload, defaultRefresh, {state: 'idle', revalidate: vi.fn()})
+        : defaultRefresh(),
+  })
+  const refresh = vi.fn((_payload: HistoryRefresh, refreshDefault: () => false | Promise<void>) =>
+    refreshDefault(),
+  )
+
+  render(
+    <BrowserRouter>
+      <OverlaysClient refresh={refresh} />
+    </BrowserRouter>,
+  )
+  const options = mockEnableVisualEditing.mock.calls[0]?.[0]
+  options?.refresh?.({
+    source: 'mutation',
+    livePreviewEnabled: false,
+    document: {_type: 'product', _id: 'test-id', _rev: 'test-rev'},
+  })
+
+  expect(refresh).toHaveBeenCalledTimes(1)
+  expect(defaultRefresh).toHaveBeenCalledTimes(1)
 })
