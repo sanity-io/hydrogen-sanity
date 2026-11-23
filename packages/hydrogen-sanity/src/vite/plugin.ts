@@ -56,7 +56,7 @@ export function sanity(): Plugin {
     },
 
     // Surgically redirect @sanity/react-loader to its server bundle during SSR
-    // The browser bundle doesn't export server-only functions like setServerClient/loadQuery
+    // The browser bundle's server-only exports, like `loadQuery`, throw instead of running
     // Without this, Hydrogen/Oxygen's 'browser' condition causes the wrong bundle to load
     async resolveId(id, importer, options) {
       if (id === '@sanity/react-loader' && options.ssr) {
