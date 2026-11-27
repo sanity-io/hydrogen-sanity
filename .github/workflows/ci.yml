@@ -58,7 +58,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
@@ -110,7 +110,7 @@ jobs:
           git config --global core.eol lf
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
@@ -147,7 +147,7 @@ jobs:
           # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
           persist-credentials: false
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
       - run: pnpm i --filter="@workspace:." --filter="hydrogen-sanity"
